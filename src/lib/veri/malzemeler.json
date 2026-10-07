@@ -1,7 +1,10 @@
 [
   { "id": "krep", "ad": "Krep", "kategori": "krep", "acilis": 1, "maliyet": 1, "deger": 6, "ikon": "🥞", "renkDegiskeni": "--renk-ana" },
-  { "id": "cikolata", "ad": "Çikolata", "kategori": "dolgu", "acilis": 3, "maliyet": 2, "deger": 6, "ikon": "🍫", "renkDegiskeni": "--yazi", "tatli": true },
-  { "id": "cilek-sosu", "ad": "Çilek sosu", "kategori": "sos", "acilis": 5, "maliyet": 2, "deger": 5, "ikon": "🍓", "renkDegiskeni": "--vurgu", "tatli": true },
-  { "id": "cilek-dilimi", "ad": "Çilek dilimi", "kategori": "dolgu", "acilis": 6, "maliyet": 3, "deger": 7, "ikon": "🍒", "renkDegiskeni": "--vurgu", "tatli": true },
-  { "id": "tereyagi", "ad": "Tereyağı", "kategori": "topping", "acilis": 7, "maliyet": 1, "deger": 3, "ikon": "🧈", "renkDegiskeni": "--renk-logo" }
+  { "id": "cikolata", "ad": "Çikolata", "kategori": "dolgu", "acilis": 5, "maliyet": 2, "deger": 6, "ikon": "🍫", "renkDegiskeni": "--yazi", "tatli": true },
+  { "id": "cilek-dilimi", "ad": "Çilek dilimi", "kategori": "dolgu", "acilis": 8, "maliyet": 3, "deger": 7, "ikon": "🍒", "renkDegiskeni": "--vurgu", "tatli": true },
+  { "id": "cilek-sosu", "ad": "Çilek sosu", "kategori": "sos", "acilis": 10, "maliyet": 2, "deger": 5, "ikon": "🍓", "renkDegiskeni": "--vurgu", "tatli": true },
+  { "id": "tereyagi", "ad": "Tereyağı", "kategori": "topping", "acilis": 12, "maliyet": 1, "deger": 3, "ikon": "🧈", "renkDegiskeni": "--renk-logo" },
+  { "id": "muz", "ad": "Muz", "kategori": "dolgu", "acilis": 18, "maliyet": 2, "deger": 6, "ikon": "🍌", "renkDegiskeni": "--renk-logo", "tatli": true },
+  { "id": "bal", "ad": "Bal", "kategori": "sos", "acilis": 25, "maliyet": 2, "deger": 5, "ikon": "🍯", "renkDegiskeni": "--renk-logo", "tatli": true },
+  { "id": "findik", "ad": "Fındık", "kategori": "topping", "acilis": 50, "maliyet": 2, "deger": 4, "ikon": "🌰", "renkDegiskeni": "--yazi" }
 ]

@@ -1,31 +1,30 @@
 import { describe, expect, test } from "bun:test";
 import ayar from "../veri/ayarlar.json";
-import bolumler from "../veri/bolumler.json";
 import malzemeler from "../veri/malzemeler.json";
 import tipler from "../veri/musteriler.json";
-import type { Ayarlar, Bolum, Malzeme, MusteriTipi, TabakParcasi } from "../../types/oyun";
+import type { Ayarlar, Malzeme, MusteriTipi, TabakParcasi } from "../../types/oyun";
 import { degerlendir } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
-import { kuyrukUret } from "./kuyruk";
 import { hamurSonucu, hamurToleransi } from "./hamur";
-import { bolgeBul, cevirKalitesi, cevirPenceresi, krepParcasi, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava, type Tava } from "./pisirme";
+import { baglamOlustur, bolgeBul, cevirKalitesi, cevirPenceresi, krepParcasi, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava, type Tava } from "./pisirme";
 import { rngOlustur } from "./rng";
+import { seviyeAyari } from "./seviye";
 import { siparisUret } from "./siparis";
 
 const A = ayar as Ayarlar;
 const M = malzemeler as Malzeme[];
 const T = tipler as MusteriTipi[];
-const B = bolumler as unknown as Bolum[];
+const SEVIYELER = [1, 2, 3, 5, 8, 10, 15, 20, 30, 50, 75, 100, 250, 500, 1000, 100000];
 const tabak = (...ids: string[]): TabakParcasi[] =>
   ids.map((malzeme) => (malzeme === "krep" ? { malzeme, pisme: "orta" as const } : { malzeme }));
 
 describe("sipariş üretici", () => {
-  test("1.000 tohumda grameri bozmaz ve D aralığında kalır (7 bölüm)", () => {
-    for (const bolum of B) {
+  test("her seviyede 1.000 tohumda grameri bozmaz, açık malzemeleri ve krep aralığını aşmaz", () => {
+    for (const seviye of SEVIYELER) {
+      const sv = seviyeAyari(seviye);
       for (let tohum = 1; tohum <= 1000; tohum++) {
         const rng = rngOlustur(tohum);
-        const tip = T[0];
-        const s = siparisUret(bolum, M, tip, A, rng);
+        const s = siparisUret(sv, M, T[0], A, rng);
         expect(s.parcalar[0]).toBe("krep");
         const kategori = (id: string) => M.find((m) => m.id === id)!.kategori;
         // dolgu en altta/üstte olamaz; topping yalnızca en üstte; en fazla 1 topping
@@ -37,40 +36,39 @@ describe("sipariş üretici", () => {
           if (kategori(id) === "topping") expect(i).toBe(s.parcalar.length - 1);
         });
         const krepSayisi = s.parcalar.filter((id) => id === "krep").length;
-        expect(krepSayisi).toBeGreaterThanOrEqual(bolum.krep[0]);
-        expect(krepSayisi).toBeLessThanOrEqual(bolum.krep[1]);
-        expect(s.parcalar.every((id) => id === "krep" || bolum.menu.includes(id))).toBe(true);
+        expect(krepSayisi).toBeGreaterThanOrEqual(sv.krep[0]);
+        expect(krepSayisi).toBeLessThanOrEqual(sv.krep[1]);
+        expect(s.parcalar.every((id) => id === "krep" || sv.menu.includes(id))).toBe(true);
+        expect(s.parcalar.length).toBeLessThanOrEqual(A.tabakMax);
+        if (s.tercih) expect(sv.tercihAcik).toBe(true);
       }
     }
   });
 
-  test("tüm bölümlerde 500 tohumla kuyruk üretilir; her müşterinin tipi tanımlıdır", () => {
-    for (const bolum of B) {
-      for (let tohum = 1; tohum <= 500; tohum++) {
-        const k = kuyrukUret(bolum, M, T, A, tohum);
-        expect(k.length).toBe(bolum.musteriSayisi);
-        for (const m of k) {
-          expect(T.some((t) => t.id === m.tip)).toBe(true);
-          expect(m.sabirToplam).toBeGreaterThan(0);
-        }
-      }
-    }
-  });
-
-  test("aynı tohum aynı kuyruğu üretir", () => {
-    const a = kuyrukUret(B[6], M, T, A, 42);
-    const b = kuyrukUret(B[6], M, T, A, 42);
-    expect(a).toEqual(b);
+  test("aynı tohum aynı siparişi üretir", () => {
+    const sv = seviyeAyari(100);
+    expect(siparisUret(sv, M, T[0], A, rngOlustur(42))).toEqual(siparisUret(sv, M, T[0], A, rngOlustur(42)));
   });
 
   test("çocuk siparişleri D ≤ 4, en fazla 2 krep ve yalnızca tatlı", () => {
-    const cocuk = T[1];
-    for (let tohum = 1; tohum <= 300; tohum++) {
-      const s = siparisUret(B[6], M, cocuk, A, rngOlustur(tohum));
-      expect(s.d).toBeLessThanOrEqual(4);
-      expect(s.parcalar.filter((id) => id === "krep").length).toBeLessThanOrEqual(2);
-      expect(s.parcalar.every((id) => id !== "tereyagi")).toBe(true);
+    const cocuk = T.find((t) => t.id === "cocuk")!;
+    for (const seviye of [10, 50, 500]) {
+      for (let tohum = 1; tohum <= 300; tohum++) {
+        const s = siparisUret(seviyeAyari(seviye), M, cocuk, A, rngOlustur(tohum));
+        expect(s.d).toBeLessThanOrEqual(4);
+        expect(s.parcalar.filter((id) => id === "krep").length).toBeLessThanOrEqual(2);
+        expect(s.parcalar.every((id) => id === "krep" || M.find((m) => m.id === id)!.tatli)).toBe(true);
+      }
     }
+  });
+
+  test("tercih (ince/kalın) yalnızca 20. seviyeden sonra çıkar", () => {
+    let var20 = false;
+    for (let tohum = 1; tohum <= 300; tohum++) {
+      expect(siparisUret(seviyeAyari(19), M, T[0], A, rngOlustur(tohum)).tercih).toBeUndefined();
+      if (siparisUret(seviyeAyari(20), M, T[0], A, rngOlustur(tohum)).tercih) var20 = true;
+    }
+    expect(var20).toBe(true);
   });
 });
 
@@ -121,6 +119,15 @@ describe("değerlendirme", () => {
     const fazla: TabakParcasi[] = [{ malzeme: "krep", pisme: "fazla" }];
     expect(degerlendir(["krep"], fazla, 1, A).kalite).toBe(75);
   });
+  test("kalınlık tercihi: istenmeyen kalınlıktaki her krep −10", () => {
+    const ince: TabakParcasi[] = [{ malzeme: "krep", pisme: "iyi", kalinlik: "ince" }];
+    const normal: TabakParcasi[] = [{ malzeme: "krep", pisme: "iyi", kalinlik: "normal" }];
+    expect(degerlendir(["krep"], ince, 1, A, "ince").kalite).toBe(100);
+    const d = degerlendir(["krep"], normal, 1, A, "ince");
+    expect(d.hatalar).toEqual([{ tur: "kalinlik", sira: 1, istenen: "ince" }]);
+    expect(d.kalite).toBe(90);
+    expect(degerlendir(["krep"], normal, 1, A).kalite).toBe(100); // tercih yoksa fark etmez
+  });
   test("çocuk hata cezası ×0,5", () => {
     expect(degerlendir(beklenen, tabak("krep", "cikolata", "krep"), 0.5, A).kalite).toBe(88);
   });
@@ -131,7 +138,7 @@ describe("ekonomi", () => {
     const siparis = { parcalar: ["krep", "cikolata", "krep", "cilek-sosu"], d: 5 };
     const fiyat = siparisFiyati(siparis, M);
     expect(fiyat).toBe(23);
-    const g = gelirHesapla({ fiyat, sonuc: "perfect", tip: T[0], sabirOrani: 1, combo: 1, bolumNo: 6, ayar: A });
+    const g = gelirHesapla({ fiyat, sonuc: "perfect", tip: T[0], sabirOrani: 1, combo: 1, seviye: 20, ayar: A });
     expect(g.odeme).toBe(23);
     expect(Math.round(g.bahsis)).toBe(7);
     const net = g.toplam - siparisMaliyeti(siparis.parcalar, M);
@@ -140,20 +147,22 @@ describe("ekonomi", () => {
 });
 
 describe("hamur dökme", () => {
-  test("tolerans bölümle daralır ve tabanda kalır", () => {
-    expect(hamurToleransi(1, A)).toBeGreaterThan(hamurToleransi(5, A));
-    expect(hamurToleransi(5, A)).toBeGreaterThan(hamurToleransi(10, A));
-    expect(hamurToleransi(99, A)).toBe(A.hamur.tolerans.min);
+  test("tolerans seviyeyle daralır ve tabana yaklaşır (taşmaz)", () => {
+    expect(hamurToleransi(1)).toBeGreaterThan(hamurToleransi(10));
+    expect(hamurToleransi(10)).toBeGreaterThan(hamurToleransi(50));
+    expect(hamurToleransi(50)).toBeGreaterThan(hamurToleransi(200));
+    expect(hamurToleransi(1e6)).toBeCloseTo(0.12, 5);
+    expect(hamurToleransi(1e9)).toBeGreaterThan(0);
   });
   test("az → ince, ideal → normal (PERFECT POUR), fazla → kalın", () => {
-    expect(hamurSonucu(0.3, 1, A)).toEqual({ kalinlik: "ince", mukemmel: false });
-    expect(hamurSonucu(1, 1, A)).toEqual({ kalinlik: "normal", mukemmel: true });
-    expect(hamurSonucu(1.7, 1, A)).toEqual({ kalinlik: "kalin", mukemmel: false });
+    expect(hamurSonucu(0.3, 1)).toEqual({ kalinlik: "ince", mukemmel: false });
+    expect(hamurSonucu(1, 1)).toEqual({ kalinlik: "normal", mukemmel: true });
+    expect(hamurSonucu(1.7, 1)).toEqual({ kalinlik: "kalin", mukemmel: false });
   });
-  test("ilk bölümde 0,6–1,4 arası hep ideal; son bölümde 0,6 değil", () => {
-    expect(hamurSonucu(0.6, 1, A).mukemmel).toBe(true);
-    expect(hamurSonucu(1.4, 1, A).mukemmel).toBe(true);
-    expect(hamurSonucu(0.6, 20, A).mukemmel).toBe(false);
+  test("ilk seviyede 0,6–1,4 arası hep ideal; 100. seviyede 0,6 değil", () => {
+    expect(hamurSonucu(0.6, 1).mukemmel).toBe(true);
+    expect(hamurSonucu(1.4, 1).mukemmel).toBe(true);
+    expect(hamurSonucu(0.6, 100).mukemmel).toBe(false);
   });
 });
 
@@ -164,20 +173,22 @@ describe("çevirme penceresi", () => {
     expect(cevirKalitesi(1.55, 1, A)).toBe("gec");
     expect(cevirKalitesi(0.1, 1, A)).toBe("kacti");
   });
-  test("pencere bölümle daralır: aynı p bölüm 1'de mükemmel, 20'de değil", () => {
-    expect(cevirPenceresi(1, A)).toBeGreaterThan(cevirPenceresi(5, A));
+  test("pencere seviyeyle daralır: aynı p seviye 1'de mükemmel, 100'de değil; tabanın altına inmez", () => {
+    expect(cevirPenceresi(1)).toBeGreaterThan(cevirPenceresi(10));
     expect(cevirKalitesi(1.15, 1, A)).toBe("mukemmel");
-    expect(cevirKalitesi(1.15, 20, A)).not.toBe("mukemmel");
+    expect(cevirKalitesi(1.15, 100, A)).not.toBe("mukemmel");
+    expect(cevirPenceresi(1e9)).toBeCloseTo(0.08, 5);
+    expect(cevirPenceresi(1e9)).toBeGreaterThan(0);
   });
   test("kusursuz krep 'iyi', çiğ-çiğ 'cig', iki yüz de fazla 'fazla'", () => {
-    expect(krepParcasi([1, 1], "normal", 10, A).pisme).toBe("iyi");
-    expect(krepParcasi([0.3, 0.3], "normal", 10, A).pisme).toBe("cig");
-    expect(krepParcasi([1.6, 1.6], "normal", 10, A).pisme).toBe("fazla");
+    expect(krepParcasi([1, 1], "normal", 100, A).pisme).toBe("iyi");
+    expect(krepParcasi([0.3, 0.3], "normal", 100, A).pisme).toBe("cig");
+    expect(krepParcasi([1.6, 1.6], "normal", 100, A).pisme).toBe("fazla");
   });
 });
 
 describe("tava durum makinesi", () => {
-  const C = { ayar: A, bolumNo: 1 };
+  const C = baglamOlustur(3, A); // 3. seviyeden itibaren çevirme açık
   const kos = (t: Tava, sn: number) => {
     const olaylar: string[] = [];
     for (let i = 0; i < Math.round(sn / 0.01); i++) olaylar.push(...tavaIlerlet(t, 0.01, C));
@@ -201,6 +212,21 @@ describe("tava durum makinesi", () => {
     expect(parca).toEqual({ malzeme: "krep", pisme: "iyi", kalinlik: "normal" });
     expect(kos(t, 0.6)).toContain("tabaga");
     expect(t.faz).toBe("bos");
+  });
+
+  test("çevirme açılmadan (seviye 1–2) krep ilk yüzü pişince doğrudan tabağa kayar", () => {
+    const C1 = baglamOlustur(1, A);
+    expect(C1.cevirmeAcik).toBe(false);
+    const t = yeniTava();
+    tavaDokBasla(t);
+    for (let i = 0; i < 90; i++) tavaIlerlet(t, 0.01, C1);
+    tavaBirak(t, C1);
+    for (let i = 0; i < 50; i++) tavaIlerlet(t, 0.01, C1);
+    for (let i = 0; i < Math.round(A.pisirme.yuzSuresi / 0.01); i++) tavaIlerlet(t, 0.01, C1);
+    expect(tavaCevir(t, C1)).toBeNull(); // çevirme yok
+    expect(t.faz).toBe("pisir");
+    expect(tavaServis(t, C1)).toEqual({ malzeme: "krep", pisme: "iyi", kalinlik: "normal" });
+    expect(t.faz).toBe("kayma");
   });
 
   test("kazara dokunuş (az hamur) tavayı boş bırakır", () => {

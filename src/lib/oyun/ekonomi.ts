@@ -10,8 +10,8 @@ export const siparisFiyati = (s: Siparis, malzemeler: Malzeme[]) =>
 export const siparisMaliyeti = (parcalar: string[], malzemeler: Malzeme[]) =>
   parcalar.reduce((t, id) => t + bul(malzemeler, id).maliyet, 0);
 
-export const comboCarpani = (combo: number, bolumNo: number, ayar: Ayarlar) =>
-  bolumNo >= ayar.combo.baslangicBolumu
+export const comboCarpani = (combo: number, seviye: number, ayar: Ayarlar) =>
+  seviye >= ayar.combo.baslangicSeviye
     ? Math.min(ayar.combo.max, ayar.combo.adim * (combo - 1))
     : 0;
 
@@ -30,13 +30,13 @@ export function gelirHesapla(p: {
   tip: MusteriTipi;
   sabirOrani: number;
   combo: number; // bu servisten sonraki combo değeri
-  bolumNo: number;
+  seviye: number;
   ayar: Ayarlar;
 }): Gelir {
-  const { fiyat, sonuc, tip, sabirOrani, combo, bolumNo, ayar } = p;
+  const { fiyat, sonuc, tip, sabirOrani, combo, seviye, ayar } = p;
   const odeme = fiyat * ayar.odemeCarpani[sonuc] * tip.odeme;
   const bahsis = fiyat * ruhHali(sabirOrani, ayar).bahsis * tip.bahsis;
-  const comboKazanc = (odeme + bahsis) * comboCarpani(combo, bolumNo, ayar);
+  const comboKazanc = (odeme + bahsis) * comboCarpani(combo, seviye, ayar);
   const bonus = sonuc === "perfect" ? ayar.perfectBonus : 0;
   return { odeme, bahsis, combo: comboKazanc, bonus, toplam: odeme + bahsis + comboKazanc + bonus };
 }
@@ -51,7 +51,7 @@ export function idealNet(
   for (const { siparis, tip } of siparisler) {
     const fiyat = siparisFiyati(siparis, malzemeler);
     const g = gelirHesapla({
-      fiyat, sonuc: "perfect", tip, sabirOrani: 1, combo: 1, bolumNo: 1, ayar,
+      fiyat, sonuc: "perfect", tip, sabirOrani: 1, combo: 1, seviye: 1, ayar,
     });
     toplam += g.toplam - siparisMaliyeti(siparis.parcalar, malzemeler);
   }

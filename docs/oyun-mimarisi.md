@@ -2,6 +2,8 @@
 
 > Bu belge oyunun **kod tarafındaki** modüllerini, veri dosyalarını ve teknik kararlarını tanımlar. Oyun kuralları için [`oyun-tasarimi.md`](oyun-tasarimi.md), klasörlerin genel görevleri için [`klasor-mimarisi.md`](klasor-mimarisi.md), sayfa ağacı için [`mimari-agac.md`](mimari-agac.md) dosyasına bakın. Bu belge onları tekrar etmez.
 
+> **Sonsuz seviye (7 Ekim 2026):** Bölüm sistemi kaldırıldı; ilerleme artık sonsuz LEVEL'dir. Müşteri, sabır, zorluk eğrisi, açılışlar ve geliştirici modu için tek kaynak: [`sonsuz-seviye.md`](sonsuz-seviye.md). Bu belgedeki bölüm tabloları (§4 `Bolum`, `kuyruk.ts`) tarihsel taslaktır; çelişkide `sonsuz-seviye.md` geçerlidir.
+
 > **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/ServisEkrani.svelte`). Müşteri slotları, sabır halkası ve süre baskısı (bu belgenin §7 ve ilgili kısımları) **henüz uygulanmadı**; eski müşterili ekran kaldırıldı. Karar verilirse G4'te geri getirilir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
 
 ---
@@ -52,7 +54,8 @@ src/lib/oyun/                     # saf mantık (+ *.test.ts)
   degerlendirme.ts                # Damerau-Levenshtein, hata listesi, kalite, sonuç
   ekonomi.ts                      # fiyat, ödeme, bahşiş, combo, net, yıldız eşikleri
   musteri.ts                      # sabır, ruh hali, tip davranışları, kaçma kararı
-  kuyruk.ts                       # servis başında müşteri kuyruğunu üretir, M'yi hesaplar
+  seviye.ts                       # SONSUZ SEVİYE: gerekenMusteri, zorluk eğrisi, seviyeAyari, açılışlar, ilerlemeEkle
+  oturum.ts                       # müşteri slotları, sabır, Ver → ilerleme/coin/seviye atlama (kuyruk.ts'in yerini aldı)
   servis.svelte.ts                # canlı servis durumu ($state sınıfı) + eylemler
   motor.ts                        # rAF döngüsü, duraklatma, görünürlük olayı
   jest.ts                         # (eski) dokunma / yukarı kaydırma; tava jestleri artık Tava.svelte içinde

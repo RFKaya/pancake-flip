@@ -43,7 +43,7 @@
         </div>
         <div class="govde">
           <div class="satir">
-            <strong>Bölüm {f.bolum}</strong>
+            <strong>Level {f.bolum}</strong>
             <span class="yildizlar" aria-label={`${y} yıldız`}>
               {#each [1, 2, 3] as n}<span class:sonuk={y < n}>⭐</span>{/each}
             </span>

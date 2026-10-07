@@ -1,0 +1,72 @@
+{
+  "seviyeSiniri": 1000000000,
+  "devHizliSeviyeler": [1, 10, 50, 100, 500, 1000],
+  "devEnYuksek": 9999,
+  "gerekenMusteri": {
+    "noktalar": [
+      [1, 1],
+      [3, 2],
+      [5, 3],
+      [10, 4],
+      [20, 5],
+      [50, 8],
+      [100, 10],
+      [200, 15],
+      [500, 20],
+      [1000, 25]
+    ],
+    "ileriArtis": 2,
+    "tavan": 40
+  },
+  "zorluk": { "olcek": 70 },
+  "ilerleme": {
+    "perfect": 1,
+    "great": 1,
+    "good": 1,
+    "olmadi": 0,
+    "seri": { "esik": 5, "bonus": 1 }
+  },
+  "egriler": {
+    "cevirPencere": [0.4, 0.08],
+    "hamurTolerans": [0.45, 0.12],
+    "pisirmeHizi": [1, 1.8],
+    "sabirCarpani": [3, 0.85],
+    "gelmeAraligi": [10, 4],
+    "ozelMusteriCarpani": [1, 2],
+    "tercihOlasiligi": [0.25, 0.5]
+  },
+  "sabirMin": 8,
+  "musteriArasi": 0.7,
+  "ilkMusteriGecikmesi": 0.4,
+  "ipucuSeviyesi": 5,
+  "yogunSaat": { "aralik": 20, "sure": 20, "gelmeCarpani": 0.5, "kazancCarpani": 1.5 },
+  "kademeler": [
+    { "seviye": 1, "krep": [1, 1], "d": [1, 1], "eszamanli": 1, "tava": 1 },
+    { "seviye": 3, "krep": [1, 2], "d": [1, 2], "eszamanli": 1, "tava": 1 },
+    { "seviye": 5, "krep": [1, 2], "d": [1, 3.5], "eszamanli": 1, "tava": 1 },
+    { "seviye": 8, "krep": [1, 3], "d": [2, 5], "eszamanli": 1, "tava": 1 },
+    { "seviye": 15, "krep": [1, 3], "d": [2, 6], "eszamanli": 2, "tava": 2 },
+    { "seviye": 31, "krep": [2, 4], "d": [3, 8], "eszamanli": 2, "tava": 2 },
+    { "seviye": 50, "krep": [2, 4], "d": [4, 9], "eszamanli": 2, "tava": 2 },
+    { "seviye": 75, "krep": [2, 4], "d": [4, 9], "eszamanli": 3, "tava": 2 },
+    { "seviye": 100, "krep": [2, 5], "d": [5, 12], "eszamanli": 3, "tava": 2 }
+  ],
+  "mekanikler": [
+    { "seviye": 1, "id": "temel", "ad": "Sade krep", "ikon": "🥞" },
+    { "seviye": 3, "id": "cevirme", "ad": "Çevirme", "ikon": "🔄" },
+    { "seviye": 15, "id": "coklu-musteri", "ad": "Birden fazla müşteri + 2. tava", "ikon": "👥" },
+    { "seviye": 20, "id": "tercih", "ad": "Kalınlık tercihleri", "ikon": "📏" },
+    { "seviye": 75, "id": "uc-musteri", "ad": "3 müşteri aynı anda", "ikon": "🧑‍🤝‍🧑" },
+    { "seviye": 100, "id": "ileri-siparis", "ad": "Gelişmiş siparişler", "ikon": "📜" },
+    { "seviye": 150, "id": "yogun-saat", "ad": "Yoğun saat", "ikon": "🔥" }
+  ],
+  "kilometreTaslari": [
+    { "seviye": 10, "baslik": "YENİ MÜŞTERİLER!", "alt": "Çocuk müşteriler geldi" },
+    { "seviye": 25, "baslik": "YENİ SOSLAR!", "alt": "Bal sosu açıldı" },
+    { "seviye": 50, "baslik": "VIP MÜŞTERİLER!", "alt": "VIP müşteriler ve fındık geldi" },
+    { "seviye": 100, "baslik": "MASTER CHEF!", "alt": "Gelişmiş siparişler başladı" },
+    { "seviye": 250, "baslik": "PANCAKE LEGEND!", "alt": "Efsanesin" },
+    { "seviye": 500, "baslik": "PANCAKE GOD!", "alt": "Bu oyunun tanrısısın" },
+    { "seviye": 1000, "baslik": "SONSUZ USTA!", "alt": "Sonu yok, devam et" }
+  ]
+}

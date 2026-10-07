@@ -1,4 +1,6 @@
 [
-  { "id": "normal", "ad": "Müşteri", "ikon": "🧑", "acilis": 1, "sabir": 1.0, "odeme": 1.0, "bahsis": 1.0, "ceza": 1.0, "dKaydirma": 0 },
-  { "id": "cocuk", "ad": "Çocuk", "ikon": "🧒", "acilis": 4, "sabir": 1.4, "odeme": 0.8, "bahsis": 1.2, "ceza": 0.5, "dKaydirma": 0, "dMax": 4, "tatliMi": true }
+  { "id": "normal", "ad": "Müşteri", "ikon": "🧑", "acilis": 1, "agirlik": 1, "sabir": 1.0, "odeme": 1.0, "bahsis": 1.0, "ceza": 1.0, "dKaydirma": 0 },
+  { "id": "cocuk", "ad": "Çocuk", "ikon": "🧒", "acilis": 10, "agirlik": 0.3, "sabir": 1.4, "odeme": 0.8, "bahsis": 1.2, "ceza": 0.5, "dKaydirma": 0, "dMax": 4, "tatliMi": true },
+  { "id": "elestirmen", "ad": "Eleştirmen", "ikon": "🧐", "acilis": 30, "agirlik": 0.2, "sabir": 0.85, "odeme": 1.3, "bahsis": 1.5, "ceza": 1.4, "dKaydirma": 0 },
+  { "id": "vip", "ad": "VIP", "ikon": "🤵", "acilis": 50, "agirlik": 0.15, "sabir": 0.75, "odeme": 2.0, "bahsis": 2.0, "ceza": 1.2, "dKaydirma": 1 }
 ]

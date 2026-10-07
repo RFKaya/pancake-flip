@@ -1,5 +1,5 @@
 // Tabak değerlendirmesi: sıralı düzenleme mesafesi (Damerau–Levenshtein) + pişme cezaları (docs/oyun-tasarimi.md §8)
-import type { Ayarlar, Sonuc, TabakParcasi } from "../../types/oyun";
+import type { Ayarlar, Kalinlik, Sonuc, TabakParcasi } from "../../types/oyun";
 
 export type Hata =
   | { tur: "eksik"; malzeme: string }
@@ -7,7 +7,8 @@ export type Hata =
   | { tur: "yanlis"; malzeme: string; beklenen: string }
   | { tur: "sira" }
   | { tur: "cig"; sira: number }
-  | { tur: "fazlaPismis"; sira: number };
+  | { tur: "fazlaPismis"; sira: number }
+  | { tur: "kalinlik"; sira: number; istenen: Kalinlik };
 
 export interface Degerlendirme {
   kalite: number;
@@ -66,7 +67,8 @@ export function degerlendir(
   beklenen: string[],
   tabak: TabakParcasi[],
   hataCarpani: number,
-  ayar: Ayarlar
+  ayar: Ayarlar,
+  tercih?: Kalinlik
 ): Degerlendirme {
   const tabakIds = tabak.map((p) => p.malzeme);
   const hatalar: Hata[] = [];
@@ -107,6 +109,10 @@ export function degerlendir(
     } else if (parca.pisme === "fazla") {
       hatalar.push({ tur: "fazlaPismis", sira: krepSirasi });
       ceza += ayar.hataCezasi.pisme;
+    }
+    if (tercih && (parca.kalinlik ?? "normal") !== tercih) {
+      hatalar.push({ tur: "kalinlik", sira: krepSirasi, istenen: tercih });
+      ceza += ayar.hataCezasi.tercih;
     }
   }
 

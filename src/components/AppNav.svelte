@@ -7,7 +7,7 @@
   let yol = $state(currentPath);
 
   const menu = [
-    { href: "/", ad: "Bölümler", ikon: "🥞" },
+    { href: "/", ad: "Oyna", ikon: "🥞" },
     { href: "/fislerim", ad: "Fişlerim", ikon: "🧾" },
     { href: "/sepet", ad: "Sepet", ikon: "🛒" },
     { href: "/profil", ad: "Profil", ikon: "👤" },
