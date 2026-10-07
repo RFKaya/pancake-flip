@@ -27,6 +27,11 @@ const dil = dilBul(currentPath);
       document.documentElement.dataset.tema =
         localStorage.getItem("tema") ??
         (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+      // ClientRouter sayfa geçişinde <html> özelliklerini yeni sayfadan alır; yeni sayfada data-tema olmadığı için
+      // tema kaybolur ve menü/oyun arasında renk değişir. Geçişten önce mevcut temayı yeni belgeye taşı.
+      document.addEventListener("astro:before-swap", (e) => {
+        e.newDocument.documentElement.dataset.tema = document.documentElement.dataset.tema;
+      });
     </script>
     <ClientRouter />
   </head>
