@@ -300,6 +300,7 @@ Toplam: yaklaşık 6.900 coin. Tahmini gelir eğrisine göre oyuncu bu yükseltm
 - Servis başında kuyruk bilindiği için o servisin **ideal net kazancı** `M` hesaplanır (hepsi PERFECT, 😊, combo yok varsayımıyla).
 - ⭐ = `M × 0,40`, ⭐⭐ = `M × 0,65`, ⭐⭐⭐ = `M × 0,85`
 - Sonraki bölüm **en az 1 yıldızla** açılır. 0 yıldızda "Tekrar dene" çıkar. Kazanılan coin her durumda **cüzdanda kalır** (bölüm neti negatifse 0 sayılır). Böylece kayıp hissi azalır.
+- **Güncel durum (sonsuz seviye):** servis ve servis yıldızı yoktur; ilerleme seviye çubuğuyla ölçülür ([sonsuz-seviye.md](sonsuz-seviye.md)). Bu bölümün `idealNet` / `yildizHesapla` kodu ve `ayarlar.json → yildiz` eşikleri kaldırıldı. Seviye fişleri sabit 3 yıldızla kesilir.
 
 ### 9.5 Kabaca gelir tahmini (ayar için)
 | Bölüm | Ortalama D | Müşteri | Servis başına net |

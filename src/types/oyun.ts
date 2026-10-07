@@ -140,7 +140,6 @@ export interface Ayarlar {
   kalite: { perfect: number; great: number; good: number };
   odemeCarpani: { perfect: number; great: number; good: number; olmadi: number };
   ruhHali: { esik: number; yuz: string; bahsis: number }[];
-  yildiz: [number, number, number];
 }
 
 /** Servis sonu adisyonu (docs/oyun-tasarimi.md §14) */
