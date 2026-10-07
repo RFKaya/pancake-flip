@@ -8,7 +8,7 @@ const kayit = (v: Record<string, unknown>) => JSON.stringify({ surum: 1, seviye:
 
 describe("ilerleme kaydı (ilerlemeCoz)", () => {
   test("geçerli kayıt aynen geri gelir", () => {
-    const v = { surum: 1, seviye: 20, ilerleme: 3, toplamMusteri: 140, toplamCoin: 5043, enYuksekSeviye: 25 };
+    const v = { surum: 1, seviye: 20, ilerleme: 3, toplamMusteri: 140, toplamCoin: 5043, enYuksekSeviye: 25, enIyiSeri: 17, toplamMukemmel: 88 };
     expect(ilerlemeCoz(JSON.stringify(v))).toEqual(v);
   });
 
@@ -20,7 +20,17 @@ describe("ilerleme kaydı (ilerlemeCoz)", () => {
 
   test("geçersiz sayılar güvenli değerlere döner; en yüksek seviye geçerli seviyenin altına inmez", () => {
     const v = ilerlemeCoz(kayit({ seviye: 12.7, ilerleme: -4, toplamMusteri: "çok", toplamCoin: null, enYuksekSeviye: 3 }));
-    expect(v).toEqual({ surum: 1, seviye: 12, ilerleme: 0, toplamMusteri: 0, toplamCoin: 0, enYuksekSeviye: 12 });
+    expect(v).toEqual({ surum: 1, seviye: 12, ilerleme: 0, toplamMusteri: 0, toplamCoin: 0, enYuksekSeviye: 12, enIyiSeri: 0, toplamMukemmel: 0 });
+  });
+
+  test("istatistik alanları olmayan eski kayıt: rekor ve PERFECT sayısı 0 başlar, diğer alanlar korunur", () => {
+    const eski = { surum: 1, seviye: 30, ilerleme: 2, toplamMusteri: 250, toplamCoin: 4000, enYuksekSeviye: 30 };
+    expect(ilerlemeCoz(JSON.stringify(eski))).toEqual({ ...eski, enIyiSeri: 0, toplamMukemmel: 0 });
+  });
+
+  test("bozuk istatistik değerleri 0 olur; ondalık değer aşağı yuvarlanır", () => {
+    expect(ilerlemeCoz(kayit({ enIyiSeri: "çok", toplamMukemmel: -5 }))).toMatchObject({ enIyiSeri: 0, toplamMukemmel: 0 });
+    expect(ilerlemeCoz(kayit({ enIyiSeri: 7.9, toplamMukemmel: 12.2 }))).toMatchObject({ enIyiSeri: 7, toplamMukemmel: 12 });
   });
 
   test("seviyenin gerektirdiğini aşan ilerleme kırpılır: ekranda '40 / 3' görünmez, tek servis tek seviye atlatır", () => {
