@@ -11,7 +11,7 @@ Dizin yapısı (ana klasörler) için tek kaynak: [`klasor-mimarisi.md`](klasor-
 ```
 Pancake Flip!
 ├── / (Ana ekran)
-│   └── LEVEL, ilerleme çubuğu, sıradaki yenilik, istatistikler, "Oyna" düğmesi → /oyna
+│   └── Lobi: canlı mutfak sahnesi (tava, krep, tabak, pencerede müşteriler), küçük LEVEL rozeti, coin, ? ve ⚙, büyük "OYNA" → /oyna
 │
 ├── /oyna (Sonsuz oyun ekranı; bölüm yok, bkz. sonsuz-seviye.md)
 │   ├── Tava(lar), tabak, malzeme rafı, müşteri fişleri + sabır çubuğu, LEVEL ve ilerleme çubuğu

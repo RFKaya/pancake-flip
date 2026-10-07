@@ -9,7 +9,6 @@
     { href: "/", ad: "Oyna", ikon: "🥞" },
     { href: "/fislerim", ad: "Fişlerim", ikon: "🧾" },
     { href: "/profil", ad: "Profil", ikon: "👤" },
-    { href: "/hakkinda", ad: "Rehber", ikon: "📖" },
   ];
 
   onMount(() => {
