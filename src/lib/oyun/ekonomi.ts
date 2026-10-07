@@ -1,4 +1,4 @@
-// Fiyat, ödeme, bahşiş, combo ve yıldız eşikleri (docs/oyun-tasarimi.md §9)
+// Fiyat, ödeme, bahşiş ve combo (docs/oyun-tasarimi.md §9)
 import type { Ayarlar, Malzeme, MusteriTipi, Siparis, Sonuc } from "../../types/oyun";
 import { ruhHali } from "./musteri";
 
@@ -39,29 +39,4 @@ export function gelirHesapla(p: {
   const comboKazanc = (odeme + bahsis) * comboCarpani(combo, seviye, ayar);
   const bonus = sonuc === "perfect" ? ayar.perfectBonus : 0;
   return { odeme, bahsis, combo: comboKazanc, bonus, toplam: odeme + bahsis + comboKazanc + bonus };
-}
-
-/** Servisin ideal net kazancı M: hepsi PERFECT, müşteriler 😊, combo yok */
-export function idealNet(
-  siparisler: { siparis: Siparis; tip: MusteriTipi }[],
-  malzemeler: Malzeme[],
-  ayar: Ayarlar
-): number {
-  let toplam = 0;
-  for (const { siparis, tip } of siparisler) {
-    const fiyat = siparisFiyati(siparis, malzemeler);
-    const g = gelirHesapla({
-      fiyat, sonuc: "perfect", tip, sabirOrani: 1, combo: 1, seviye: 1, ayar,
-    });
-    toplam += g.toplam - siparisMaliyeti(siparis.parcalar, malzemeler);
-  }
-  return toplam;
-}
-
-export function yildizHesapla(net: number, ideal: number, ayar: Ayarlar): 0 | 1 | 2 | 3 {
-  const [a, b, c] = ayar.yildiz;
-  if (net >= ideal * c) return 3;
-  if (net >= ideal * b) return 2;
-  if (net >= ideal * a) return 1;
-  return 0;
 }
