@@ -106,12 +106,14 @@ export function degerlendir(
     if (parca.pisme === "cig") {
       hatalar.push({ tur: "cig", sira: krepSirasi });
       ceza += ayar.hataCezasi.pisme;
-    } else if (parca.pisme === "fazla") {
+    } else if (parca.pisme === "fazla" || parca.pisme === "yanik") {
       hatalar.push({ tur: "fazlaPismis", sira: krepSirasi });
       ceza += ayar.hataCezasi.pisme;
     }
-    if (tercih && (parca.kalinlik ?? "normal") !== tercih) {
-      hatalar.push({ tur: "kalinlik", sira: krepSirasi, istenen: tercih });
+    // Tercih yoksa sipariş "normal" kalınlık ister: hamur miktarı da tarifin parçasıdır
+    const istenen = tercih ?? "normal";
+    if ((parca.kalinlik ?? "normal") !== istenen) {
+      hatalar.push({ tur: "kalinlik", sira: krepSirasi, istenen });
       ceza += ayar.hataCezasi.tercih;
     }
   }

@@ -5,15 +5,17 @@
   import { AYAR } from "$lib/oyun/veri";
   import { cal } from "$lib/oyun/ses";
   import {
-    baglamOlustur, cevirKalitesi, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
+    baglamOlustur, cevirKalitesi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
     type Tava,
   } from "$lib/oyun/pisirme";
-  import { hamurToleransi } from "$lib/oyun/hamur";
-  import type { TabakParcasi } from "../../types/oyun";
+  import { hamurIcinde } from "$lib/oyun/hamur";
+  import type { Kalinlik, PismeDurumu, TabakParcasi } from "../../types/oyun";
 
-  let { seviye, ipucuAcik = false, olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla }: {
+  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla }: {
     seviye: number;
     ipucuAcik?: boolean;
+    /** Tabağın gittiği siparişin istediği kalınlık: dökme hedef halkası buna göre çizilir */
+    hedefKalinlik?: Kalinlik;
     sag?: boolean;
     olcek?: number;
     kilit?: boolean;
@@ -29,14 +31,18 @@
   const UCUS_Y = 150;
   const KALINLIK = { ince: 3, normal: 7, kalin: 12 };
   const BOYUT = { ince: 0.93, normal: 1, kalin: 1 };
-  const DURAK = [
-    [0, "--krep-cig"], [0.35, "--krep-az"], [0.7, "--krep-orta"], [1, "--krep-iyi"], [1.3, "--krep-fazla"], [1.7, "--krep-yanik"],
-  ] as const;
+  // Oyuncuya yalnızca üç pişme görünümü: ÇİĞ (soluk), PİŞMİŞ (altın), YANIK (siyah)
+  const RENK: Record<PismeDurumu, { merkez: string; kenar: string }> = {
+    cig: { merkez: "var(--krep-cig)", kenar: "color-mix(in srgb, var(--krep-az) 45%, var(--krep-cig))" },
+    pismis: { merkez: "var(--krep-orta)", kenar: "var(--krep-iyi)" },
+    yanik: { merkez: "var(--krep-yanik)", kenar: "color-mix(in srgb, var(--krep-yanik) 80%, black)" },
+  };
   const KABARCIK = [[28, 38], [52, 30], [70, 44], [40, 58], [62, 64], [82, 58], [20, 62]];
 
   // Seviye değişince (seviye atlama ya da geliştirici modu) kurallar anında yenilenir; tavadaki pişen krep etkilenmez
   const baglam = $derived(baglamOlustur(seviye, AYAR));
-  const tolerans = $derived(hamurToleransi(seviye));
+  /** Dökme hedefi: ince/kalın yalnızca tercihler açıkken; yoksa her zaman normal */
+  const hedefMiktar = $derived(AYAR.hamur.hedef[baglam.tercihAcik ? hedefKalinlik : "normal"]);
 
   type Fx = { id: number; tur: "yildiz" | "damla" | "yazi" | "puf" | "kor"; x: number; y: number; dx: number; dy: number; txt?: string; sinif?: string; dogdu: number };
 
@@ -56,25 +62,22 @@
   let cizSes = 0;
   let dingAnahtar = "";
   let parilti = 0;
+  let hedefTutturuldu = false;
 
   // ---- Türetilmiş görünüm ----
   const aktifP = $derived(t.p[t.yuz]);
-  const hazirKalite = $derived(t.faz === "pisir" ? cevirKalitesi(aktifP, seviye, AYAR) : null);
-  const hazir = $derived(hazirKalite === "mukemmel" || hazirKalite === "iyi");
-  const mukemmel = $derived(hazirKalite === "mukemmel");
+  /** Şu an pişen yüzün oyuncuya görünen durumu */
+  const durum = $derived<PismeDurumu | null>(t.faz === "pisir" ? pismeDurumu(aktifP, AYAR) : t.faz === "yanik" ? "yanik" : null);
+  /** Hazır = bu yüz PİŞMİŞ: çevrilebilir (1. yüz) ya da tabağa alınabilir (son yüz) */
+  const hazir = $derived(t.faz === "pisir" && durum === "pismis");
+  /** Pişmiş penceresinin içinde en iyi an (kusursuz çevirme → PERFECT için) */
+  const mukemmel = $derived(hazir && cevirKalitesi(aktifP, seviye, AYAR) === "mukemmel");
+  /** Dökerken hamur hedefin toleransında mı (hedef halka yeşil) */
+  const hedefte = $derived(t.faz === "doku" && hamurIcinde(t.hamur.miktar, hedefMiktar, seviye));
   const hal = $derived(
     t.faz === "yanik" ? "yanik" : t.faz === "ucus" ? "ucus" : t.faz === "doku" ? "doku" : hazir ? "hazir" : "normal",
   );
 
-  function renk(p: number): string {
-    const q = Math.max(0, Math.min(1.7, p));
-    for (let i = 0; i < DURAK.length - 1; i++) {
-      const [a, ra] = DURAK[i];
-      const [b, rb] = DURAK[i + 1];
-      if (q <= b) return `color-mix(in srgb, var(${rb}) ${Math.round(((q - a) / (b - a)) * 100)}%, var(${ra}))`;
-    }
-    return `var(${DURAK[DURAK.length - 1][1]})`;
-  }
 
   /** Krep elipsinin genişliği ve kalınlığı: dökerken miktara, yayılırken son haline göre */
   const sekil = $derived.by(() => {
@@ -137,8 +140,11 @@
   });
 
   const yuzP = $derived(t.faz === "ucus" ? (G.yuz === 0 ? t.p[0] : 0) : t.faz === "kayma" ? t.p[t.yuz] : t.faz === "pisir" || t.faz === "yanik" ? aktifP : 0);
-  const merkez = $derived(renk(t.faz === "yayil" || t.faz === "doku" ? 0 : yuzP));
-  const kenar = $derived(renk(t.faz === "yayil" || t.faz === "doku" ? 0 : yuzP * 1.35 + 0.08));
+  const gorunen = $derived<PismeDurumu>(t.faz === "yayil" || t.faz === "doku" ? "cig" : t.faz === "yanik" ? "yanik" : pismeDurumu(yuzP, AYAR));
+  const merkez = $derived(RENK[gorunen].merkez);
+  const kenar = $derived(RENK[gorunen].kenar);
+  /** Hedef halka: hedef miktardaki krebin boyutu (dökerken yayılmayla birlikte) */
+  const hedefW = $derived(KW * Math.min(1.08, 0.3 + 0.7 * Math.sqrt(hedefMiktar)) * (0.9 + 0.1 * t.hamur.yay));
   const yan = $derived(`color-mix(in srgb, var(--krep-yanik) 30%, ${kenar})`);
   const buhar = $derived(t.faz === "pisir" || t.faz === "yanik" ? Math.max(0, Math.min(1, (aktifP - 0.12) / 0.5)) : 0);
   const duman = $derived(t.faz === "yanik" ? 1 : t.faz === "pisir" ? Math.max(0, Math.min(1, (aktifP - AYAR.pisirme.fazlaP + 0.1) / 0.4)) : 0);
@@ -220,7 +226,7 @@
         break;
       }
       case "yandi":
-        yazi("YANDI!", "kotu");
+        yazi("YANDI! 🔥", "kotu");
         patlat(125, 80, 5, "puf", "💨");
         cal("puf");
         onSalla(0.5);
@@ -256,10 +262,17 @@
         cizSes = 0;
         if (Math.random() < 0.55) cal("cizirti");
       }
-      const anahtar = `${t.yuz}${mukemmel}`;
-      if (mukemmel && dingAnahtar !== anahtar) cal("ding");
+      const anahtar = `${t.yuz}${hazir}`;
+      if (hazir && dingAnahtar !== anahtar) {
+        cal("ding");
+        zipla(0.8);
+      }
       dingAnahtar = anahtar;
     } else dingAnahtar = "";
+    if (t.faz === "doku" && hedefte && !hedefTutturuldu) {
+      hedefTutturuldu = true;
+      ekle({ tur: "yildiz", x: 125 + hedefW / 2 - 6, y: 92, dx: 10, dy: -16, txt: "✓" });
+    }
 
     if (t.faz === "ucus" && t.cevirme === "mukemmel") {
       const u = (t.t - AYAR.pisirme.anticipSn) / AYAR.pisirme.ucusSn;
@@ -303,6 +316,7 @@
     if (tavaDokBasla(t)) {
       parmakX = 0;
       dokSes = 0.2;
+      hedefTutturuldu = false;
     }
   }
 
@@ -342,10 +356,10 @@
     const esik = AYAR.cevirmePx;
     if (Math.abs(yukariPx) >= esik && Math.abs(yukariPx) > yanPx) {
       const ok = yukariPx > 0 ? yukari() : asagiKaydir();
-      if (ok) tuketildi = true;
-      else {
-        tuketildi = true;
+      tuketildi = true;
+      if (!ok) {
         salla(0.5);
+        if (t.faz === "pisir" && durum === "cig") yazi("HENÜZ PİŞMEDİ!", "kotu");
       }
     }
   }
@@ -353,14 +367,24 @@
   function birak() {
     if (!bas) return;
     bas = son = null;
+    const miktar = t.hamur.miktar;
     const s = tavaBirak(t, baglam);
     if (!s) return;
+    if (!s.kalinlik) {
+      // Hedefin toleransı dışında: krep olmaz, tava boşalır, hemen yeniden dökülebilir
+      yazi(miktar < hedefMiktar ? "AZ HAMUR! 😅" : "ÇOK HAMUR! 😅", "kotu");
+      patlat(125, 100, 3, "puf", "💨");
+      cal("plap");
+      return;
+    }
     zipla(1.2);
-    if (s.mukemmel) {
+    if (baglam.tercihAcik && s.kalinlik !== hedefKalinlik) {
+      yazi(s.kalinlik === "ince" ? "İNCE" : s.kalinlik === "kalin" ? "KALIN" : "NORMAL", "kotu");
+    } else if (s.mukemmel) {
       yazi("MÜKEMMEL DÖKÜŞ!", "perfect");
       patlat(125, 100, 6);
       cal("parilti");
-    } else yazi(s.kalinlik === "ince" ? "İNCE" : "KALIN", "kotu");
+    } else yazi("GÜZEL DÖKÜŞ", "iyi");
     cal("plap");
   }
 </script>
@@ -389,9 +413,11 @@
       <div class="akis" style:left={`${125 + parmakX * 0.6 - 6}px`} style:width={`${10 + Math.min(1.2, t.hamur.miktar) * 5}px`}></div>
       <div
         class="hedef-halka"
-        style:width={`${KW}px`}
-        style:height={`${KH}px`}
-        style:box-shadow={`0 0 0 ${Math.round(tolerans * 36)}px rgb(255 255 255 / 0.16)`}
+        class:hedefte
+        style:width={`${hedefW}px`}
+        style:height={`${(hedefW * KH) / KW}px`}
+        style:left={`${125 - hedefW / 2}px`}
+        style:top={`${106 - (hedefW * KH) / KW / 2}px`}
       ></div>
     {/if}
 
@@ -498,7 +524,8 @@
   .kulp { position: absolute; left: -14px; top: 10px; width: 16px; height: 22px; border: 4px solid var(--kenar); border-right: 0; border-radius: 12px 0 0 12px; }
 
   .akis { position: absolute; top: 40px; height: 66px; z-index: 6; border-radius: 6px 6px 10px 10px; background: linear-gradient(90deg, var(--krep-cig), color-mix(in srgb, var(--krep-cig) 70%, white), var(--krep-cig)); animation: akisal 0.18s ease-in-out infinite alternate; pointer-events: none; transform-origin: top; }
-  .hedef-halka { position: absolute; left: 40px; top: 76px; z-index: 2; border-radius: 50%; border: 3px dashed rgb(255 255 255 / 0.85); pointer-events: none; }
+  .hedef-halka { position: absolute; z-index: 9; border-radius: 50%; border: 3px dashed rgb(255 255 255 / 0.9); pointer-events: none; transition: border-color 0.12s, box-shadow 0.12s; }
+  .hedef-halka.hedefte { border-color: var(--basari); border-style: solid; box-shadow: 0 0 0 4px color-mix(in srgb, var(--basari) 35%, transparent); }
 
   .ipucu { position: absolute; left: 50%; bottom: -8px; z-index: 9; transform: translateX(-50%); white-space: nowrap; padding: 4px 12px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 13px; font-weight: 800; box-shadow: 0 2px 0 var(--kenar); pointer-events: none; }
 

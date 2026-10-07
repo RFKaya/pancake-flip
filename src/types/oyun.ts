@@ -4,6 +4,8 @@ export type PismeBolgesi = "cig" | "az" | "orta" | "iyi" | "fazla" | "yanik";
 export type Sonuc = "perfect" | "great" | "good" | "olmadi";
 export type Kalinlik = "ince" | "normal" | "kalin";
 export type CevirKalitesi = "kacti" | "erken" | "iyi" | "mukemmel" | "gec";
+/** Oyuncuya görünen pişme durumu: yalnızca üç hâl (docs/sonsuz-seviye.md §1.1) */
+export type PismeDurumu = "cig" | "pismis" | "yanik";
 
 export interface Malzeme {
   id: string;
@@ -83,6 +85,7 @@ export interface TabakParcasi {
   malzeme: string;
   pisme?: PismeBolgesi; // yalnızca krep için
   kalinlik?: Kalinlik; // yalnızca krep için (hamur miktarı)
+  usta?: boolean; // yalnızca krep için: kusursuz döküm + kusursuz çevirme (PERFECT için)
 }
 
 export interface Musteri {
@@ -100,6 +103,7 @@ export interface Ayarlar {
     ikinciYuzHiz: number;
     hizArtis: number;
     hizMax: number;
+    pismisP: number; // bir yüz bu değerden itibaren "pişmiş" (yanikP'ye kadar)
     fazlaP: number;
     yanikP: number;
     kacirP: number;
@@ -114,6 +118,7 @@ export interface Ayarlar {
     dokmeSn: number;
     max: number;
     min: number;
+    hedef: Record<Kalinlik, number>; // her kalınlık için ideal hamur miktarı (tolerans seviyeden)
     yayPx: number;
     yayilSn: number;
   };
