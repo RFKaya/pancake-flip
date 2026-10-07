@@ -1,7 +1,6 @@
 <script lang="ts">
-  // Adım 3 & 9: Alt menü navigasyonu ve dinamik sepet rozeti
+  // Alt menü navigasyonu (sekmeler: docs/mimari-agac.md)
   import { onMount } from "svelte";
-  import { sepet } from "$lib/sepet.svelte";
 
   let { currentPath = "/" } = $props();
   let yol = $state(currentPath);
@@ -9,7 +8,6 @@
   const menu = [
     { href: "/", ad: "Bölümler", ikon: "🥞" },
     { href: "/fislerim", ad: "Fişlerim", ikon: "🧾" },
-    { href: "/sepet", ad: "Sepet", ikon: "🛒" },
     { href: "/profil", ad: "Profil", ikon: "👤" },
     { href: "/hakkinda", ad: "Rehber", ikon: "📖" },
   ];
@@ -36,9 +34,6 @@
     >
       <span class="ikon">{m.ikon}</span>
       {m.ad}
-      {#if m.href === "/sepet" && sepet.adet > 0}
-        <b class="rozet">{sepet.adet}</b>
-      {/if}
     </a>
   {/each}
 </nav>
@@ -76,19 +71,5 @@
 
   .ikon {
     font-size: 20px;
-  }
-
-  .rozet {
-    position: absolute;
-    top: 4px;
-    left: calc(50% + 6px);
-    min-width: 18px;
-    padding: 0 5px;
-    border-radius: 9px;
-    background: var(--renk-ana);
-    color: var(--renk-ana-yazi);
-    font-size: 11px;
-    line-height: 18px;
-    text-align: center;
   }
 </style>

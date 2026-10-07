@@ -80,7 +80,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | Renkler / tema | `src/styles/app.css` ↔ [`branding.md`](branding.md) (aynı değerler) |
 | Rust komutları | `src-tauri/src/lib.rs` |
 
-- **Hâlâ duran Passo kalıntıları** (kullanma, silinecek): `Biletlerim`, `Sepet`, `src/lib/{data,sepet.svelte,biletler.svelte}.ts`.
+- **Passo kalıntıları:** Biletlerim, Sepet, `data.ts`, `sepet.svelte.ts`, `biletler.svelte.ts` ve Rust `bilet_olustur` silindi. Şablondan kalan son parça README'deki Passo anlatımıdır (Görev 03).
 
 ---
 

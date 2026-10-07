@@ -57,7 +57,7 @@ pancake-flip/
 - **Ne zaman kullanılır?** Üst bar, alt gezinme menüsü, tema kontrolü (`document.documentElement.dataset.tema`) ve yumuşak sayfa geçişleri (`<ClientRouter />`) burada tanımlanır. Sayfalar bu layout'u sarmalar.
 
 ### 5. `src/pages/` (Dosya Tabanlı Rotalar)
-- **Ne konur?** Kullanıcının tarayıcıda veya mobil ekranda gezeceği sayfalar (`index.astro`, `biletlerim.astro`, `etkinlik/[id].astro`, `hakkinda.mdx`).
+- **Ne konur?** Kullanıcının tarayıcıda veya mobil ekranda gezeceği sayfalar (`index.astro`, `fislerim.astro`, `servis/[id].astro`, `hakkinda.mdx`).
 - **Kural:** Dosya adı doğrudan URL yolu olur. İçerik ağırlıklı sayfalar için `.mdx`, dinamik veya bileşen içeren sayfalar için `.astro` kullanılır.
 
 ### 6. `src/components/` (Yeniden Kullanılabilir UI Bileşenleri)
@@ -65,8 +65,8 @@ pancake-flip/
 - **Kural:** Birden fazla sayfada tekrar eden veya bağımsız bir işlevi olan görsel parçalar burada toplanır. Svelte veya React ile yazılabilir.
 
 ### 7. `src/lib/` (Durum ve İş Mantığı)
-- **Ne konur?** Svelte 5 `$state` store'ları (sepet, biletler, tema), mock veriler (`data.ts`) ve Rust invoke çağrıları.
-- **Nasıl import edilir?** `$lib/data` veya `$lib/sepet.svelte` şeklinde doğrudan alias ile çağrılır.
+- **Ne konur?** Svelte 5 `$state` store'ları (kayıt, fişler, tema) ve Rust invoke çağrıları. Oyun mantığı `src/lib/oyun/`, oyun verileri `src/lib/veri/` altındadır.
+- **Nasıl import edilir?** `$lib/kayit.svelte` veya `$lib/oyun/veri` şeklinde doğrudan alias ile çağrılır.
 
 ### 8. `src/types/` (Tip Tanımları)
 - **Ne konur?** Projede kullanılan TypeScript arayüzleri (`interface`) ve tipleri (`type`). Veri modelleri karmaşıklaştıkça tipler bu klasörde toplanır.
