@@ -483,29 +483,32 @@
               class="fis {ruh(m)}"
               class:hedef={i_hedef(m) && oturum.musteriler.length > 1}
               class:ozel={m.tip !== "normal"}
-              style:--kh={m.siparis.parcalar.length > 7 ? "6px" : "9px"}
               aria-label="Sipariş"
               out:fade={{ duration: 120 }}
             >
               <i class="igne"></i>
+              <!-- Fiş, müşterinin hemen üstünde durur; kimlik müşterinin kendisidir (fişteki küçük yüz, yer açmak için kaldırıldı) -->
+              {#if m.tip !== "normal"}<small class="tip-ad">{t.ikon} {t.ad}</small>{/if}
               <div class="baslik">
-                <div class="kimlik"><Karakter kimlik={m.id} yuz={yuzu(m, ay)} boyut="kucuk" rozet={m.tip !== "normal" ? t.ikon : ""} /></div>
-                <div class="metin">
-                  {#if m.tip !== "normal"}<small class="tip-ad">{t.ad}</small>{/if}
-                  <b class="fis-ust">{krepSayisi(m) === 1 && !ek.length ? "1 sade krep" : `${krepSayisi(m)} krep`}</b>
-                  {#if ek.length}<small class="fis-ek">+ {ek.join(", ")}</small>{/if}
-                  {#if m.siparis.tercih}<small class="tercih">📏 {m.siparis.tercih === "ince" ? "ince" : "kalın"}</small>{/if}
-                </div>
+                <b class="fis-ust">{krepSayisi(m) === 1 && !ek.length ? "1 sade krep" : `${krepSayisi(m)} krep`}</b>
+                <!-- Kalınlık: tercihler açıldıktan sonra her siparişte (tercihsiz sipariş normal ister) -->
+                {#if m.siparis.tercih || sv.tercihAcik}
+                  {@const k = m.siparis.tercih ?? "normal"}
+                  <span class="kalinlik {k}">📏 {k === "ince" ? "İNCE" : k === "kalin" ? "KALIN" : "NORMAL"}</span>
+                {/if}
               </div>
-              <div class="sabir"><i style:transform={`scaleX(${oran})`}></i></div>
-              <div class="mini">
+              <!-- Uzun siparişte (6+ parça) adlar yazılmaz: kart sahnenin üstünden taşmasın, malzemelerin hepsi şeritte ikon olarak var -->
+              {#if ek.length && m.siparis.parcalar.length < 6}<small class="fis-ek">+ {ek.join(", ")}</small>{/if}
+              <!-- Tarif şeridi: tabağa konma sırası soldan sağa (alttan üste). Krep yan profilden, kalınlığa göre -->
+              <div class="mini" aria-label="Tarif sırası">
                 {#each m.siparis.parcalar as id, j}
-                  <div class="satir" class:bitti={j < dogru} class:siradaki={i_hedef(m) && j === dogru && siradaki === id}>
-                    {#if id === "krep"}<span class="m-krep {m.siparis.tercih ?? ''}"></span>{:else}<span class="m-ek">{malzeme(id).ikon}</span>{/if}
+                  <span class="satir" class:bitti={j < dogru} class:siradaki={i_hedef(m) && j === dogru && siradaki === id}>
+                    {#if id === "krep"}<span class="m-krep {m.siparis.tercih ?? 'normal'}"></span>{:else}<span class="m-ek">{malzeme(id).ikon}</span>{/if}
                     {#if j < dogru}<em>✓</em>{/if}
-                  </div>
+                  </span>
                 {/each}
               </div>
+              <div class="sabir"><i style:transform={`scaleX(${oran})`}></i></div>
             </aside>
           {/if}
           <div class="kisi" data-m={m.id} class:bulut={!ay && ruh(m) === "kotu"}>
@@ -726,7 +729,7 @@
   .kisi { position: relative; height: 62px; margin-bottom: -2px; transition: transform 0.25s; }
   .kisi :global(.kr) { margin: 0 auto; }
   .dusunce { position: absolute; right: -6px; top: -2px; font-size: 16px; animation: balon 1.1s ease-in-out infinite; }
-  .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 92px; max-width: 124px; padding: 12px 8px 8px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
+  .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 96px; max-width: 120px; padding: 11px 6px 6px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
   .fis::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; margin-left: -6px; background: var(--kart); border-right: 1px solid var(--kenar); border-bottom: 1px solid var(--kenar); transform: rotate(45deg); z-index: -1; }
   .kolon:nth-child(odd) .fis { transform: rotate(-2deg); }
   .kolon:nth-child(even) .fis { transform: rotate(1.5deg); }
@@ -734,27 +737,33 @@
   .fis.hedef::after { border-color: var(--renk-ana); }
   .fis.ozel { border-color: var(--renk-logo); }
   .igne { position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--vurgu); box-shadow: 0 2px 0 rgb(0 0 0 / 0.2); }
-  .baslik { display: flex; align-items: center; gap: 5px; width: 100%; text-align: left; }
-  .metin { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
-  .kimlik { display: flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 30px; }
-  .sabir { width: 100%; height: 5px; overflow: hidden; border-radius: 3px; background: var(--kenar); }
+  .baslik { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 3px 5px; width: 100%; line-height: 1.15; }
+  .sabir { width: 100%; height: 6px; overflow: hidden; border-radius: 3px; background: var(--kenar); }
   .sabir i { display: block; width: 100%; height: 100%; border-radius: 3px; background: var(--basari); transform-origin: left center; }
   .fis.orta .sabir i { background: var(--renk-logo); }
   .fis.kotu .sabir i { background: var(--vurgu); }
   .fis.kotu { animation: tedirgin 0.5s ease-in-out infinite; }
-  .tip-ad { color: var(--renk-ana); font-size: 10px; font-weight: 800; }
-  .fis-ust { font-size: 13px; white-space: nowrap; }
-  .fis-ek { font-size: 10px; color: var(--yazi-soluk); line-height: 1.15; }
-  .tercih { font-size: 10px; font-weight: 800; color: var(--vurgu); }
-  .mini { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; margin-top: 4px; }
-  .satir { position: relative; display: grid; place-items: center; min-width: 60px; transition: opacity 0.2s, transform 0.2s; }
+  .tip-ad { margin-bottom: -2px; color: var(--renk-ana); font-size: 11px; font-weight: 800; }
+  .fis-ust { font-size: 15px; font-weight: 900; white-space: nowrap; }
+  /* Malzemeler: okunur boyut, en fazla iki satır (uzun kombinasyon kesilir, mini çizimde hepsi görünür) */
+  /* Malzeme adları tek satır (tamamı hemen altındaki tarif şeridinde ikon olarak var) */
+  .fis-ek { width: 100%; overflow: hidden; font-size: 12px; font-weight: 700; color: var(--yazi-soluk); line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  /* Kalınlık rozeti: ince / kalın dolu ve belirgin, normal sakin çerçeve; tek bakışta ayrılır */
+  .kalinlik { padding: 1px 6px; border-radius: 999px; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; line-height: 1.35; white-space: nowrap; }
+  .kalinlik.ince { background: var(--renk-koyu); color: var(--ust-yazi); box-shadow: 0 2px 0 color-mix(in srgb, var(--renk-koyu) 55%, var(--renk-ana)); }
+  .kalinlik.kalin { background: var(--renk-ana); color: var(--renk-ana-yazi); box-shadow: 0 2px 0 var(--renk-ana-koyu); }
+  .kalinlik.normal { border: 1.5px dashed var(--kenar); color: var(--yazi-soluk); }
+  :root[data-tema="gece"] .kalinlik.ince { background: var(--ust-yazi); color: var(--renk-koyu); }
+  .mini { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 3px 1px; width: 100%; padding: 3px 2px; border-radius: 8px; background: color-mix(in srgb, var(--kenar) 35%, transparent); }
+  .satir { position: relative; display: grid; place-items: end center; height: 16px; transition: opacity 0.2s, transform 0.2s; }
   .satir.bitti { opacity: 0.45; }
   .satir.siradaki { animation: parla-s 0.8s ease-in-out infinite; }
-  .satir em { position: absolute; right: -2px; top: -3px; font-style: normal; font-size: 11px; font-weight: 900; color: var(--basari); }
-  .m-krep { display: block; width: 56px; height: var(--kh, 9px); border-radius: 5px; background: var(--krep-orta); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.2); }
-  .m-krep.ince { height: calc(var(--kh, 9px) * 0.6); }
-  .m-krep.kalin { height: calc(var(--kh, 9px) * 1.4); }
-  .m-ek { font-size: calc(var(--kh, 9px) + 2px); line-height: calc(var(--kh, 9px) + 2px); }
+  .satir em { position: absolute; right: -3px; top: -6px; font-style: normal; font-size: 11px; font-weight: 900; color: var(--basari); }
+  /* Mini krep yan profili: ince 4 px düz ve açık, normal 9 px, kalın 15 px kabarık; kalınlık rozetiyle aynı bilgi */
+  .m-krep { display: block; width: 17px; height: 8px; border-radius: 4px; background: var(--krep-orta); box-shadow: inset 0 -3px 0 var(--krep-iyi); }
+  .m-krep.ince { width: 19px; height: 3px; border-radius: 2px; background: var(--krep-az); box-shadow: inset 0 -1px 0 var(--krep-orta); }
+  .m-krep.kalin { width: 15px; height: 14px; border-radius: 6px; box-shadow: inset 0 -5px 0 var(--krep-iyi), inset 0 2px 0 color-mix(in srgb, var(--krep-az) 60%, transparent); }
+  .m-ek { font-size: 14px; line-height: 16px; }
 
   /* Tezgâhın ön kenarı: müşterilerin belden aşağısını örter */
   .tezgah-kenar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; height: 14px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
