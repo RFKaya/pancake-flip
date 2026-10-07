@@ -36,6 +36,18 @@ Krebin pişme rengi ve tava halkasının gri bölgesi. Halkanın diğer bölgele
 | `--krep-yanik` | `#1F1511` | Yanık krep |
 | `--halka-gri` | `#B8A99A` | Tava halkasında çiğ bölge |
 
+### Hızlı mod sahne renkleri (gündüz ve gece aynı)
+
+Hızlı mod sahnesi (pastel mutfak) her iki temada da açık renklidir; sahne üstündeki yazılar `--kart` zeminli kutuların içinde durur.
+
+| Token | Hex | Kullanım yeri |
+|---|---|---|
+| `--sahne-duvar` / `--sahne-duvar-koyu` | `#FCE8D8` / `#F6D2BA` | Mutfak duvarı (düz ve gölge) |
+| `--sahne-tezgah` / `--sahne-tezgah-koyu` | `#F3C6A5` / `#D9A07C` | Tezgâh |
+| `--sahne-tabak` / `--sahne-tabak-koyu` | `#5FD3C4` / `#35A596` | Büyük tabak |
+| `--sahne-tava` / `--sahne-tava-koyu` | `#7A7F92` / `#4E5262` | Yüzlü tava |
+| `--sahne-yuz` | `#FFFFFF` | Tavanın gözleri ve ağzı |
+
 ## 2. Tipografi ve Yuvarlaklık
 
 - **Yazı Tipi (Font):** System UI (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`)
