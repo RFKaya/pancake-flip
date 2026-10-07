@@ -186,11 +186,31 @@
     kontrolEt(true);
   }
 
-  /** Krep tabağın neresine düşecek: kulenin üst yüzü */
+  /**
+   * Tabaktaki parçaların dikey yerleşimi (px, tabağa göre). Krep, tava ile aynı eğimde bir elips olarak çizilir;
+   * her yeni katman bir önceki yüzeyin hemen üstünde durur, böylece en üstteki krebin yüzeyi her zaman tam görünür.
+   */
+  const katmanlar = $derived.by(() => {
+    const K = sahneAyar.katman;
+    let z = 0;
+    return tabak.map((p) => {
+      if (p.malzeme === "krep") {
+        z += K[p.kalinlik ?? "normal"];
+        return { p, y: z, d: K[p.kalinlik ?? "normal"] };
+      }
+      const y = z + K.yukseklik * 0.32; // topping krebin üst yüzeyine konur
+      z += K.ek;
+      return { p, y, d: 0 };
+    });
+  });
+  const tabakYuksek = $derived(katmanlar.reduce((z, k) => z + (k.p.malzeme === "krep" ? k.d : sahneAyar.katman.ek), 0));
+
+  /** Krep tabağın neresine düşecek: yığının üstündeki yeni katmanın yüzey merkezi (tavadaki krebin merkeziyle aynı nokta) */
   function tabakHedef() {
     if (!kuleEl) return null;
     const r = kuleEl.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top - 8 };
+    const K = sahneAyar.katman;
+    return { x: r.left + r.width / 2, y: r.top - tabakYuksek - K.normal - K.yukseklik / 2 };
   }
 
   function koy(id: string) {
@@ -452,10 +472,15 @@
     {/key}
 
     <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} bind:this={tabakEl}>
-      <div class="kule" bind:this={kuleEl}>
-        {#each tabak as p, i (i)}
-          {#if p.malzeme === "krep"}<div class="t-krep {p.pisme} {p.kalinlik ?? 'normal'}"></div>
-          {:else}<div class="t-ek">{malzeme(p.malzeme).ikon}</div>{/if}
+      <!-- Katman sırası: tabak (zemin) → krepler / toppingler (üstte, yüzeyleri açık) -->
+      <div class="plaka"></div>
+      <div class="kule" bind:this={kuleEl} style:--kw={`${sahneAyar.katman.genislik}px`} style:--kh={`${sahneAyar.katman.yukseklik}px`}>
+        {#each katmanlar as k, i (i)}
+          {#if k.p.malzeme === "krep"}
+            <div class="t-krep {k.p.pisme} {k.p.kalinlik ?? 'normal'}" class:yeni={i === katmanlar.length - 1} style:bottom={`${k.y}px`} style:z-index={i + 1} style:--d={`${k.d}px`}><span class="parlak"></span></div>
+          {:else}
+            <div class="t-ek" class:yeni={i === katmanlar.length - 1} style:bottom={`${k.y}px`} style:z-index={i + 1}>{malzeme(k.p.malzeme).ikon}</div>
+          {/if}
         {/each}
       </div>
       {#each dusenler as d (d.id)}
@@ -464,7 +489,6 @@
       {#each coinler as c (c.id)}
         <span class="coin" style:--dx={`${c.dx}px`} onanimationend={() => (coinler = coinler.filter((x) => x.id !== c.id))}>🪙</span>
       {/each}
-      <div class="plaka"></div>
     </div>
 
     <span class="tabak-yigini" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -704,17 +728,18 @@
   .tabak { position: relative; z-index: 4; width: 290px; height: 150px; flex: none; animation: tabak-bob 2.8s ease-in-out infinite; }
   .tabak.hazir .plaka { animation: plaka-parla 0.8s ease-in-out infinite; }
   .tabak.hazir::before { content: "▼"; position: absolute; left: 50%; top: -6px; z-index: 6; margin-left: -10px; color: var(--basari); font-size: 20px; text-shadow: 0 2px 0 var(--kart); animation: zipla-o 0.6s ease-in-out infinite; }
-  .kule { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; }
-  .t-krep { width: 170px; height: 20px; border-radius: 10px; box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.2); background-image: linear-gradient(180deg, rgb(255 255 255 / 0.25) 0 38%, transparent 38%); }
-  .t-krep.ince { height: 12px; } .t-krep.kalin { height: 28px; border-radius: 14px; }
-  .t-krep.cig { background-color: var(--krep-cig); }
-  .t-krep.az { background-color: var(--krep-az); }
-  .t-krep.orta { background-color: var(--krep-orta); }
-  .t-krep.iyi { background-color: var(--krep-iyi); }
-  .t-krep.fazla { background-color: var(--krep-fazla); }
-  .t-krep.yanik { background-color: var(--krep-yanik); }
-  .t-ek { font-size: 16px; line-height: 16px; height: 16px; }
-  .plaka { position: absolute; left: 10px; bottom: 0; width: 270px; height: 38px; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%); box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu); }
+  /* Tabak tava ile aynı eğimde (genişlik/yükseklik ≈ 2,8) bir elips; krep onun üstünde, iç çapına yakın boyutta durur */
+  .kule { position: absolute; left: 0; right: 0; bottom: 20px; height: 0; }
+  .t-krep { --m: var(--krep-orta); --k: var(--krep-iyi); position: absolute; left: 50%; width: var(--kw); height: var(--kh); margin-left: calc(var(--kw) / -2); border-radius: 50%; background: radial-gradient(ellipse at 50% 42%, var(--m) 0 50%, var(--k) 100%); box-shadow: 0 var(--d) 0 color-mix(in srgb, var(--krep-yanik) 30%, var(--k)); }
+  .t-krep.yeni, .t-ek.yeni { animation: plop 0.34s cubic-bezier(0.3, 0, 0.4, 1); }
+  .t-krep .parlak { position: absolute; left: 14%; right: 14%; top: 8%; height: 30%; border-radius: 50%; background: linear-gradient(180deg, rgb(255 255 255 / 0.4), transparent); }
+  .t-krep.cig { --m: var(--krep-cig); --k: color-mix(in srgb, var(--krep-az) 45%, var(--krep-cig)); }
+  .t-krep.az { --m: var(--krep-az); --k: var(--krep-orta); }
+  .t-krep.orta, .t-krep.iyi { --m: var(--krep-orta); --k: var(--krep-iyi); }
+  .t-krep.fazla { --m: var(--krep-fazla); --k: var(--krep-yanik); }
+  .t-krep.yanik { --m: var(--krep-yanik); --k: color-mix(in srgb, var(--krep-yanik) 80%, black); }
+  .t-ek { position: absolute; left: 50%; width: 24px; margin-left: -12px; font-size: 20px; line-height: 1; text-align: center; }
+  .plaka { position: absolute; left: 20px; bottom: 9px; width: 250px; height: 88px; border-radius: 50%; background: radial-gradient(ellipse at 50% 38%, var(--sahne-tabak) 62%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 63%); box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu); }
   .dusen { position: absolute; left: 50%; bottom: 60px; z-index: 3; margin-left: -12px; font-size: 24px; pointer-events: none; animation: dus 0.4s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
   .coin { position: absolute; left: 50%; bottom: 80px; z-index: 20; margin-left: -10px; font-size: 20px; pointer-events: none; animation: coin 0.9s ease-out forwards; }
 
@@ -764,6 +789,7 @@
   @keyframes kap-sal { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-4px) rotate(-3deg); } 60% { transform: translateY(0) rotate(2deg); } }
   @keyframes tabak-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
   @keyframes plaka-parla { 50% { box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
+  @keyframes plop { 0% { transform: translateY(-20px) scale(1.04, 1.1); opacity: 0.6; } 55% { transform: translateY(1px) scale(1.08, 0.86); opacity: 1; } 80% { transform: scale(0.98, 1.05); } 100% { transform: none; } }
   @keyframes zipla-o { 50% { transform: translateY(6px); } }
   @keyframes tedirgin { 25% { translate: -1px 0; } 75% { translate: 1px 0; } }
   @keyframes kavanoz { 0%, 90%, 100% { transform: none; } 94% { transform: translateY(-3px) rotate(-4deg); } 97% { transform: rotate(3deg); } }
