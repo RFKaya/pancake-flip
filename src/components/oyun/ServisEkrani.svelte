@@ -3,6 +3,7 @@
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al. Kurallar saf mantıktan gelir.
   import { degerlendir } from "$lib/oyun/degerlendirme";
   import { kayit } from "$lib/kayit.svelte";
+  import { fisKaydet } from "$lib/fisler.svelte";
   import { AYAR, BOLUMLER, MALZEMELER, malzeme, TIPLER } from "$lib/oyun/veri";
   import { gelirHesapla, siparisFiyati } from "$lib/oyun/ekonomi";
   import { rngOlustur } from "$lib/oyun/rng";
@@ -139,6 +140,7 @@
     if (tamam >= TOPLAM) {
       bitti = true;
       kayit.servisKaydet(bolum.id, yildiz, net);
+      fisKaydet(bolum.id, yildiz, net).catch(() => {}); // adisyon Fişlerim'de görünür
     } else siparis = yeniSiparis();
     setTimeout(() => (sonuc = null), 1500);
   }
