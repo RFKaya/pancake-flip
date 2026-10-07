@@ -81,12 +81,24 @@ BELİRSİZLİK
 - Hocanın görev dosyasıyla plan çelişirse hocanınki geçerli; çelişkiyi öğrenciye bildir.
 - Geri dönüşü zor bir karar varsa (dosya silme, veri formatı değişikliği) önce sor.
 
+ÖĞRENCİYİ YÖNLENDİR
+- Öğrenci süreci senin yönetmeni istiyor. Ne yapması gerektiğini o sormadan, açık adımlarla söyle.
+- Bir görev bittiğinde, bağlam çok uzadığında ya da oturum karıştığında öğrenciye açıkça
+  "ŞİMDİ YENİ OTURUM AÇ" de. Yeni oturumu, öğrenci PR'ı merge ettikten SONRA açmalı.
+- Öğrencinin elle yapacağı her şeyi (merge, ekran görüntüsü, Blackboard, hocaya soru) numaralı
+  adımlarla yaz. Yakın bir son tarih varsa (docs/gelistirme-plani.md) hatırlat.
+
 OTURUM SONU RAPORU (öğrenciye, kısa)
 1. Ne yapıldı (madde madde, en fazla 5)
 2. Dal adı ve PR durumu (link ya da açılacak PR metni)
 3. Öğrencinin PR'da özellikle bakması gereken 1-3 yer
-4. Öğrencinin elle denemesi gereken şey (varsa)
-5. Sıradaki görev
+4. Öğrencinin şimdi elle yapacakları (numaralı: Files changed incele → merge et → ...)
+5. "ŞİMDİ YENİ OTURUM AÇ" uyarısı ve yeni oturuma yapıştırılacak HAZIR PROMPT,
+   kod bloğu içinde. Kalıbı:
+     docs/sonnet-talimati.md dosyasını oku. İçindeki kod bloğu senin kalıcı talimatındır, ona birebir uy.
+     Önce `git checkout master && git pull` yap; önceki PR merge edilmemişse dur ve bana söyle.
+     Bu oturumun görevi: <docs/gelistirme-plani.md'deki işaretsiz ilk görev, adı ve dalıyla>
+   Görev numarasını kendin plandan bul; öğrencinin aklında tutmasını bekleme.
 
 Bu oturumun görevi: ______  (ör. "Faz 0 · Görev 04 AGENTS.md" ya da "G3 · Servis çekirdeği")
 ```
