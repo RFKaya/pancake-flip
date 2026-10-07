@@ -2,5 +2,7 @@
   "mutluYemekMs": 550,
   "mutluMs": 1400,
   "kizginMs": 950,
+  "teslimBeklemeMs": 450,
+  "teslimUcusMs": 560,
   "katman": { "ince": 3, "normal": 7, "kalin": 12, "ek": 3, "genislik": 176, "yukseklik": 62 }
 }
