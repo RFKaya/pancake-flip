@@ -47,6 +47,14 @@
       <button class="btn" disabled={!gecerli}>Giriş yap</button>
     </form>
   {/if}
+
+  <h2 class="bilgi-baslik">Bilgi</h2>
+  <nav class="kart bilgi-linkler">
+    <a href="/hakkinda">📖 Hakkında</a>
+    <a href="/iletisim">✉️ İletişim</a>
+    <a href="/kosullar">📜 Kullanım Koşulları</a>
+    <a href="/gizlilik">🔒 Gizlilik Politikası</a>
+  </nav>
 </div>
 
 <style>

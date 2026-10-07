@@ -119,7 +119,7 @@ Her kare: motor → servis.ilerle(dt) → pisirme.ilerle / musteri.sabirAzalt / 
 
 ## 6. Dokunma ve mobil ayrıntılar
 
-- `pointerdown/pointermove/pointerup` kullanılır (fare ve dokunmayı birlikte kapsar). Yukarı kaydırma: ≥ 40 px dikey hareket ve < 300 ms.
+- `pointerdown/pointermove/pointerup` kullanılır (fare ve dokunmayı birlikte kapsar). Yukarı kaydırma: ≥ 40 px dikey hareket ve < 600 ms (`ayarlar.json` → `cevirmeMs`).
 - Oyun alanında `touch-action: none`, `user-select: none`, `-webkit-tap-highlight-color: transparent`.
 - Servis sayfası `client:only="svelte"` ile yüklenir (rAF ve `window` kullanır; SSR'de çalışmaz).
 - `document.visibilitychange` → otomatik duraklatma.

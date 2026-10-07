@@ -1,0 +1,7 @@
+[
+  { "id": "krep", "ad": "Krep", "kategori": "krep", "acilis": 1, "maliyet": 1, "deger": 6, "ikon": "🥞", "renkDegiskeni": "--renk-ana" },
+  { "id": "cikolata", "ad": "Çikolata", "kategori": "dolgu", "acilis": 3, "maliyet": 2, "deger": 6, "ikon": "🍫", "renkDegiskeni": "--yazi", "tatli": true },
+  { "id": "cilek-sosu", "ad": "Çilek sosu", "kategori": "sos", "acilis": 5, "maliyet": 2, "deger": 5, "ikon": "🍓", "renkDegiskeni": "--vurgu", "tatli": true },
+  { "id": "cilek-dilimi", "ad": "Çilek dilimi", "kategori": "dolgu", "acilis": 6, "maliyet": 3, "deger": 7, "ikon": "🍒", "renkDegiskeni": "--vurgu", "tatli": true },
+  { "id": "tereyagi", "ad": "Tereyağı", "kategori": "topping", "acilis": 7, "maliyet": 1, "deger": 3, "ikon": "🧈", "renkDegiskeni": "--renk-logo" }
+]
