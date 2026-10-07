@@ -8,7 +8,7 @@
 
   const menu = [
     { href: "/", ad: "Bölümler", ikon: "🥞" },
-    { href: "/biletlerim", ad: "Biletlerim", ikon: "🎟️" },
+    { href: "/fislerim", ad: "Fişlerim", ikon: "🧾" },
     { href: "/sepet", ad: "Sepet", ikon: "🛒" },
     { href: "/profil", ad: "Profil", ikon: "👤" },
     { href: "/hakkinda", ad: "Rehber", ikon: "📖" },
