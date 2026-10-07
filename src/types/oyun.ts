@@ -148,6 +148,7 @@ export interface Fis {
   kod: string;
   bolum: number;
   yildiz: number;
-  net: number;
+  net: number; // bir önceki fişten bu yana kazanılan coin
+  kasa?: number; // fiş kesildiği andaki toplam coin (sonraki fişin kazancı buradan hesaplanır; eski fişlerde yok)
   tarih: string;
 }
