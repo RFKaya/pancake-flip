@@ -74,7 +74,7 @@ Seviye dosyası yoktur. `seviyeAyari(seviye)` (saf fonksiyon) → zorluk → aç
 
 ## 6. Kayıt
 
-[`src/lib/ilerleme.svelte.ts`](../src/lib/ilerleme.svelte.ts), anahtar `pancakeflip-ilerleme` (sürümlü, bozuk veriyle çökmez): `seviye`, `ilerleme`, `toplamMusteri`, `toplamCoin`, `enYuksekSeviye`. Açılan malzemeler ve mekanikler seviyeden **hesaplanır**, kayda yazılmaz (bayatlayamaz). Kayıt her servisten sonra yazılır. Eski bölüm kaydı (`kayit.svelte.ts`) artık kullanılmaz; Fişlerim (G5) yeni modele uyarlanana kadar yerinde bırakıldı.
+[`src/lib/ilerleme.svelte.ts`](../src/lib/ilerleme.svelte.ts), anahtar `pancakeflip-ilerleme` (sürümlü, bozuk veriyle çökmez): `seviye`, `ilerleme`, `toplamMusteri`, `toplamCoin`, `enYuksekSeviye`. Açılan malzemeler ve mekanikler seviyeden **hesaplanır**, kayda yazılmaz (bayatlayamaz). Kayıt her servisten sonra yazılır. Fişlerim: her kilometre taşında ve her 10. seviyede bir adisyon (`fis_olustur`, kodun "bölüm" alanı seviyedir, yıldız = 3, net = toplam coin) eklenir; test seviyesinde eklenmez. Eski bölüm kaydı (`kayit.svelte.ts`) artık kullanılmaz; Fişlerim (G5) yeni modele uyarlanana kadar yerinde bırakıldı.
 
 ## 7. Geliştirici modu
 

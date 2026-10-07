@@ -107,7 +107,6 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 | Kişi | Görev | Dal / PR | Dokunduğu yerler |
 |---|---|---|---|
-| bulutgurgeli | G5 Rust adisyon kodu (arayüzsüz) | `feature/rust-adisyon` (PR #13) | `src-tauri/src/lib.rs`, `src/lib/fisler.svelte.ts`, `kayit.svelte.ts`, `types/oyun.ts` |
 
 > Tablo güncel tutulur; eskimiş satır en kötü bilgidir.
 

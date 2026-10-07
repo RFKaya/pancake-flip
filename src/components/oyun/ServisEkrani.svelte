@@ -4,6 +4,7 @@
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al.
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
+  import { fisKaydet } from "$lib/fisler.svelte";
   import { gelistiriciModuAcik, ilerleme } from "$lib/ilerleme.svelte";
   import { ruhHali } from "$lib/oyun/musteri";
   import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, yeniOturum, type OturumOlayi, type SeviyeAtlama, type VerSonucu } from "$lib/oyun/oturum";
@@ -207,6 +208,8 @@
     anim(seviyeEl, [{ transform: "scale(1)" }, { transform: "scale(1.35)" }, { transform: "scale(1)" }], 480);
     cal("parilti");
     salla(kil ? 1.2 : 0.7);
+    // Fişlerim: her kilometre taşında ve her 10. seviyede adisyon (Rust fis_olustur; "bolum" alanı artık seviyedir)
+    if (!testModu) for (const x of liste) if (x.kilometre || x.seviye % 10 === 0) fisKaydet(x.seviye, 3, oturum.toplamCoin).catch(() => {});
     setTimeout(() => {
       if (bildirim?.id === no) bildirim = null;
     }, kil ? 2800 : 1800);
