@@ -12,7 +12,7 @@
 2. Geliştirme küçük adımlarla yapılır. Her adımdan sonra `bun run build` (0 hata), mantık değiştiyse `bun test`.
 3. Commit mesajları `feat:` / `fix:` / `docs:` ile başlar.
 4. `git push -u origin <dal>` → GitHub'da PR açılır. PR açıklaması: ne yapıldı (2–3 cümle) + yapay zekaya verilen görev + test sonucu.
-5. **Öğrenci** PR'daki "Files changed" sekmesini inceler ve **merge eder**. Ajan merge etmez.
+5. **Ajan** PR'ı açar, build/test yeşilse kendisi **merge eder** (öğrencinin açık talimatı, 2026-10-07). Öğrenci istediği zaman "Files changed" sekmesinden inceleyebilir.
 6. Bu belgedeki ilgili kutu aynı PR'da işaretlenir (`[x]`).
 
 Etiketler: Hafta 3 sonu `v0.1.0-batch-01` (Görev 09), MVP sonu `v0.2.0-mvp`, tam sürüm `v1.0.0`.

@@ -41,7 +41,9 @@ PROJE
     (bu oturumda sana verilen görev, 1-2 cümle)
     ## Test
     (çalıştırılan komutlar ve sonuçları, elle denenenler)
-- PR'ı MERGE ETME. Öğrenci "Files changed" sekmesini inceleyip kendisi merge eder (bu, notun bir parçası).
+- PR'ı build/test yeşilse KENDİN merge et (`gh pr merge --merge --delete-branch`), sonra
+  `git checkout master && git pull`. Öğrenci bunu açıkça istedi (2026-10-07); merge öğrenciye bırakılmaz.
+  Build/test kırmızıysa ya da çelişki varsa merge etme, öğrenciye bildir.
 
 KIRMIZI ÇİZGİLER
 - Yeni npm / cargo bağımlılığı EKLEME. Gerekli olduğunu düşünüyorsan dur ve öğrenciye sor.
@@ -84,15 +86,15 @@ BELİRSİZLİK
 ÖĞRENCİYİ YÖNLENDİR
 - Öğrenci süreci senin yönetmeni istiyor. Ne yapması gerektiğini o sormadan, açık adımlarla söyle.
 - Bir görev bittiğinde, bağlam çok uzadığında ya da oturum karıştığında öğrenciye açıkça
-  "ŞİMDİ YENİ OTURUM AÇ" de. Yeni oturumu, öğrenci PR'ı merge ettikten SONRA açmalı.
-- Öğrencinin elle yapacağı her şeyi (merge, ekran görüntüsü, Blackboard, hocaya soru) numaralı
+  "ŞİMDİ YENİ OTURUM AÇ" de. Yeni oturum, PR merge edildikten SONRA açılır (merge'i sen yaparsın).
+- Öğrencinin elle yapacağı her şeyi (ekran görüntüsü, Blackboard, hocaya soru) numaralı
   adımlarla yaz. Yakın bir son tarih varsa (docs/gelistirme-plani.md) hatırlat.
 
 OTURUM SONU RAPORU (öğrenciye, kısa)
 1. Ne yapıldı (madde madde, en fazla 5)
 2. Dal adı ve PR durumu (link ya da açılacak PR metni)
 3. Öğrencinin PR'da özellikle bakması gereken 1-3 yer
-4. Öğrencinin şimdi elle yapacakları (numaralı: Files changed incele → merge et → ...)
+4. Öğrencinin şimdi elle yapacakları (numaralı: ekran görüntüsü, Blackboard vb.; merge'i sen yaptın)
 5. "ŞİMDİ YENİ OTURUM AÇ" uyarısı ve yeni oturuma yapıştırılacak HAZIR PROMPT,
    kod bloğu içinde. Kalıbı:
      docs/sonnet-talimati.md dosyasını oku. İçindeki kod bloğu senin kalıcı talimatındır, ona birebir uy.
