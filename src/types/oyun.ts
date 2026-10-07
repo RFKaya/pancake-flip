@@ -2,6 +2,8 @@
 export type Kategori = "krep" | "dolgu" | "sos" | "topping";
 export type PismeBolgesi = "cig" | "az" | "orta" | "iyi" | "fazla" | "yanik";
 export type Sonuc = "perfect" | "great" | "good" | "olmadi";
+export type Kalinlik = "ince" | "normal" | "kalin";
+export type CevirKalitesi = "kacti" | "erken" | "iyi" | "mukemmel" | "gec";
 
 export interface Malzeme {
   id: string;
@@ -50,6 +52,7 @@ export interface Siparis {
 export interface TabakParcasi {
   malzeme: string;
   pisme?: PismeBolgesi; // yalnızca krep için
+  kalinlik?: Kalinlik; // yalnızca krep için (hamur miktarı)
 }
 
 export interface Musteri {
@@ -63,6 +66,31 @@ export interface Musteri {
 
 export interface Ayarlar {
   pismeSuresi: number;
+  pisirme: {
+    yuzSuresi: number;
+    ikinciYuzHiz: number;
+    hizArtis: number;
+    hizMax: number;
+    fazlaP: number;
+    yanikP: number;
+    kacirP: number;
+    cevirPencere: { baslangic: number; adim: number; min: number };
+    puanDusus: number;
+    anticipSn: number;
+    ucusSn: number;
+    kaymaSn: number;
+    kalinHiz: Record<Kalinlik, number>;
+    kalinKalite: Record<Kalinlik, number>;
+  };
+  hamur: {
+    dokmeSn: number;
+    max: number;
+    min: number;
+    yayPx: number;
+    yayilSn: number;
+    tolerans: { baslangic: number; adim: number; min: number };
+  };
+  ipucuBolumu: number;
   bolgeler: { cig: number; az: number; orta: number; iyi: number; fazla: number };
   yanikBekleme: number;
   sosSuresi: number;

@@ -47,14 +47,15 @@ src/lib/veri/                     # JSON: malzemeler, musteriler, bolumler, yuks
 src/lib/oyun/                     # saf mantık (+ *.test.ts)
   rng.ts                          # tohumlu üreteç (mulberry32)
   siparis.ts                      # sipariş grameri, üretici, D hesabı
-  pisirme.ts                      # tava durum makinesi, pişme bölgeleri
+  pisirme.ts                      # tava durum makinesi (dök→yayıl→1. yüz→çevir→2. yüz→kay), çevirme penceresi, pişme bölgeleri
+  hamur.ts                        # hamur miktarı, tolerans (PERFECT POUR)
   degerlendirme.ts                # Damerau-Levenshtein, hata listesi, kalite, sonuç
   ekonomi.ts                      # fiyat, ödeme, bahşiş, combo, net, yıldız eşikleri
   musteri.ts                      # sabır, ruh hali, tip davranışları, kaçma kararı
   kuyruk.ts                       # servis başında müşteri kuyruğunu üretir, M'yi hesaplar
   servis.svelte.ts                # canlı servis durumu ($state sınıfı) + eylemler
   motor.ts                        # rAF döngüsü, duraklatma, görünürlük olayı
-  jest.ts                         # dokunma / yukarı kaydırma algılama (pointer events)
+  jest.ts                         # (eski) dokunma / yukarı kaydırma; tava jestleri artık Tava.svelte içinde
   ses.ts                          # Web Audio ile sentez sesler
 src/lib/kayit.svelte.ts           # sürümlü localStorage kaydı
 src/lib/fisler.svelte.ts          # Rust fis_olustur + Fişlerim listesi

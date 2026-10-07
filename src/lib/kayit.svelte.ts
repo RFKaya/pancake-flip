@@ -38,6 +38,7 @@ class Kayit {
 
   /** Bölüm 1 her zaman açık; sonraki bölüm, öncekinde en az 1 yıldızla açılır */
   acik(bolumNo: number) {
+    if (import.meta.env.DEV) return true; // geliştirme sunucusunda (bun run dev) test için hepsi açık
     return bolumNo <= 1 || this.yildiz(bolumNo - 1) >= 1;
   }
 

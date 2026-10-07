@@ -64,7 +64,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 - **Teknoloji:** Tauri v2 (Rust) + Astro (static, port 1420) + Svelte 5 (Runes) + React 19 + MDX, paket yöneticisi **Bun**. Oyun motoru yok.
 - **Oyun:** Dikey (9:16) krep oyunu. Ekranda hedef sipariş kartı, yüzlü tava, büyük tabak, malzeme düğmeleri, ilerleme çubuğu.
-  Dokun = hamur dök / çevir, yukarı kaydır = çevir. Bölümler 1–7 oynanır. Müşteri/sabır sistemi **şu an yok** (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) en üstteki not).
+  Tavada basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) §4). Bölüm 6–7'de 2 tava. Bölümler 1–7 oynanır. Müşteri/sabır sistemi **şu an yok** (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) en üstteki not).
 - **Nerede ne var** (dosya listesi değil, sorumluluklar; ağaç için [`klasor-mimarisi.md`](klasor-mimarisi.md)):
 
 | Konu | Yer |
@@ -73,7 +73,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | Oyun sayıları (süre, fiyat, bölümler) | `src/lib/veri/*.json` — **kodda sabit sayı yazma** |
 | JSON'a tipli erişim | `src/lib/oyun/veri.ts` |
 | Tipler | `src/types/oyun.ts` |
-| Oyun ekranı (tek bileşen) | `src/components/oyun/ServisEkrani.svelte` → rota `/servis/[id]` |
+| Oyun ekranı | `src/components/oyun/ServisEkrani.svelte` (düzen, sipariş fişi, tabak) + `Tava.svelte` (tava jestleri ve efektler) → rota `/servis/[id]` |
 | Bölümler listesi | `src/components/Bolumler.svelte` → rota `/` |
 | Kayıt (localStorage, sürümlü) | `src/lib/kayit.svelte.ts` |
 | Bilgi sayfaları (4 dil) | `src/pages/{hakkinda,iletisim,kosullar,gizlilik}`, `src/pages/{en,ar,fa}/`, `src/lib/i18n.ts`, `src/components/bilgi/` |

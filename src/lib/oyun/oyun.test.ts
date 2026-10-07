@@ -7,7 +7,8 @@ import type { Ayarlar, Bolum, Malzeme, MusteriTipi, TabakParcasi } from "../../t
 import { degerlendir } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
 import { kuyrukUret } from "./kuyruk";
-import { bolgeBul } from "./pisirme";
+import { hamurSonucu, hamurToleransi } from "./hamur";
+import { bolgeBul, cevirKalitesi, cevirPenceresi, krepParcasi, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava, type Tava } from "./pisirme";
 import { rngOlustur } from "./rng";
 import { siparisUret } from "./siparis";
 
@@ -135,5 +136,111 @@ describe("ekonomi", () => {
     expect(Math.round(g.bahsis)).toBe(7);
     const net = g.toplam - siparisMaliyeti(siparis.parcalar, M);
     expect(Math.round(net)).toBe(29);
+  });
+});
+
+describe("hamur dökme", () => {
+  test("tolerans bölümle daralır ve tabanda kalır", () => {
+    expect(hamurToleransi(1, A)).toBeGreaterThan(hamurToleransi(5, A));
+    expect(hamurToleransi(5, A)).toBeGreaterThan(hamurToleransi(10, A));
+    expect(hamurToleransi(99, A)).toBe(A.hamur.tolerans.min);
+  });
+  test("az → ince, ideal → normal (PERFECT POUR), fazla → kalın", () => {
+    expect(hamurSonucu(0.3, 1, A)).toEqual({ kalinlik: "ince", mukemmel: false });
+    expect(hamurSonucu(1, 1, A)).toEqual({ kalinlik: "normal", mukemmel: true });
+    expect(hamurSonucu(1.7, 1, A)).toEqual({ kalinlik: "kalin", mukemmel: false });
+  });
+  test("ilk bölümde 0,6–1,4 arası hep ideal; son bölümde 0,6 değil", () => {
+    expect(hamurSonucu(0.6, 1, A).mukemmel).toBe(true);
+    expect(hamurSonucu(1.4, 1, A).mukemmel).toBe(true);
+    expect(hamurSonucu(0.6, 20, A).mukemmel).toBe(false);
+  });
+});
+
+describe("çevirme penceresi", () => {
+  test("ideal ortada mükemmel, uçlarda erken/geç, çok erken kaçtı", () => {
+    expect(cevirKalitesi(1, 1, A)).toBe("mukemmel");
+    expect(cevirKalitesi(0.35, 1, A)).toBe("erken");
+    expect(cevirKalitesi(1.55, 1, A)).toBe("gec");
+    expect(cevirKalitesi(0.1, 1, A)).toBe("kacti");
+  });
+  test("pencere bölümle daralır: aynı p bölüm 1'de mükemmel, 20'de değil", () => {
+    expect(cevirPenceresi(1, A)).toBeGreaterThan(cevirPenceresi(5, A));
+    expect(cevirKalitesi(1.15, 1, A)).toBe("mukemmel");
+    expect(cevirKalitesi(1.15, 20, A)).not.toBe("mukemmel");
+  });
+  test("kusursuz krep 'iyi', çiğ-çiğ 'cig', iki yüz de fazla 'fazla'", () => {
+    expect(krepParcasi([1, 1], "normal", 10, A).pisme).toBe("iyi");
+    expect(krepParcasi([0.3, 0.3], "normal", 10, A).pisme).toBe("cig");
+    expect(krepParcasi([1.6, 1.6], "normal", 10, A).pisme).toBe("fazla");
+  });
+});
+
+describe("tava durum makinesi", () => {
+  const C = { ayar: A, bolumNo: 1 };
+  const kos = (t: Tava, sn: number) => {
+    const olaylar: string[] = [];
+    for (let i = 0; i < Math.round(sn / 0.01); i++) olaylar.push(...tavaIlerlet(t, 0.01, C));
+    return olaylar;
+  };
+
+  test("tam döngü: dök → yayıl → pişir → çevir → pişir → tabağa", () => {
+    const t = yeniTava();
+    expect(tavaDokBasla(t)).toBe(true);
+    kos(t, 0.9); // ≈ ideal miktar
+    expect(tavaBirak(t, C)?.mukemmel).toBe(true);
+    expect(kos(t, 0.5)).toContain("yayildi");
+    expect(t.faz).toBe("pisir");
+    kos(t, A.pisirme.yuzSuresi); // p ≈ 1
+    expect(tavaCevir(t, C)).toBe("mukemmel");
+    expect(t.faz).toBe("ucus");
+    expect(kos(t, 1.2)).toContain("indi");
+    expect(t.yuz).toBe(1);
+    kos(t, A.pisirme.yuzSuresi / A.pisirme.ikinciYuzHiz);
+    const parca = tavaServis(t, C);
+    expect(parca).toEqual({ malzeme: "krep", pisme: "iyi", kalinlik: "normal" });
+    expect(kos(t, 0.6)).toContain("tabaga");
+    expect(t.faz).toBe("bos");
+  });
+
+  test("kazara dokunuş (az hamur) tavayı boş bırakır", () => {
+    const t = yeniTava();
+    tavaDokBasla(t);
+    kos(t, 0.05);
+    expect(tavaBirak(t, C)).toBeNull();
+    expect(t.faz).toBe("bos");
+  });
+
+  test("basılı tutmaya devam edersen hamur taşar ve kalın krep olur", () => {
+    const t = yeniTava();
+    tavaDokBasla(t);
+    expect(kos(t, 2)).toContain("tasti");
+    expect(t.kalinlik).toBe("kalin");
+    expect(["yayil", "pisir"]).toContain(t.faz);
+  });
+
+  test("çok bekleyen krep yanar, bekleme sonunda çöpe gider; çevirme/servis geçersiz", () => {
+    const t = yeniTava();
+    tavaDokBasla(t);
+    kos(t, 0.9);
+    tavaBirak(t, C);
+    const olay = kos(t, 6);
+    expect(olay).toContain("yandi");
+    expect(olay).toContain("cop");
+    expect(t.faz).toBe("bos");
+    expect(tavaCevir(t, C)).toBeNull();
+    expect(tavaServis(t, C)).toBeNull();
+  });
+
+  test("1. yüz pişmeden aşağı kaydırma servis etmez; havadayken çevrilemez", () => {
+    const t = yeniTava();
+    tavaDokBasla(t);
+    kos(t, 0.9);
+    tavaBirak(t, C);
+    kos(t, 0.6);
+    expect(tavaServis(t, C)).toBeNull();
+    kos(t, 1.5);
+    tavaCevir(t, C);
+    expect(tavaCevir(t, C)).toBeNull();
   });
 });
