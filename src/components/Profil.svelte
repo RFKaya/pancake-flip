@@ -3,7 +3,8 @@
   import { biletlerim } from "$lib/biletler.svelte";
 
   let kullanici = $state(
-    typeof localStorage !== "undefined"
+    // Node 25+ SSR'de de global bir `localStorage` nesnesi tanımlar (getItem yok); bu yüzden window'a bakılır
+    typeof window !== "undefined"
       ? (localStorage.getItem("kullanici") ?? "")
       : ""
   );
