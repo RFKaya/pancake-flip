@@ -74,7 +74,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | JSON'a tipli erişim | `src/lib/oyun/veri.ts` |
 | Tipler | `src/types/oyun.ts` |
 | Oyun ekranı | `src/components/oyun/ServisEkrani.svelte` (düzen, sipariş fişi, tabak) + `Tava.svelte` (tava jestleri ve efektler) → rota `/servis/[id]` |
-| Ana ekran (LEVEL özeti) | `src/components/Ana.svelte` → rota `/` ; oyun rotası `/oyna` |
+| Ana ekran (lobi sahnesi + OYNA) | `src/components/Ana.svelte` → rota `/` (süs eşikleri `src/lib/veri/lobi.json`); oyun rotası `/oyna` |
 | Kayıt (localStorage, sürümlü) | `src/lib/ilerleme.svelte.ts` (seviye); eski bölüm kaydı `kayit.svelte.ts` kullanılmıyor, Fişlerim yeni modele uyarlanınca silinecek |
 | Bilgi sayfaları (4 dil) | `src/pages/{hakkinda,iletisim,kosullar,gizlilik}`, `src/pages/{en,ar,fa}/`, `src/lib/i18n.ts`, `src/components/bilgi/` |
 | Renkler / tema | `src/styles/app.css` ↔ [`branding.md`](branding.md) (aynı değerler) |

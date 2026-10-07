@@ -1,0 +1,10 @@
+{
+  "dekor": {
+    "altinTava": 10,
+    "susler": 20,
+    "masa": 30,
+    "tabela": 50,
+    "yildizlar": 100
+  },
+  "girisMs": 420
+}

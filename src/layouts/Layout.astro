@@ -7,9 +7,12 @@ import { dilBul, yon } from '../lib/i18n';
 
 interface Props {
   title?: string;
+  tamEkran?: boolean;
+  sahne?: boolean;
 }
 
-const { title = "Pancake Flip!", tamEkran = false } = Astro.props;
+// sahne: üst başlık gizlenir, alt menü kalır (oyun sahnesi gibi açılan lobi için)
+const { title = "Pancake Flip!", tamEkran = false, sahne = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 const dil = dilBul(currentPath);
 ---
@@ -36,8 +39,8 @@ const dil = dilBul(currentPath);
     <ClientRouter />
   </head>
   <body class:list={{ 'tam-ekran': tamEkran }}>
-    {!tamEkran && <AppHeader client:load />}
-    <main class:list={{ 'tam-ekran': tamEkran }}>
+    {!tamEkran && !sahne && <AppHeader client:load />}
+    <main class:list={{ 'tam-ekran': tamEkran, sahne }}>
       <slot />
     </main>
     {!tamEkran && <AppNav client:load currentPath={currentPath} />}
@@ -45,7 +48,7 @@ const dil = dilBul(currentPath);
 </html>
 
 <style>
-  main:not(.tam-ekran) {
+  main:not(.tam-ekran):not(.sahne) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
     min-height: 100vh;
   }
