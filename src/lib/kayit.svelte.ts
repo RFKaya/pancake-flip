@@ -1,78 +1,39 @@
-// Sürümlü localStorage kaydı (docs/oyun-tasarimi.md §14). Bozuk ya da eski kayıtla çökmez.
+// Adisyon (fiş) kaydı: sürümlü localStorage. Bozuk ya da eski kayıtla çökmez; çözümü oyun/fis.ts → fislerCoz.
+// Seviye ilerlemesi ayrı bir anahtardadır (ilerleme.svelte.ts).
 import type { Fis } from "../types/oyun";
+import { fislerCoz } from "./oyun/fis";
 
 const ANAHTAR = "pancakeflip-kayit";
 
-interface KayitVerisi {
-  surum: 1;
-  coin: number;
-  bolumler: Record<string, { yildiz: number; enIyiNet: number }>;
-  fisler?: Fis[]; // sonradan eklendi; eski kayıtlarda yok
-}
-
-const bos = (): KayitVerisi => ({ surum: 1, coin: 0, bolumler: {} });
-
-function oku(): KayitVerisi {
-  if (typeof localStorage === "undefined") return bos();
+function oku(): Fis[] {
+  if (typeof localStorage === "undefined") return [];
   try {
-    const ham = localStorage.getItem(ANAHTAR);
-    if (!ham) return bos();
-    const v = JSON.parse(ham);
-    if (v?.surum !== 1 || typeof v.coin !== "number" || typeof v.bolumler !== "object") return bos();
-    return v as KayitVerisi;
+    return fislerCoz(localStorage.getItem(ANAHTAR));
   } catch {
-    return bos();
+    return [];
   }
 }
 
 class Kayit {
-  veri = $state<KayitVerisi>(bos());
+  #fisler = $state<Fis[]>([]);
 
   yukle() {
-    this.veri = oku();
+    this.#fisler = oku();
   }
 
-  yildiz(bolumNo: number) {
-    return this.veri.bolumler[String(bolumNo)]?.yildiz ?? 0;
-  }
-
-  /** Bölüm 1 her zaman açık; sonraki bölüm, öncekinde en az 1 yıldızla açılır */
-  acik(bolumNo: number) {
-    if (import.meta.env.DEV) return true; // geliştirme sunucusunda (bun run dev) test için hepsi açık
-    return bolumNo <= 1 || this.yildiz(bolumNo - 1) >= 1;
-  }
-
-  servisKaydet(bolumNo: number, yildiz: number, net: number) {
-    // Servis sayfası doğrudan açılmış olabilir (yenileme, uygulama yeniden açılışı): bellekteki boş
-    // varsayılanın üstüne yazıp eski ilerlemeyi silmemek için önce diskteki kayıt okunur.
-    this.yukle();
-    const onceki = this.veri.bolumler[String(bolumNo)];
-    this.veri.bolumler[String(bolumNo)] = {
-      yildiz: Math.max(onceki?.yildiz ?? 0, yildiz),
-      enIyiNet: Math.max(onceki?.enIyiNet ?? 0, Math.round(net)),
-    };
-    this.veri.coin += Math.max(0, Math.round(net));
-    this.yaz();
-  }
-
-  /** Kayıttaki adisyonlar, en yeni başta. Bozuk girdiler atlanır (Fişlerim ekranı çökmesin). */
+  /** Kayıttaki adisyonlar, en yeni başta (bozuk girdiler çözülürken atlanır) */
   fisler(): Fis[] {
-    if (!Array.isArray(this.veri.fisler)) return [];
-    return this.veri.fisler.filter(
-      (f) => f && typeof f.kod === "string" && typeof f.bolum === "number" && typeof f.tarih === "string"
-    );
+    return this.#fisler;
   }
 
-  /** Yeni adisyonu listenin başına ekler (servisKaydet gibi önce diskteki kaydı okur) */
+  /** Yeni adisyonu listenin başına ekler. Sayfa doğrudan açılmış olabilir: önce diskteki kayıt okunur, üstüne yazılmaz. */
   fisEkle(fis: Fis) {
     this.yukle();
-    this.veri.fisler = [fis, ...this.fisler()];
-    this.yaz();
-  }
-
-  private yaz() {
+    this.#fisler = [fis, ...this.#fisler];
     try {
-      localStorage.setItem(ANAHTAR, JSON.stringify(this.veri));
+      // coin / bolumler: kaldırılan bölüm modelinin alanları. Eski sürümler bunlar olmadan kaydı geçersiz sayıp
+      // fişleri silerdi; aynı tarayıcıda eski bir dal açılırsa fişler kaybolmasın diye boş değerleriyle yazılır.
+      localStorage.setItem(ANAHTAR, JSON.stringify({ surum: 1, coin: 0, bolumler: {}, fisler: this.#fisler }));
     } catch {
       // depolama kapalıysa oyun yine de çalışır
     }

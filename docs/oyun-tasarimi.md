@@ -492,6 +492,7 @@ Yalnızca cihazda, `localStorage`'da tek bir sürümlü JSON tutulur:
 }
 ```
 - Sürüm alanı ileride kayıt formatı değişirse dönüştürme yapmak içindir.
+- **Güncel durum (sonsuz seviye):** bölüm modeli kaldırıldığı için kayıt iki anahtardır. `pancakeflip-ilerleme` → `{ surum, seviye, ilerleme, toplamMusteri, toplamCoin, enYuksekSeviye }` (çözüm: `oyun/ilerlemeKaydi.ts`); `pancakeflip-kayit` → `{ surum, fisler }` (çözüm: `oyun/fis.ts` → `fislerCoz`). Her fiş `kasa` alanını da taşır; `net` bir önceki fişten bu yana kazanılandır. Eski kayıtlardaki `coin` / `bolumler` okunmaz.
 - Gizlilik sayfası (Görev 06) bu verinin yalnızca cihazda tutulduğunu ve KVKK kapsamında kişisel veri toplanmadığını söyler.
 
 ---
