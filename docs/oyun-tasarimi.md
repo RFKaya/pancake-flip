@@ -90,7 +90,23 @@ Basit örnek: `Krep · Krep · Çikolata · Krep · Çilek sosu`
 
 ## 4. Pişirme ve çevirme
 
-Tavaya dokununca hamur dökülür ve **pişme değeri** `p` 0'dan yukarı çıkar. Tavanın etrafındaki halka bu değeri gösterir, krep de renk değiştirir.
+**Güncel akış (7 Ekim 2026, `feature/akici-oynanis`):** Bir krep 5 adımdır ve her adım bir jesttir. Kodu: `src/lib/oyun/pisirme.ts` + `hamur.ts`, görünüm `src/components/oyun/Tava.svelte`.
+
+| Adım | Jest | Ne olur |
+|---|---|---|
+| 1. Dök | Tavaya **basılı tut** | Hamur akışı; süre = miktar (`hamur.dokmeSn` 0,9 sn ≈ ideal). Parmağı oynatmak hamuru yayar. Tavadaki kesikli halka ideal boyuttur. |
+| 2. Bırak | Parmağı kaldır | İdeal miktar (±`hamur.tolerans`) → **PERFECT POUR!** · az → ince krep (hızlı pişer) · fazla → kalın krep (yavaş pişer). Tolerans bölümle daralır (0,45 → 0,12). |
+| 3. Çevir | Tavada **yukarı kaydır** | 1. yüz `p≈1` iken çevirmek ister. Sonuç: **PERFECT FLIP!** / GOOD FLIP / EARLY FLIP / LATE FLIP / MISS. Krep havada 1,5 tur döner; erken/geç ise eğik düşer. |
+| 4. Pişir | — | 2. yüz pişer (1,15× hızlı). Krep renk, kabarcık, buhar, kenar kalkması ve tava yüzüyle durumunu söyler. |
+| 5. Al | Tavada **aşağı kaydır** | Krep tabağa kayar ve konar (flop). Erken/geç alınırsa pişme derecesi düşer. |
+
+- Çevirme penceresi (`pisirme.cevirPencere`): bölüm 1'de ±0,40, her bölümde −0,03, en az 0,08. Mükemmel = pencerenin yarısı. Pişme hızı her bölümde +%4 (en çok ×1,8).
+- Krebin tabaktaki pişme derecesi iki yüzün puanından çıkar (`krepParcasi`): puan ≥ 0,8 "iyi", ≥ 0,5 "orta", altı çiğ ya da fazla (değerlendirme cezası aynı kalır).
+- Hata oyunu bitirmez, yalnızca kaliteyi düşürür. Yanan (`p > 1,7`) krep 1,5 sn sonra kendiliğinden çöpe gider.
+- **2 tava:** `bolumler.json` → `tava: 2` olan bölümlerde (6, 7) iki tava yan yana; biri pişerken diğerine hamur dökülür.
+- İlk iki bölümde tavanın altında kısa ipucu yazısı görünür (`ipucuBolumu`).
+
+Aşağıdaki tablo **görünüm** eşiklerini anlatır (`p` bir yüz için; `bolgeBul` hâlâ tabaktaki krepin derecesini bu eşiklerle okur).
 
 | `p` aralığı | Durum | Krep rengi | Halka |
 |---|---|---|---|
@@ -101,8 +117,8 @@ Tavaya dokununca hamur dökülür ve **pişme değeri** `p` 0'dan yukarı çıka
 | 1,00 – 1,15 | Fazla pişmiş | Koyu kahve, tütüyor | Kırmızı, yanıp söner |
 | > 1,15 | Yanık | Siyah | Duman: krep 1,5 sn sonra kendiliğinden çöpe gider (maliyet kaybı) |
 
-- Başlangıç hızı: `p`, 6 sn'de 1,00'e ulaşır. **Tava yükseltmesi yalnızca çiğ evreyi kısaltır**, bölgelerin süresi aynı kalır. Böylece yükseltme oyunu hızlandırır ama tepki penceresini daraltmaz.
-- **Çevirme:** Tavanın üzerinde yukarı kaydırma (≥40 px, 600 ms içinde). Krep zıplar, döner ve **seçili tabağa** düşer. Ayarlardan "dokunarak çevir" seçeneği de açılabilir (erişilebilirlik).
+- Eski başlangıç hızı (artık yüz başına `pisirme.yuzSuresi` = 1,6 sn): `p`, 6 sn'de 1,00'e ulaşırdı. **Tava yükseltmesi yalnızca çiğ evreyi kısaltır**, bölgelerin süresi aynı kalır. Böylece yükseltme oyunu hızlandırır ama tepki penceresini daraltmaz.
+- **Çevirme:** Tavanın üzerinde yukarı kaydırma (≥40 px; parmak eşiği geçer geçmez tetiklenir). Krep zıplar ve aynı tavaya geri düşer; aşağı kaydırma onu tabağa alır. Ayarlardan "dokunarak çevir" seçeneği de açılabilir (erişilebilirlik).
 - **Bölüm 1–7:** Sipariş pişme derecesi istemez. 0,30–1,00 arası her şey "pişti" sayılır.
 - **Bölüm 8+:** Kartta pişme derecesi gösterilir: **A** (az, sarı nokta), **O** (orta, altın nokta), **İ** (iyi, kahve nokta). Harf ve renk birlikte kullanılır (renk körlüğü için). Bir siparişteki bütün krepler aynı dereceyi ister.
 - **Tam isabet:** Bölgenin tam ortasında (±0,04) çevirince küçük parıltı ve +1 coin. İsteğe bağlı bir ustalık ödülüdür.
