@@ -1,17 +1,16 @@
 <script lang="ts">
-  // Servis ekranı: hedef sipariş kartı + yüzlü tava + büyük tabak. Dokun = hamur dök / çevir, yukarı kaydır = çevir.
-  // Kurallar saf mantıktan gelir (siparis, pisirme, degerlendirme); bölüm ayarları src/lib/veri/*.json içindedir.
-  import { onMount } from "svelte";
+  // Servis ekranı: duvarda sipariş fişi, ortada tava(lar), yakında tabak. Tavalar Tava.svelte'dedir:
+  // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al. Kurallar saf mantıktan gelir.
   import { degerlendir } from "$lib/oyun/degerlendirme";
-  import { jest } from "$lib/oyun/jest";
-  import { bolgeBul, tavaIlerlet, yeniTava, type Tava } from "$lib/oyun/pisirme";
-  import { rngOlustur } from "$lib/oyun/rng";
   import { kayit } from "$lib/kayit.svelte";
   import { AYAR, BOLUMLER, MALZEMELER, malzeme, TIPLER } from "$lib/oyun/veri";
   import { gelirHesapla, siparisFiyati } from "$lib/oyun/ekonomi";
+  import { rngOlustur } from "$lib/oyun/rng";
   import { siparisUret } from "$lib/oyun/siparis";
   import { cal } from "$lib/oyun/ses";
-  import type { PismeBolgesi, Sonuc, TabakParcasi } from "../../types/oyun";
+  import { onMount } from "svelte";
+  import Tava from "./Tava.svelte";
+  import type { Sonuc, TabakParcasi } from "../../types/oyun";
 
   let { bolumNo }: { bolumNo: number } = $props();
 
@@ -20,81 +19,101 @@
   const sonrakiBolum = BOLUMLER.find((b) => b.id === bolum.id + 1);
   const menu = bolum.menu.map(malzeme);
   const TOPLAM = bolum.musteriSayisi;
+  const tavaSayisi = bolum.tava;
+  const olcek = tavaSayisi > 1 ? 0.62 : 1;
 
   const rng = rngOlustur(Math.floor(Math.random() * 1e9));
   const yeniSiparis = () => siparisUret(bolum, MALZEMELER, TIPLER[0], AYAR, rng);
 
   let siparis = $state(yeniSiparis());
-  let tava = $state<Tava>(yeniTava());
   let tabak = $state<TabakParcasi[]>([]);
-  let ucus = $state<PismeBolgesi | null>(null);
-  let tavaSalla = $state(0);
-  let tabakSalla = $state(0);
   let tamam = $state(0);
   let puan = $state(0);
   let net = $state(0);
   let sonuc = $state<{ s: Sonuc; neden: string; sayi: number } | null>(null);
   let bitti = $state(false);
+  let tekrar = $state(0);
+  let dusenler = $state<{ id: number; ikon: string }[]>([]);
+  let coinler = $state<{ id: number; dx: number }[]>([]);
+  let sayac = 0;
 
-  const bolge = $derived(tava.durum === "yanik" ? "yanik" : bolgeBul(tava.p, AYAR));
-  const oran = $derived(Math.min(1, tava.p / AYAR.bolgeler.iyi));
+  let sahneEl: HTMLElement;
+  let tabakEl: HTMLElement;
+  let kuleEl: HTMLElement;
+  let coinEl: HTMLElement;
+
   const ilerleme = $derived(tamam / TOPLAM);
   const kazanc = $derived(Math.round(net));
   const yildiz = $derived(puan / TOPLAM >= 90 ? 3 : puan / TOPLAM >= 70 ? 2 : puan / TOPLAM >= 45 ? 1 : 0);
 
+  // Fişteki satırlardan hangisi tabakta doğru yerinde (✓)
+  const dogruSayi = $derived.by(() => {
+    let i = 0;
+    while (i < tabak.length && tabak[i].malzeme === siparis.parcalar[i]) i++;
+    return i;
+  });
+  const siradaki = $derived(dogruSayi === tabak.length ? (siparis.parcalar[tabak.length] ?? "ver") : null);
+  const krepSayisi = $derived(siparis.parcalar.filter((id) => id === "krep").length);
+  const ekler = $derived(siparis.parcalar.filter((id) => id !== "krep").map((id) => malzeme(id).ad));
+
   onMount(() => {
     kayit.yukle();
-    let id = 0;
-    let son = performance.now();
-    const kare = (t: number) => {
-      const dt = Math.min(0.1, (t - son) / 1000);
-      son = t;
-      if (tavaIlerlet(tava, dt, AYAR)) tava = yeniTava();
-      id = requestAnimationFrame(kare);
-    };
-    id = requestAnimationFrame(kare);
-    return () => cancelAnimationFrame(id);
   });
 
-  function dokun() {
-    if (ucus || bitti) return;
-    if (tava.durum === "bos") {
-      tava = { durum: "pisiyor", p: 0, yanikSn: 0 };
-      cal("hamur");
-    } else if (tava.durum === "pisiyor") cevir();
+  const anim = (el: Element | undefined, kf: Keyframe[], ms: number) => el?.animate(kf, { duration: ms, easing: "ease-out" });
+
+  /** Hafif ekran titreşimi (yalnızca transform) */
+  function salla(siddet: number) {
+    const g = 5 * siddet;
+    anim(sahneEl, [
+      { transform: "translate(0,0)" }, { transform: `translate(${-g}px, ${g * 0.6}px)` },
+      { transform: `translate(${g * 0.8}px, ${-g * 0.4}px)` }, { transform: `translate(${-g * 0.4}px, 0)` }, { transform: "translate(0,0)" },
+    ], 260);
   }
 
-  function cevir() {
-    if (ucus || bitti || tava.durum !== "pisiyor") return;
-    ucus = bolgeBul(tava.p, AYAR);
-    tava = yeniTava();
-    tavaSalla++;
-    cal("cevir");
+  function tabakZipla(g = 1) {
+    anim(tabakEl, [
+      { transform: "none" }, { transform: `translateY(${6 * g}px) scale(${1 + 0.05 * g}, ${1 - 0.08 * g})` },
+      { transform: `translateY(${-4 * g}px) scale(${1 - 0.02 * g}, ${1 + 0.04 * g})` }, { transform: "none" },
+    ], 320);
   }
 
-  function indi() {
-    if (!ucus) return;
-    tabak.push({ malzeme: "krep", pisme: ucus });
-    ucus = null;
-    tabakSalla++;
+  /** Tava krebi tabağa kaydırdı */
+  function tabagaGeldi(p: TabakParcasi) {
+    if (bitti) return;
+    if (tabak.length >= AYAR.tabakMax) return;
+    tabak.push(p);
+    tabakZipla(1.2);
+    salla(0.5);
+  }
+
+  /** Krep tabağın neresine düşecek: kulenin üst yüzü */
+  function tabakHedef() {
+    if (!kuleEl) return null;
+    const r = kuleEl.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top - 8 };
   }
 
   function koy(id: string) {
-    if (ucus || bitti || tabak.length >= AYAR.tabakMax) return;
+    if (bitti || tabak.length >= AYAR.tabakMax) return;
     tabak.push({ malzeme: id });
-    tabakSalla++;
+    dusenler.push({ id: ++sayac, ikon: malzeme(id).ikon });
+    if (dusenler.length > 4) dusenler.shift();
+    tabakZipla(0.8);
     cal("malzeme");
   }
 
   function bosalt() {
+    if (!tabak.length) return;
     tabak = [];
+    tabakZipla(0.6);
     cal("cop");
   }
 
   const YAZI: Record<Sonuc, string> = { perfect: "PERFECT!", great: "GREAT", good: "GOOD", olmadi: "OLMADI" };
 
   function ver() {
-    if (ucus || bitti || !tabak.length) return;
+    if (bitti || !tabak.length) return;
     const d = degerlendir(siparis.parcalar, tabak, 1, AYAR);
     const ilk = d.hatalar[0];
     const neden = !ilk ? "" : ilk.tur === "eksik" ? `Eksik: ${malzeme(ilk.malzeme).ad}`
@@ -107,6 +126,14 @@
     const maliyet = siparis.parcalar.reduce((t, p) => t + malzeme(p).maliyet, 0);
     net += gelirHesapla({ fiyat: siparisFiyati(siparis, MALZEMELER), sonuc: d.sonuc, tip: TIPLER[0], sabirOrani: 1, combo: 1, bolumNo: bolum.id, ayar: AYAR }).toplam - maliyet;
     tamam++;
+    // Madeni para patlaması + sayaç zıplaması
+    if (d.sonuc !== "olmadi") {
+      const n = d.sonuc === "perfect" ? 6 : 3;
+      for (let i = 0; i < n; i++) coinler.push({ id: ++sayac, dx: (i - (n - 1) / 2) * 22 });
+      setTimeout(() => anim(coinEl, [{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], 300), 350);
+      cal("coin");
+    }
+    if (d.sonuc === "perfect") salla(1);
     tabak = [];
     cal(d.sonuc);
     if (tamam >= TOPLAM) {
@@ -121,20 +148,14 @@
     puan = 0;
     net = 0;
     tabak = [];
-    tava = yeniTava();
     siparis = yeniSiparis();
     bitti = false;
     sonuc = null;
+    tekrar++;
   }
-
-  const secenek = $derived({ dokun, yukari: cevir, px: AYAR.cevirmePx, ms: AYAR.cevirmeMs });
-  const siradaki = $derived.by(() => {
-    for (let i = 0; i < tabak.length; i++) if (tabak[i].malzeme !== siparis.parcalar[i]) return null;
-    return siparis.parcalar[tabak.length] ?? "ver";
-  });
 </script>
 
-<div class="sahne">
+<div class="sahne" bind:this={sahneEl}>
   <header class="ust">
     <a class="geri" href="/" aria-label="Bölümler">←</a>
     <span class="bolum-no">Bölüm {bolum.id}</span>
@@ -142,54 +163,58 @@
       <div class="dolu" style:width={`${ilerleme * 100}%`}></div>
       <span class="yildiz">{bitti ? ["☆", "⭐"][yildiz > 0 ? 1 : 0] : "⭐"}</span>
     </div>
+    <span class="para" bind:this={coinEl}>🪙 {kazanc}</span>
   </header>
 
-  <div class="raf-dekor"></div>
-  <div class="dekor" aria-hidden="true">🫙🪴</div>
-
-  <aside class="hedef">
-    <b>Hedef sipariş</b>
-    <div class="mini">
-      {#each siparis.parcalar as id}
-        {#if id === "krep"}<div class="m-krep"></div>{:else}<div class="m-ek">{malzeme(id).ikon}</div>{/if}
-      {/each}
-    </div>
-  </aside>
-
-  <!-- Tava -->
-  <div class="tava-alan" use:jest={secenek} role="button" tabindex="0" aria-label="Tava: dokun ya da yukarı kaydır">
-    <div class="tava" class:salla={tavaSalla > 0} data-k={tavaSalla}>
-      <div class="sap"></div>
-      <div class="govde">
-        {#if tava.durum !== "bos"}<div class="pkrep {bolge}" style:--yuk={`${4 + oran * 10}px`}></div>{/if}
-        {#if bolge === "fazla" || bolge === "yanik"}<span class="duman">💨</span>{/if}
-        <div class="yuz"><i></i><i></i><b></b></div>
+  <!-- Duvar: sipariş fişi, raf, kavanozlar -->
+  <div class="duvar" aria-hidden="false">
+    <aside class="fis" aria-label="Sipariş">
+      <i class="igne"></i>
+      <b class="fis-ust">{krepSayisi === 1 && !ekler.length ? "1 sade krep" : `${krepSayisi} krep`}</b>
+      {#if ekler.length}<small class="fis-ek">+ {ekler.join(", ")}</small>{/if}
+      <div class="mini">
+        {#each siparis.parcalar as id, i}
+          <div class="satir" class:bitti={i < dogruSayi} class:siradaki={i === dogruSayi && siradaki === id}>
+            {#if id === "krep"}<span class="m-krep"></span>{:else}<span class="m-ek">{malzeme(id).ikon}</span>{/if}
+            {#if i < dogruSayi}<em>✓</em>{/if}
+          </div>
+        {/each}
       </div>
+    </aside>
+    <div class="raf">
+      <span class="kavanoz k1"><i></i></span>
+      <span class="kavanoz k2"><i></i></span>
+      <span class="kavanoz k3"><i></i></span>
+      <span class="bitki">🪴</span>
     </div>
-    <div class="ipucu">
-      {#if tava.durum === "bos"}Hamur dökmek için dokun
-      {:else if bolge === "cig" || bolge === "az"}Pişiyor…
-      {:else}Şimdi çevir! ↑{/if}
-    </div>
-    <div class="pisme"><div class="p-dolgu" style:width={`${oran * 100}%`}></div></div>
-
-    {#if ucus}
-      <div class="ucan {ucus}" onanimationend={indi}></div>
-    {/if}
   </div>
 
-  <!-- Tabak -->
-  {#key tabakSalla}
-    <div class="tabak" class:sallan={tabakSalla > 0}>
-      <div class="kule">
+  <!-- Tezgâh: tava(lar) + tabak -->
+  <main class="tezgah">
+    {#key tekrar}
+      <div class="tavalar" class:cift={tavaSayisi > 1}>
+        {#each Array(tavaSayisi) as _, i}
+          <Tava {bolumNo} {olcek} kilit={bitti} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
+        {/each}
+      </div>
+    {/key}
+
+    <div class="tabak" bind:this={tabakEl}>
+      <div class="kule" bind:this={kuleEl}>
         {#each tabak as p, i (i)}
-          {#if p.malzeme === "krep"}<div class="t-krep {p.pisme}"></div>
+          {#if p.malzeme === "krep"}<div class="t-krep {p.pisme} {p.kalinlik ?? 'normal'}"></div>
           {:else}<div class="t-ek">{malzeme(p.malzeme).ikon}</div>{/if}
         {/each}
       </div>
+      {#each dusenler as d (d.id)}
+        <span class="dusen" onanimationend={() => (dusenler = dusenler.filter((x) => x.id !== d.id))}>{d.ikon}</span>
+      {/each}
+      {#each coinler as c (c.id)}
+        <span class="coin" style:--dx={`${c.dx}px`} onanimationend={() => (coinler = coinler.filter((x) => x.id !== c.id))}>🪙</span>
+      {/each}
       <div class="plaka"></div>
     </div>
-  {/key}
+  </main>
 
   {#if sonuc}
     <div class="mesaj {sonuc.s}">
@@ -205,7 +230,7 @@
       </button>
     {/each}
     <button class="dugme ver" class:parlak={siradaki === "ver"} onpointerdown={ver}><span>✅</span><small>Ver</small></button>
-    <button class="dugme" onpointerdown={bosalt}><span>🗑</span><small>Boşalt</small></button>
+    <button class="dugme kucuk" onpointerdown={bosalt} aria-label="Tabağı boşalt"><span>🗑</span><small>Boşalt</small></button>
   </footer>
 
   {#if bitti}
@@ -225,7 +250,6 @@
 
 <style>
   .sahne {
-    --d: 420px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -237,74 +261,75 @@
     padding: calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));
     overflow: hidden;
     color: var(--yazi);
-    background:
-      linear-gradient(180deg, var(--sahne-tezgah) 0, var(--sahne-tezgah-koyu) 100%) bottom / 100% 36% no-repeat,
-      linear-gradient(180deg, var(--sahne-duvar) 0%, var(--sahne-duvar-koyu) 100%);
+    background: linear-gradient(180deg, var(--sahne-duvar) 0%, var(--sahne-duvar-koyu) 100%);
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
   }
 
-  .ust { display: flex; align-items: center; gap: 10px; width: 100%; }
-  .raf-dekor { position: absolute; left: 0; right: 0; top: 150px; height: 10px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 #0002; }
-  .dekor { position: absolute; top: 96px; right: 18px; font-size: 38px; letter-spacing: 6px; opacity: 0.9; }
+  .ust { position: relative; z-index: 10; display: flex; align-items: center; gap: 8px; width: 100%; }
   .geri { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); font-size: 18px; }
   .bolum-no { padding: 4px 10px; border-radius: 999px; background: var(--kart); font-size: 14px; font-weight: 700; }
-  .cubuk { position: relative; flex: 1; height: 16px; border-radius: 8px; background: var(--kart); border: 2px solid var(--kenar); }
+  .cubuk { position: relative; flex: 1; height: 14px; border-radius: 8px; background: var(--kart); border: 2px solid var(--kenar); }
   .dolu { height: 100%; border-radius: 6px; background: var(--basari); transition: width 0.4s; }
-  .yildiz { position: absolute; right: -6px; top: -8px; font-size: 26px; }
+  .yildiz { position: absolute; right: -6px; top: -9px; font-size: 24px; }
+  .para { padding: 4px 10px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 14px; font-weight: 800; }
 
-  .hedef { position: absolute; left: 12px; top: 64px; z-index: 5; padding: 8px 10px; border-radius: 14px; background: var(--kart); border: 1px solid var(--kenar); font-size: 12px; text-align: center; box-shadow: 0 3px 0 var(--kenar); }
-  .mini { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; margin-top: 6px; min-width: 56px; }
-  .m-krep { width: 52px; height: 9px; border-radius: 5px; background: var(--krep-orta); box-shadow: inset 0 -2px 0 #0003; }
-  .m-ek { font-size: 10px; line-height: 10px; }
+  /* Duvar */
+  .duvar { position: relative; flex: none; width: calc(100% + 24px); height: 150px; margin: 0 -12px; }
+  .fis { position: absolute; left: 14px; top: 6px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 92px; max-width: 120px; padding: 12px 10px 8px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); transform: rotate(-2deg); font-size: 12px; text-align: center; }
+  .igne { position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--vurgu); box-shadow: 0 2px 0 rgb(0 0 0 / 0.2); }
+  .fis-ust { font-size: 13px; }
+  .fis-ek { font-size: 10px; color: var(--yazi-soluk); line-height: 1.15; }
+  .mini { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; margin-top: 4px; }
+  .satir { position: relative; display: grid; place-items: center; min-width: 60px; transition: opacity 0.2s, transform 0.2s; }
+  .satir.bitti { opacity: 0.45; }
+  .satir.siradaki { animation: parla-s 0.8s ease-in-out infinite; }
+  .satir em { position: absolute; right: -2px; top: -3px; font-style: normal; font-size: 11px; font-weight: 900; color: var(--basari); }
+  .m-krep { display: block; width: 56px; height: 9px; border-radius: 5px; background: var(--krep-orta); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.2); }
+  .m-ek { font-size: 11px; line-height: 11px; }
 
-  .tava-alan { position: relative; margin-top: 90px; width: 100%; height: 190px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-  .tava { position: relative; width: 230px; height: 90px; margin-top: 36px; }
-  .tava.salla { animation: salla 0.4s ease-out; }
-  .sap { position: absolute; left: -62px; top: 30px; width: 90px; height: 16px; border-radius: 8px; background: linear-gradient(var(--sahne-tava), var(--sahne-tava-koyu)); transform: rotate(-14deg); }
-  .govde { position: absolute; inset: 0; border-radius: 50% / 45%; background: radial-gradient(ellipse at 50% 30%, var(--sahne-tava) 0%, var(--sahne-tava-koyu) 100%); box-shadow: 0 10px 0 #0003, inset 0 0 0 5px color-mix(in srgb, var(--sahne-tava) 70%, white); }
-  .pkrep { position: absolute; left: 12%; right: 12%; top: calc(8px - var(--yuk)); height: calc(34px + var(--yuk)); border-radius: 50%; box-shadow: inset 0 -6px 0 #0003; transition: background 0.25s; }
-  .yuz { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 18px; }
-  .yuz i { width: 9px; height: 12px; border-radius: 50%; background: var(--sahne-yuz); }
-  .yuz::before, .yuz::after { content: ""; position: absolute; bottom: -4px; width: 12px; height: 7px; border-radius: 50%; background: var(--vurgu); opacity: 0.35; }
-  .yuz::before { left: 28%; } .yuz::after { right: 28%; }
-  .yuz b { position: absolute; bottom: -6px; width: 16px; height: 8px; border-bottom: 3px solid var(--sahne-yuz); border-radius: 0 0 16px 16px; }
+  .raf { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
+  .kavanoz { position: absolute; bottom: 10px; width: 30px; height: 40px; border-radius: 6px 6px 10px 10px; background: color-mix(in srgb, var(--sahne-tabak) 35%, white); border: 2px solid color-mix(in srgb, var(--sahne-tabak) 50%, white); }
+  .kavanoz::before { content: ""; position: absolute; left: 3px; right: 3px; top: -9px; height: 9px; border-radius: 4px; background: var(--renk-ana); }
+  .kavanoz i { position: absolute; left: 3px; right: 3px; bottom: 3px; height: 55%; border-radius: 3px 3px 6px 6px; background: var(--krep-az); }
+  .k1 { right: 92px; animation: kavanoz 5s ease-in-out infinite; }
+  .k2 { right: 56px; height: 32px; animation: kavanoz 5s ease-in-out 1.7s infinite; } .k2 i { background: var(--vurgu); }
+  .k3 { right: 20px; height: 46px; width: 28px; animation: kavanoz 5s ease-in-out 3.1s infinite; } .k3 i { background: var(--krep-iyi); }
+  .bitki { position: absolute; left: 150px; bottom: 8px; font-size: 34px; transform-origin: 50% 90%; animation: yelpaze 4s ease-in-out infinite; }
 
-  .pkrep, .ucan, .t-krep, .m-krep { background-image: linear-gradient(180deg, #ffffff40 0 38%, transparent 38%); }
-  .pkrep.cig, .ucan.cig, .t-krep.cig { background: var(--krep-cig); }
-  .pkrep.az, .ucan.az, .t-krep.az { background: var(--krep-az); }
-  .pkrep.orta, .ucan.orta, .t-krep.orta { background: var(--krep-orta); }
-  .pkrep.iyi, .ucan.iyi, .t-krep.iyi { background: var(--krep-iyi); }
-  .pkrep.fazla, .ucan.fazla, .t-krep.fazla { background: var(--krep-fazla); }
-  .pkrep.yanik, .ucan.yanik, .t-krep.yanik { background: var(--krep-yanik); }
+  /* Tezgâh */
+  .tezgah { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: calc(100% + 24px); margin: 0 -12px; padding-bottom: 80px; background: linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
+  .tavalar { position: relative; z-index: 6; display: flex; justify-content: center; gap: 6px; margin-top: 40px; }
 
-  .duman { position: absolute; top: -34px; right: 30px; font-size: 28px; animation: yuksel 1s ease-out infinite; }
-  .ipucu { margin-top: 18px; padding: 4px 14px; border-radius: 999px; background: var(--kart); font-size: 14px; font-weight: 700; color: var(--yazi); }
-  .pisme { width: 140px; height: 8px; margin-top: 6px; border-radius: 4px; background: var(--kart); border: 1px solid var(--kenar); overflow: hidden; }
-  .p-dolgu { height: 100%; background: linear-gradient(90deg, var(--krep-az), var(--basari) 60%, var(--renk-ana) 85%, var(--vurgu)); }
-
-  .ucan { position: absolute; left: calc(50% - 85px); top: 70px; width: 170px; height: 38px; border-radius: 50%; box-shadow: inset 0 -6px 0 #0003; animation: ucus 0.7s cubic-bezier(0.3, 0.1, 0.5, 1) forwards; z-index: 6; }
-
-  .tabak { position: absolute; left: 0; right: 0; bottom: 150px; display: flex; flex-direction: column; align-items: center; }
-  .tabak.sallan { animation: wobble 0.45s ease-out; }
-  .kule { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; }
-  .t-krep { width: 170px; height: 20px; border-radius: 10px; box-shadow: inset 0 -4px 0 #0003; }
+  .tabak { position: relative; z-index: 4; width: 290px; height: 150px; flex: none; }
+  .kule { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; }
+  .t-krep { width: 170px; height: 20px; border-radius: 10px; box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.2); background-image: linear-gradient(180deg, rgb(255 255 255 / 0.25) 0 38%, transparent 38%); }
+  .t-krep.ince { height: 12px; } .t-krep.kalin { height: 28px; border-radius: 14px; }
+  .t-krep.cig { background-color: var(--krep-cig); }
+  .t-krep.az { background-color: var(--krep-az); }
+  .t-krep.orta { background-color: var(--krep-orta); }
+  .t-krep.iyi { background-color: var(--krep-iyi); }
+  .t-krep.fazla { background-color: var(--krep-fazla); }
+  .t-krep.yanik { background-color: var(--krep-yanik); }
   .t-ek { font-size: 16px; line-height: 16px; height: 16px; }
-  .plaka { width: 270px; height: 34px; margin-top: -6px; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%); box-shadow: inset 0 -8px 0 #0002, 0 9px 0 var(--sahne-tabak-koyu); }
+  .plaka { position: absolute; left: 10px; bottom: 0; width: 270px; height: 38px; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%); box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu); }
+  .dusen { position: absolute; left: 50%; bottom: 60px; z-index: 3; margin-left: -12px; font-size: 24px; pointer-events: none; animation: dus 0.4s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
+  .coin { position: absolute; left: 50%; bottom: 80px; z-index: 20; margin-left: -10px; font-size: 20px; pointer-events: none; animation: coin 0.9s ease-out forwards; }
 
-  .mesaj { position: absolute; left: 50%; top: 40%; z-index: 20; padding: 10px 20px; border-radius: 16px; border: 2px solid var(--renk-ana); background: var(--kart); text-align: center; pointer-events: none; animation: patla 0.45s ease-out forwards; transform: translateX(-50%); }
+  .mesaj { position: absolute; left: 50%; top: 42%; z-index: 20; padding: 10px 20px; border-radius: 16px; border: 2px solid var(--renk-ana); background: var(--kart); text-align: center; pointer-events: none; animation: patla 0.45s ease-out forwards; transform: translateX(-50%); }
   .mesaj .ana { font-size: 34px; font-weight: 900; color: var(--renk-ana); }
   .mesaj.perfect { border-color: var(--basari); } .mesaj.perfect .ana { color: var(--basari); font-size: 42px; }
   .mesaj.olmadi { border-color: var(--vurgu); } .mesaj.olmadi .ana { color: var(--vurgu); }
   .mesaj .alt { font-size: 14px; }
 
-  .alt-bar { position: absolute; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; }
-  .dugme { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 66px; padding: 4px 2px; border: 2px solid var(--kenar); border-radius: 14px; background: var(--kart); box-shadow: 0 3px 0 var(--kenar); touch-action: none; -webkit-tap-highlight-color: transparent; }
-  .dugme:active { transform: translateY(3px); box-shadow: none; }
+  .alt-bar { position: absolute; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 10; display: flex; gap: 8px; }
+  .dugme { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 64px; padding: 4px 2px; border: 2px solid var(--kenar); border-radius: 16px; background: var(--kart); box-shadow: 0 4px 0 var(--kenar); touch-action: none; -webkit-tap-highlight-color: transparent; }
+  .dugme:active { transform: translateY(4px) scale(0.97); box-shadow: none; }
   .dugme span { font-size: 26px; line-height: 1; }
   .dugme small { font-size: 11px; }
-  .dugme.ver { border-color: var(--basari); }
+  .dugme.ver { flex: 1.6; border-color: var(--basari); }
+  .dugme.kucuk { flex: 0.8; min-height: 56px; align-self: center; }
   .dugme.parlak { animation: parla 0.9s ease-in-out infinite; }
 
   .perde { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--renk-koyu) 70%, transparent); }
@@ -314,16 +339,11 @@
   .uyari { margin: 0; color: var(--vurgu); font-size: 14px; }
   .ikincil { background: var(--zemin); color: var(--yazi); border: 1px solid var(--kenar); }
 
-  @keyframes ucus {
-    0% { transform: translateY(0) scaleY(1); }
-    25% { transform: translateY(-110px) scaleY(0.12); }
-    50% { transform: translateY(-150px) scaleY(1); }
-    75% { transform: translateY(100px) scaleY(0.12); }
-    100% { transform: translateY(var(--d)) scaleY(1); }
-  }
-  @keyframes salla { 30% { transform: translateY(-14px) rotate(-6deg); } 70% { transform: translateY(2px) rotate(2deg); } }
-  @keyframes wobble { 25% { transform: translateX(-6px) rotate(-1.5deg); } 55% { transform: translateX(5px) rotate(1deg); } 80% { transform: translateX(-2px); } }
-  @keyframes yuksel { from { transform: translateY(8px); opacity: 1; } to { transform: translateY(-14px); opacity: 0; } }
   @keyframes patla { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 60% { transform: translateX(-50%) scale(1.12); opacity: 1; } 100% { transform: translateX(-50%) scale(1); } }
   @keyframes parla { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--renk-ana) 45%, transparent); } }
+  @keyframes parla-s { 50% { transform: scale(1.12); } }
+  @keyframes kavanoz { 0%, 90%, 100% { transform: none; } 94% { transform: translateY(-3px) rotate(-4deg); } 97% { transform: rotate(3deg); } }
+  @keyframes yelpaze { 50% { transform: rotate(4deg); } }
+  @keyframes dus { 0% { transform: translateY(-130px) scale(0.8); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(0) scale(1.1, 0.7); opacity: 0; } }
+  @keyframes coin { 0% { transform: translate(0, 0) scale(0.6); opacity: 1; } 100% { transform: translate(calc(var(--dx) * 1.5), -300px) scale(1); opacity: 0; } }
 </style>
