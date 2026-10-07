@@ -5,7 +5,7 @@ import tipler from "../veri/musteriler.json";
 import type { Ayarlar, Malzeme, MusteriTipi, TabakParcasi } from "../../types/oyun";
 import { degerlendir } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
-import { hamurIcinde, hamurSonucu, hamurToleransi } from "./hamur";
+import { hamurIcinde, hamurPayi, hamurSonucu, hamurToleransi } from "./hamur";
 import { baglamOlustur, bolgeBul, cevirKalitesi, cevirPenceresi, krepParcasi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava, type Tava } from "./pisirme";
 import { rngOlustur } from "./rng";
 import { seviyeAyari } from "./seviye";
@@ -166,6 +166,26 @@ describe("hamur dökme", () => {
     expect(hamurSonucu(0.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: true });
     expect(hamurSonucu(1.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: false });
     expect(hamurSonucu(0.7, 1, A).kalinlik).toBeNull();
+  });
+  test("ince krebin dökme payı normalinkinden dar değil (kalınlık şansa bağlı zorluk yaratmaz); kalın aynı kalır", () => {
+    const { ince, normal, kalin } = A.hamur.hedef;
+    for (const s of [1, 20, 100, 500, 1e6]) {
+      expect(hamurPayi(ince, s)).toBeCloseTo(hamurPayi(normal, s), 9);
+      expect(hamurPayi(kalin, s)).toBeCloseTo(hamurToleransi(s) * kalin, 9); // kalın: önceki oransal pay
+      expect(hamurPayi(normal, s)).toBeCloseTo(hamurToleransi(s), 9); // normal: değişmedi
+    }
+    // Seviye 1 (±0,10): ince 0,60–0,80 doğru, dışı yanlış
+    expect(hamurIcinde(0.6, ince, 1)).toBe(true);
+    expect(hamurIcinde(0.8, ince, 1)).toBe(true);
+    expect(hamurIcinde(0.59, ince, 1)).toBe(false);
+    expect(hamurIcinde(0.81, ince, 1)).toBe(false);
+  });
+  test("üç kalınlık penceresi hiçbir seviyede çakışmaz (döküm tek bir kalınlığa karşılık gelir)", () => {
+    const { ince, normal, kalin } = A.hamur.hedef;
+    for (const s of [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 1e6, 1e9]) {
+      expect(ince + hamurPayi(ince, s)).toBeLessThan(normal - hamurPayi(normal, s));
+      expect(normal + hamurPayi(normal, s)).toBeLessThan(kalin - hamurPayi(kalin, s));
+    }
   });
   test("tercihler açıkken ince / normal / kalın hedefleri ayrı ayrı geçerli", () => {
     expect(hamurSonucu(A.hamur.hedef.ince, 20, A, true).kalinlik).toBe("ince");

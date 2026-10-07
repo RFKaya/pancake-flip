@@ -27,23 +27,29 @@ export function hamurYay(h: Hamur, px: number, ayar: Ayarlar) {
 export interface HamurSonuc {
   /** Dökülen miktarın denk geldiği kalınlık; hiçbir hedefin toleransına girmiyorsa null (krep geçersiz, atılır) */
   kalinlik: Kalinlik | null;
-  mukemmel: boolean; // "PERFECT POUR!": hedefe toleransın yarısından yakın
+  mukemmel: boolean; // "MÜKEMMEL DÖKÜŞ!": hedefe payın yarısından yakın
   az: boolean; // geçersizse: hedefin altında mı kaldı (geri bildirim için)
 }
 
-/** Miktar, hedefin ±tolerans aralığında mı? (sınırlar dahil; ör. hedef 1, tolerans 0,10 → 0,90–1,10) */
+/**
+ * Hedefin ± kabul payı (miktar birimiyle). Miktarlar normal krebe göre ölçeklidir (normal = 1), tolerans da normalin yüzdesidir.
+ * Hiçbir hedefin payı normalinkinden dar olamaz: ince krep (hedef < 1) normal kadar süre tanır, kalın krep (hedef > 1) kendi
+ * oranıyla genişler. Böylece müşterinin rastgele seçtiği kalınlık, dökme penceresini daraltıp zorluğu şansa bağlamaz.
+ */
+export const hamurPayi = (hedef: number, seviye: number): number => hamurToleransi(seviye) * Math.max(1, hedef);
+
+/** Miktar, hedefin ± payı içinde mi? (sınırlar dahil; ör. seviye 1'de normal 0,90–1,10, ince 0,60–0,80) */
 export function hamurIcinde(miktar: number, hedef: number, seviye: number): boolean {
-  return Math.abs(miktar / hedef - 1) <= hamurToleransi(seviye) + 1e-9;
+  return Math.abs(miktar - hedef) <= hamurPayi(hedef, seviye) + 1e-9;
 }
 
 /** Geçerli kalınlık hedefleri: tercihler açılmadan yalnızca "normal" */
 export const hamurHedefleri = (tercihAcik: boolean): Kalinlik[] => (tercihAcik ? ["ince", "normal", "kalin"] : ["normal"]);
 
 export function hamurSonucu(miktar: number, seviye: number, ayar: Ayarlar, tercihAcik = false): HamurSonuc {
-  const tol = hamurToleransi(seviye);
   for (const k of hamurHedefleri(tercihAcik)) {
     const h = ayar.hamur.hedef[k];
-    if (hamurIcinde(miktar, h, seviye)) return { kalinlik: k, mukemmel: Math.abs(miktar / h - 1) <= tol / 2, az: false };
+    if (hamurIcinde(miktar, h, seviye)) return { kalinlik: k, mukemmel: Math.abs(miktar - h) <= hamurPayi(h, seviye) / 2, az: false };
   }
   return { kalinlik: null, mukemmel: false, az: miktar < ayar.hamur.hedef.normal };
 }
