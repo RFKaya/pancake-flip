@@ -39,6 +39,9 @@ class Kayit {
   }
 
   servisKaydet(bolumNo: number, yildiz: number, net: number) {
+    // Servis sayfası doğrudan açılmış olabilir (yenileme, uygulama yeniden açılışı): bellekteki boş
+    // varsayılanın üstüne yazıp eski ilerlemeyi silmemek için önce diskteki kayıt okunur.
+    this.yukle();
     const onceki = this.veri.bolumler[String(bolumNo)];
     this.veri.bolumler[String(bolumNo)] = {
       yildiz: Math.max(onceki?.yildiz ?? 0, yildiz),
