@@ -6,7 +6,8 @@
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al.
   // Temel kural: tabak bir siparişin BİREBİR aynısı olunca kendiliğinden servis edilir; yanlış tabak asla kabul edilmez.
   import { onDestroy, onMount } from "svelte";
-  import { fade, fly } from "svelte/transition";
+  import { flip } from "svelte/animate";
+  import { fade, fly, scale } from "svelte/transition";
   import { fisKaydet } from "$lib/fisler.svelte";
   import { gelistiriciModuAcik, ilerleme } from "$lib/ilerleme.svelte";
   import { ruhHali } from "$lib/oyun/musteri";
@@ -16,7 +17,9 @@
   import { sayiKisalt, type Acilis } from "$lib/oyun/seviye";
   import { cal } from "$lib/oyun/ses";
   import { AYAR, malzeme, tip as tipBul } from "$lib/oyun/veri";
+  import sahneAyar from "$lib/veri/sahne.json";
   import GelistiriciPaneli from "./GelistiriciPaneli.svelte";
+  import Karakter from "./Karakter.svelte";
   import Tava from "./Tava.svelte";
   import type { Musteri, Sonuc, TabakParcasi } from "../../types/oyun";
 
@@ -41,6 +44,12 @@
   let dusenler = $state<{ id: number; ikon: string }[]>([]);
   let coinler = $state<{ id: number; dx: number }[]>([]);
   let sayac = 0;
+  /** Servis edilmiş / öfkeyle gitmiş müşteriler: tepkilerini göstermek için kısa süre sahnede kalır */
+  type Ayrilan = { m: Musteri; durum: "mutlu" | "kizgin"; yemek: boolean };
+  let ayrilanlar = $state<Ayrilan[]>([]);
+  /** Tavada servise hazır krep olan tava sayısı (tabak "buraya koy" diye parlar) */
+  let hazirTava = $state(0);
+  let copAt = $state(false);
   let sonucNo = 0;
   let bildirimNo = 0;
 
@@ -51,6 +60,24 @@
   let seviyeEl: HTMLElement;
 
   const sv = $derived(oturum.sv);
+  /** Sahnedeki herkes: bekleyen müşteriler + tepki veren ayrılanlar, geliş sırasıyla (fişi yalnızca bekleyenin vardır) */
+  const sahnedekiler = $derived(
+    [
+      ...oturum.musteriler.map((m) => ({ m, ay: null as Ayrilan | null })),
+      ...ayrilanlar.map((a) => ({ m: a.m, ay: a as Ayrilan | null })),
+    ].sort((a, b) => a.m.id - b.m.id),
+  );
+  const yuzu = (m: Musteri, ay: Ayrilan | null) =>
+    ay ? (ay.durum === "kizgin" ? "🤬" : ay.yemek ? "😋" : "🤩") : ruhHali(sabirOrani(m), AYAR).yuz;
+
+  function ayrilanEkle(m: Musteri, durum: Ayrilan["durum"]) {
+    if (ayrilanlar.some((x) => x.m.id === m.id)) return;
+    ayrilanlar.push({ m, durum, yemek: false });
+    const a = ayrilanlar[ayrilanlar.length - 1];
+    if (durum === "mutlu") setTimeout(() => (a.yemek = true), sahneAyar.mutluYemekMs);
+    setTimeout(() => (ayrilanlar = ayrilanlar.filter((x) => x.m.id !== m.id)), durum === "mutlu" ? sahneAyar.mutluMs : sahneAyar.kizginMs);
+  }
+
   const menu = $derived(sv.menu.map(malzeme));
   const tavaSayisi = $derived(sv.tava);
   const olcek = $derived(tavaSayisi > 1 ? 0.62 : 1);
@@ -120,6 +147,7 @@
         cal("pop");
         kontrolEt(false);
       } else if (o.tur === "gitti") {
+        ayrilanEkle(o.musteri, "kizgin");
         gittiNo++;
         cal("puf");
         const no = gittiNo;
@@ -180,6 +208,8 @@
     tabak = [];
     tabakZipla(0.6);
     cal("cop");
+    copAt = true;
+    setTimeout(() => (copAt = false), 380);
   }
 
   const YAZI: Record<Sonuc, string> = { perfect: "MÜKEMMEL!", great: "HARİKA", good: "İYİ", olmadi: "BU DEĞİL! 😅" };
@@ -221,8 +251,11 @@
   }
 
   function teslim() {
+    const d = tabakDurumu(oturum, tabak);
+    const servis = d.durum === "dogru" ? d.musteri : null;
     const r = musteriyeVer(oturum, tabak);
     if (!r) return;
+    if (servis) ayrilanEkle(servis, "mutlu");
     sonucGoster(r.sonuc, "", r.kazanc);
 
     // Madeni para patlaması + sayaç zıplaması
@@ -261,6 +294,7 @@
   function testSeviyesi(seviye: number) {
     testModu = true;
     oturumSeviyeAyarla(oturum, seviye);
+    ayrilanlar = [];
     tabak = [];
     sonuc = null;
     bildirim = null;
@@ -282,6 +316,7 @@
     ilerleme.yukle();
     oturum = yeniOturum({ ...ilerleme.veri });
     testModu = false;
+    ayrilanlar = [];
     tabak = [];
     tekrar++;
   }
@@ -294,6 +329,7 @@
   // ---- Görünüm yardımcıları ----
   const krepSayisi = (m: Musteri) => m.siparis.parcalar.filter((id) => id === "krep").length;
   const ekler = (m: Musteri) => m.siparis.parcalar.filter((id) => id !== "krep").map((id) => malzeme(id).ad);
+  const i_hedef = (m: Musteri) => hedef?.id === m.id;
   const ruh = (m: Musteri) => (sabirOrani(m) > 0.5 ? "iyi" : sabirOrani(m) > 0.25 ? "orta" : "kotu");
 </script>
 
@@ -319,50 +355,73 @@
     <span class="ilerleme-yazi">{ilerlemeYazi} müşteri</span>
   </div>
 
-  <!-- Duvar: müşteri fişleri, raf, kavanozlar -->
+  <!-- Duvar (katmanlar arkadan öne): duvar kağıdı → arka masalar → raf/saat → müşteriler + fişleri → tezgâh kenarı -->
   <div class="duvar">
+    <div class="kagit" aria-hidden="true"></div>
+    <div class="arka-masalar" aria-hidden="true">
+      <span class="masa-a ma1"><i class="sandalye"></i><i class="konuk">🧑‍🦱</i><i class="tabla"></i><i class="ayak"></i></span>
+      <span class="masa-a ma2"><i class="sandalye"></i><i class="konuk">👵</i><i class="tabla"></i><i class="ayak"></i></span>
+    </div>
+    <div class="saat" aria-hidden="true"><i class="ibre ak"></i><i class="ibre yel"></i></div>
+    <div class="raf-ust" aria-hidden="true">
+      <span class="r-bitki">🪴</span>
+      <span class="r-tabaklar"><i></i><i></i><i></i></span>
+      <span class="r-kavanoz"><i></i></span>
+      <span class="r-sus">🥞</span>
+      <b class="tahta"></b>
+    </div>
+
     <div class="tabela" class:gizli={oyunda} aria-hidden="true">
       <span class="ip sol"></span><span class="ip sag"></span>
       <b>pancake<em>flip</em></b>
     </div>
-    <div class="fisler" class:gizli={!oyunda}>
-      {#each oturum.musteriler as m, i (m.id)}
+
+    <div class="musteriler" class:gizli={!oyunda}>
+      {#each sahnedekiler as { m, ay } (m.id)}
         {@const t = tipBul(m.tip)}
         {@const oran = sabirOrani(m)}
         {@const dogru = onek(m.siparis.parcalar)}
         {@const ek = ekler(m)}
-        <aside
-          class="fis {ruh(m)}"
-          class:hedef={i === hedefIndeks && oturum.musteriler.length > 1}
-          class:ozel={m.tip !== "normal"}
-          style:--kh={m.siparis.parcalar.length > 7 ? "6px" : "9px"}
-          aria-label="Sipariş"
-          in:fly={{ y: -24, duration: 260 }}
-          out:fade={{ duration: 160 }}
-        >
-          <i class="igne"></i>
-          <div class="kimlik"><span class="tip">{t.ikon}</span><span class="ruh">{ruhHali(oran, AYAR).yuz}</span></div>
-          <div class="sabir"><i style:transform={`scaleX(${oran})`}></i></div>
-          {#if m.tip !== "normal"}<small class="tip-ad">{t.ad}</small>{/if}
-          <b class="fis-ust">{krepSayisi(m) === 1 && !ek.length ? "1 sade krep" : `${krepSayisi(m)} krep`}</b>
-          {#if ek.length}<small class="fis-ek">+ {ek.join(", ")}</small>{/if}
-          {#if m.siparis.tercih}<small class="tercih">📏 {m.siparis.tercih === "ince" ? "ince" : "kalın"} krep</small>{/if}
-          <div class="mini">
-            {#each m.siparis.parcalar as id, j}
-              <div class="satir" class:bitti={j < dogru} class:siradaki={i === hedefIndeks && j === dogru && siradaki === id}>
-                {#if id === "krep"}<span class="m-krep {m.siparis.tercih ?? ''}"></span>{:else}<span class="m-ek">{malzeme(id).ikon}</span>{/if}
-                {#if j < dogru}<em>✓</em>{/if}
+        <div class="kolon" class:hedef={!ay && i_hedef(m)} class:coklu={oturum.musteriler.length > 1} animate:flip={{ duration: 260 }} in:fly={{ y: 26, duration: 320 }} out:fade={{ duration: 180 }}>
+          {#if !ay}
+            <aside
+              class="fis {ruh(m)}"
+              class:hedef={i_hedef(m) && oturum.musteriler.length > 1}
+              class:ozel={m.tip !== "normal"}
+              style:--kh={m.siparis.parcalar.length > 7 ? "6px" : "9px"}
+              aria-label="Sipariş"
+              out:fade={{ duration: 120 }}
+            >
+              <i class="igne"></i>
+              <div class="baslik">
+                <div class="kimlik"><Karakter kimlik={m.id} yuz={yuzu(m, ay)} boyut="kucuk" rozet={m.tip !== "normal" ? t.ikon : ""} /></div>
+                <div class="metin">
+                  {#if m.tip !== "normal"}<small class="tip-ad">{t.ad}</small>{/if}
+                  <b class="fis-ust">{krepSayisi(m) === 1 && !ek.length ? "1 sade krep" : `${krepSayisi(m)} krep`}</b>
+                  {#if ek.length}<small class="fis-ek">+ {ek.join(", ")}</small>{/if}
+                  {#if m.siparis.tercih}<small class="tercih">📏 {m.siparis.tercih === "ince" ? "ince" : "kalın"}</small>{/if}
+                </div>
               </div>
-            {/each}
+              <div class="sabir"><i style:transform={`scaleX(${oran})`}></i></div>
+              <div class="mini">
+                {#each m.siparis.parcalar as id, j}
+                  <div class="satir" class:bitti={j < dogru} class:siradaki={i_hedef(m) && j === dogru && siradaki === id}>
+                    {#if id === "krep"}<span class="m-krep {m.siparis.tercih ?? ''}"></span>{:else}<span class="m-ek">{malzeme(id).ikon}</span>{/if}
+                    {#if j < dogru}<em>✓</em>{/if}
+                  </div>
+                {/each}
+              </div>
+            </aside>
+          {/if}
+          <div class="kisi" class:bulut={!ay && ruh(m) === "kotu"}>
+            <Karakter kimlik={m.id} yuz={yuzu(m, ay)} rozet={m.tip !== "normal" ? t.ikon : ""} durum={ay ? ay.durum : "bekle"} sabirsiz={!ay && oran < 0.4} />
+            {#if !ay && oran < 0.4}<span class="dusunce" aria-hidden="true">💭</span>{/if}
           </div>
-        </aside>
+        </div>
       {/each}
     </div>
-    <div class="raf">
-      <span class="kavanoz k1"><i></i></span>
-      <span class="kavanoz k2"><i></i></span>
-      <span class="kavanoz k3"><i></i></span>
-    </div>
+
+    <div class="tezgah-kenar" aria-hidden="true"></div>
     {#if oturum.yogunKalan > 0}
       <div class="yogun">🔥 YOĞUN SAAT {Math.ceil(oturum.yogunKalan)}</div>
     {/if}
@@ -370,15 +429,29 @@
 
   <!-- Tezgâh: tava(lar) + tabak -->
   <main class="tezgah" class:cift-sira={menu.length > 4}>
+    <!-- Tezgâhın arka sırası: kaşıklık, açılan malzemelerin kapları, peçete kutusu -->
+    <div class="arka-sira" aria-hidden="true">
+      <span class="kasiklik"><i class="bardak"></i><em class="k1">🥄</em><em class="k2">🍴</em></span>
+      <span class="un"><i></i><b>un</b></span>
+      <span class="kaplar">
+        {#each menu as m (m.id)}
+          <span class="kap" class:parla={siradaki === m.id} style:--c={`var(${m.renkDegiskeni})`} in:scale={{ duration: 360, start: 0.3 }}>
+            <i class="kapak"></i><i class="dolgu"></i><b>{m.ikon}</b>
+          </span>
+        {/each}
+      </span>
+      <span class="pecete"><i></i><i></i></span>
+    </div>
+
     {#key tekrar}
       <div class="tavalar" class:cift={tavaSayisi > 1}>
         {#each Array(tavaSayisi) as _, i (i)}
-          <Tava kilit={!oyunda} seviye={oturum.seviye} ipucuAcik={sv.ipucu && oyunda} {hedefKalinlik} {olcek} duraklat={paneAcik || !oyunda} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
+          <Tava kilit={!oyunda} onHazir={(h) => (hazirTava += h ? 1 : -1)} seviye={oturum.seviye} ipucuAcik={sv.ipucu && oyunda} {hedefKalinlik} {olcek} duraklat={paneAcik || !oyunda} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
         {/each}
       </div>
     {/key}
 
-    <div class="tabak" class:yanlis={tabakYanlis} bind:this={tabakEl}>
+    <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} bind:this={tabakEl}>
       <div class="kule" bind:this={kuleEl}>
         {#each tabak as p, i (i)}
           {#if p.malzeme === "krep"}<div class="t-krep {p.pisme} {p.kalinlik ?? 'normal'}"></div>
@@ -393,6 +466,11 @@
       {/each}
       <div class="plaka"></div>
     </div>
+
+    <span class="tabak-yigini" aria-hidden="true"><i></i><i></i><i></i></span>
+    <button class="cop" class:parla={tabakYanlis} class:acik={copAt || tabak.length > 0} onpointerdown={bosalt} aria-label="Tabağı çöpe at">
+      <i class="cop-kapak"></i><i class="cop-govde"></i>
+    </button>
   </main>
 
   {#if sonuc}
@@ -431,9 +509,6 @@
         </button>
       {/each}
     </div>
-    <div class="eylemler">
-      <button class="dugme kucuk" class:parlak={tabakYanlis} class:uyari={tabakYanlis} onpointerdown={bosalt} aria-label="Tabağı boşalt"><span>🗑</span><small>Boşalt</small></button>
-    </div>
   </footer>
 
   {#if gelistirici && paneAcik}
@@ -471,8 +546,8 @@
 
   /* Lobi ↔ oyun: yalnızca opacity/transform, kısa; sahne (kamera, tava, tabak) yerinde kalır */
   .gizli { opacity: 0; pointer-events: none; }
-  .fisler, .tabela, .lobi-ust, .geri, .oyna, .alt-bar { transition: opacity 0.3s ease, transform 0.3s ease; }
-  .fisler.gizli { transform: translateY(-12px); }
+  .musteriler, .tabela, .lobi-ust, .geri, .oyna, .alt-bar { transition: opacity 0.3s ease, transform 0.3s ease; }
+  .musteriler.gizli { transform: translateY(12px); }
   .alt-bar.gizli { transform: translateY(24px); }
   .lobi-ust { display: flex; gap: 6px; }
   .lobi-ust.gizli { position: absolute; right: 0; }
@@ -480,7 +555,7 @@
   .yuvarlak { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 3px 0 var(--kenar); color: var(--yazi); font-size: 17px; font-weight: 900; text-decoration: none; }
   .yuvarlak:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--kenar); }
 
-  .tabela { position: absolute; left: 50%; top: 14px; z-index: 3; padding: 8px 18px 10px; border-radius: 14px; background: linear-gradient(180deg, var(--krep-iyi), color-mix(in srgb, var(--krep-iyi) 70%, black)); box-shadow: 0 5px 0 rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.18); transform-origin: 50% -26px; translate: -50% 0; animation: salin 4.5s ease-in-out infinite; }
+  .tabela { position: absolute; left: 50%; top: 40px; z-index: 3; padding: 8px 18px 10px; border-radius: 14px; background: linear-gradient(180deg, var(--krep-iyi), color-mix(in srgb, var(--krep-iyi) 70%, black)); box-shadow: 0 5px 0 rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.18); transform-origin: 50% -26px; translate: -50% 0; animation: salin 4.5s ease-in-out infinite; }
   .tabela b { display: block; color: var(--ust-yazi); font-size: 24px; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
   .tabela em { font-style: normal; color: var(--renk-logo); }
   .ip { position: absolute; top: -26px; width: 2px; height: 28px; background: var(--sahne-tezgah-koyu); }
@@ -513,22 +588,63 @@
   .ilerleme-yazi { padding: 2px 8px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; }
 
   /* Duvar */
-  .duvar { position: relative; flex: none; width: calc(100% + 24px); height: 178px; margin: 6px -12px 0; }
-  .fisler { position: absolute; left: 8px; top: 6px; z-index: 5; display: flex; align-items: flex-start; gap: 6px; }
-  .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 84px; max-width: 112px; padding: 12px 8px 8px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
-  .fis:nth-child(odd) { transform: rotate(-2deg); }
-  .fis:nth-child(even) { transform: rotate(1.5deg); }
+  .duvar { position: relative; flex: none; width: calc(100% + 24px); height: 204px; margin: 6px -12px 0; overflow: hidden; }
+  .kagit { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 22px, rgb(255 255 255 / 0.22) 22px 44px), linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--sahne-tezgah-koyu) 30%, transparent) 62% 100%); }
+  .kagit::after { content: ""; position: absolute; left: 0; right: 0; top: 62%; height: 4px; background: rgb(255 255 255 / 0.5); }
+
+  /* Arka plan: uzakta oturan, sönük konuklar (oyunun önüne geçmesin) */
+  .arka-masalar { position: absolute; inset: 0; opacity: 0.55; filter: blur(0.6px); }
+  .masa-a { position: absolute; bottom: 22px; width: 64px; height: 62px; }
+  .ma1 { right: 16px; } .ma2 { right: 100px; transform: scale(0.85); transform-origin: 50% 100%; }
+  .masa-a .tabla { position: absolute; left: 6px; right: 6px; top: 30px; height: 12px; border-radius: 50%; background: var(--sahne-tezgah-koyu); box-shadow: 0 3px 0 rgb(0 0 0 / 0.12); }
+  .masa-a .ayak { position: absolute; left: 30px; top: 40px; width: 5px; height: 22px; background: var(--sahne-tezgah-koyu); }
+  .masa-a .sandalye { position: absolute; left: 0; top: 24px; width: 12px; height: 26px; border-radius: 6px 6px 2px 2px; background: color-mix(in srgb, var(--sahne-tezgah-koyu) 80%, black); }
+  .masa-a .konuk { position: absolute; left: 14px; top: 2px; font-style: normal; font-size: 24px; line-height: 1; animation: konuk 3.6s ease-in-out infinite; }
+  .ma2 .konuk { animation-delay: -1.8s; }
+
+  .saat { position: absolute; right: 14px; top: 8px; z-index: 2; width: 28px; height: 28px; border-radius: 50%; background: var(--kart); border: 3px solid var(--sahne-tezgah-koyu); box-shadow: 0 2px 0 rgb(0 0 0 / 0.12); }
+  .ibre { position: absolute; left: 50%; bottom: 50%; width: 2px; border-radius: 2px; background: var(--yazi); transform-origin: 50% 100%; }
+  .ibre.ak { height: 9px; animation: don 24s linear infinite; }
+  .ibre.yel { height: 6px; animation: don 288s linear infinite; }
+
+  /* Raf: sağ üstte, ana oyun alanını kapatmaz */
+  .raf-ust { position: absolute; right: 8px; top: 46px; z-index: 2; width: 132px; height: 40px; }
+  .raf-ust .tahta { position: absolute; left: 0; right: 0; bottom: 0; height: 7px; border-radius: 3px; background: var(--sahne-tezgah-koyu); box-shadow: 0 3px 0 rgb(0 0 0 / 0.14); }
+  .r-bitki { position: absolute; left: 2px; bottom: 5px; font-size: 24px; line-height: 1; transform-origin: 50% 100%; animation: sallan 5s ease-in-out infinite; }
+  .r-tabaklar { position: absolute; left: 34px; bottom: 7px; width: 26px; height: 16px; }
+  .r-tabaklar i { position: absolute; left: 0; right: 0; height: 5px; border-radius: 50%; background: var(--sahne-tabak); box-shadow: 0 2px 0 var(--sahne-tabak-koyu); }
+  .r-tabaklar i:nth-child(1) { bottom: 0; } .r-tabaklar i:nth-child(2) { bottom: 4px; } .r-tabaklar i:nth-child(3) { bottom: 8px; }
+  .r-kavanoz { position: absolute; left: 70px; bottom: 7px; width: 18px; height: 22px; border-radius: 4px 4px 7px 7px; background: color-mix(in srgb, var(--sahne-tabak) 35%, white); border: 2px solid color-mix(in srgb, var(--sahne-tabak) 50%, white); }
+  .r-kavanoz i { position: absolute; left: 1px; right: 1px; bottom: 1px; height: 55%; border-radius: 2px 2px 5px 5px; background: var(--vurgu); }
+  .r-kavanoz::before { content: ""; position: absolute; left: 1px; right: 1px; top: -6px; height: 5px; border-radius: 3px; background: var(--renk-ana); }
+  .r-sus { position: absolute; right: 2px; bottom: 7px; font-size: 22px; line-height: 1; }
+
+  /* Müşteriler + fişleri: fiş kişinin başının üstünde asılı, fişteki portre aynı kişi */
+  .musteriler { position: absolute; left: 8px; right: 8px; bottom: 6px; z-index: 5; display: flex; align-items: flex-end; gap: 6px; }
+  .kolon { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; transition: opacity 0.25s, transform 0.25s; }
+  .kolon.coklu:not(.hedef) { opacity: 0.88; }
+  .kolon.hedef .kisi { transform: scale(1.08); transform-origin: 50% 100%; }
+  .kisi { position: relative; height: 62px; margin-bottom: -2px; transition: transform 0.25s; }
+  .kisi :global(.kr) { margin: 0 auto; }
+  .dusunce { position: absolute; right: -6px; top: -2px; font-size: 16px; animation: balon 1.1s ease-in-out infinite; }
+  .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 92px; max-width: 124px; padding: 12px 8px 8px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
+  .fis::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; margin-left: -6px; background: var(--kart); border-right: 1px solid var(--kenar); border-bottom: 1px solid var(--kenar); transform: rotate(45deg); z-index: -1; }
+  .kolon:nth-child(odd) .fis { transform: rotate(-2deg); }
+  .kolon:nth-child(even) .fis { transform: rotate(1.5deg); }
   .fis.hedef { border-color: var(--renk-ana); box-shadow: 0 4px 0 var(--renk-ana); }
+  .fis.hedef::after { border-color: var(--renk-ana); }
   .fis.ozel { border-color: var(--renk-logo); }
   .igne { position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--vurgu); box-shadow: 0 2px 0 rgb(0 0 0 / 0.2); }
-  .kimlik { display: flex; align-items: center; gap: 4px; font-size: 18px; line-height: 20px; }
+  .baslik { display: flex; align-items: center; gap: 5px; width: 100%; text-align: left; }
+  .metin { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+  .kimlik { display: flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 30px; }
   .sabir { width: 100%; height: 5px; overflow: hidden; border-radius: 3px; background: var(--kenar); }
   .sabir i { display: block; width: 100%; height: 100%; border-radius: 3px; background: var(--basari); transform-origin: left center; }
   .fis.orta .sabir i { background: var(--renk-logo); }
   .fis.kotu .sabir i { background: var(--vurgu); }
   .fis.kotu { animation: tedirgin 0.5s ease-in-out infinite; }
   .tip-ad { color: var(--renk-ana); font-size: 10px; font-weight: 800; }
-  .fis-ust { font-size: 13px; }
+  .fis-ust { font-size: 13px; white-space: nowrap; }
   .fis-ek { font-size: 10px; color: var(--yazi-soluk); line-height: 1.15; }
   .tercih { font-size: 10px; font-weight: 800; color: var(--vurgu); }
   .mini { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; margin-top: 4px; }
@@ -541,21 +657,53 @@
   .m-krep.kalin { height: calc(var(--kh, 9px) * 1.4); }
   .m-ek { font-size: calc(var(--kh, 9px) + 2px); line-height: calc(var(--kh, 9px) + 2px); }
 
-  .raf { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
-  .kavanoz { position: absolute; bottom: 10px; width: 30px; height: 40px; border-radius: 6px 6px 10px 10px; background: color-mix(in srgb, var(--sahne-tabak) 35%, white); border: 2px solid color-mix(in srgb, var(--sahne-tabak) 50%, white); }
-  .kavanoz::before { content: ""; position: absolute; left: 3px; right: 3px; top: -9px; height: 9px; border-radius: 4px; background: var(--renk-ana); }
-  .kavanoz i { position: absolute; left: 3px; right: 3px; bottom: 3px; height: 55%; border-radius: 3px 3px 6px 6px; background: var(--krep-az); }
-  .k1 { right: 92px; animation: kavanoz 5s ease-in-out infinite; }
-  .k2 { right: 56px; height: 32px; animation: kavanoz 5s ease-in-out 1.7s infinite; } .k2 i { background: var(--vurgu); }
-  .k3 { right: 20px; height: 46px; width: 28px; animation: kavanoz 5s ease-in-out 3.1s infinite; } .k3 i { background: var(--krep-iyi); }
-  .yogun { position: absolute; right: 12px; top: 6px; z-index: 6; padding: 3px 10px; border-radius: 999px; background: var(--vurgu); color: var(--renk-ana-yazi); font-size: 12px; font-weight: 900; animation: parla-s 0.8s ease-in-out infinite; }
+  /* Tezgâhın ön kenarı: müşterilerin belden aşağısını örter */
+  .tezgah-kenar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; height: 14px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
+  .yogun { position: absolute; right: 50px; top: 10px; z-index: 6; padding: 3px 10px; border-radius: 999px; background: var(--vurgu); color: var(--renk-ana-yazi); font-size: 12px; font-weight: 900; animation: parla-s 0.8s ease-in-out infinite; }
 
   /* Tezgâh */
   .tezgah { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: calc(100% + 24px); margin: 0 -12px; padding-bottom: 80px; background: linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
   .tezgah.cift-sira { padding-bottom: 146px; }
+  .tezgah { --alt: 80px; background-image: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 38px), linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
+  .tezgah.cift-sira { --alt: 146px; }
   .tavalar { position: relative; z-index: 6; display: flex; justify-content: center; gap: 6px; margin-top: 40px; }
 
-  .tabak { position: relative; z-index: 4; width: 290px; height: 150px; flex: none; }
+  /* Tezgâhın arka sırası: malzeme kapları, kaşıklık, peçete */
+  .arka-sira { position: absolute; left: 10px; right: 10px; top: 14px; z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 46px; pointer-events: none; }
+  .kaplar { flex: 1; display: flex; justify-content: center; align-items: flex-end; gap: 4px; }
+  .kap, .un { position: relative; flex: none; width: 30px; height: 38px; border-radius: 5px 5px 10px 10px; background: color-mix(in srgb, var(--sahne-tabak) 30%, white); border: 2px solid color-mix(in srgb, var(--sahne-tabak) 50%, white); box-shadow: 0 3px 0 rgb(0 0 0 / 0.12); }
+  .kap .kapak, .un::before { content: ""; position: absolute; left: 2px; right: 2px; top: -8px; height: 8px; border-radius: 4px; background: var(--renk-ana); }
+  .kap .kapak { display: block; background: var(--c, var(--renk-ana)); }
+  .kap .dolgu { position: absolute; left: 2px; right: 2px; bottom: 2px; height: 58%; border-radius: 3px 3px 7px 7px; background: var(--c); opacity: 0.85; }
+  .kap b { position: absolute; left: 0; right: 0; bottom: 6px; z-index: 1; font-size: 15px; line-height: 1; text-align: center; font-weight: 400; }
+  .kap.parla { animation: kap-sal 0.7s ease-in-out infinite; }
+  .un { background: color-mix(in srgb, var(--kart) 85%, white); border-color: var(--kenar); }
+  .un::before { background: var(--sahne-tezgah-koyu); }
+  .un i { position: absolute; left: 2px; right: 2px; bottom: 2px; height: 50%; border-radius: 3px 3px 7px 7px; background: var(--zemin); }
+  .un b { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font-size: 9px; font-weight: 900; color: var(--yazi-soluk); }
+  .kasiklik { position: relative; flex: none; width: 30px; height: 44px; }
+  .kasiklik .bardak { position: absolute; left: 3px; right: 3px; bottom: 0; height: 22px; border-radius: 3px 3px 8px 8px; background: var(--renk-logo); box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.12); }
+  .kasiklik em { position: absolute; bottom: 14px; font-style: normal; font-size: 20px; line-height: 1; }
+  .kasiklik .k1 { left: 0; transform: rotate(-14deg); } .kasiklik .k2 { right: 0; transform: rotate(12deg); }
+  .pecete { position: relative; flex: none; width: 30px; height: 30px; border-radius: 4px; background: var(--vurgu); box-shadow: 0 3px 0 rgb(0 0 0 / 0.14); }
+  .pecete i { position: absolute; left: 5px; right: 5px; top: -7px; height: 12px; border-radius: 2px; background: white; transform: rotate(-6deg); border: 1px solid var(--kenar); }
+  .pecete i + i { transform: rotate(8deg); top: -9px; }
+
+  /* Tabak yığını (sol) ve çöp kutusu (sağ): tezgâhın alt köşeleri */
+  .tabak-yigini { position: absolute; left: 10px; bottom: calc(var(--alt) + 8px); z-index: 3; width: 38px; height: 30px; pointer-events: none; }
+  .tabak-yigini i { position: absolute; left: 0; right: 0; height: 9px; border-radius: 50%; background: var(--sahne-tabak); box-shadow: 0 3px 0 var(--sahne-tabak-koyu); }
+  .tabak-yigini i:nth-child(1) { bottom: 0; } .tabak-yigini i:nth-child(2) { bottom: 7px; } .tabak-yigini i:nth-child(3) { bottom: 14px; }
+  .cop { position: absolute; right: 8px; bottom: calc(var(--alt) + 2px); z-index: 7; width: 46px; height: 58px; padding: 0; border: 0; background: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
+  .cop-govde { position: absolute; left: 4px; right: 4px; bottom: 0; height: 40px; border-radius: 3px 3px 9px 9px; background: repeating-linear-gradient(90deg, var(--sahne-tava) 0 6px, var(--sahne-tava-koyu) 6px 8px); clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%); box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.18); }
+  .cop-kapak { position: absolute; left: 0; right: 0; top: 10px; z-index: 1; height: 8px; border-radius: 4px; background: var(--sahne-tava-koyu); box-shadow: 0 3px 0 rgb(0 0 0 / 0.18); transform-origin: 0 100%; transition: transform 0.18s; }
+  .cop.acik .cop-kapak { transform: rotate(-24deg) translateY(-2px); }
+  .cop:active { transform: scale(0.94); }
+  .cop.parla { animation: kap-sal 0.7s ease-in-out infinite; }
+  .cop.parla .cop-govde { filter: drop-shadow(0 0 6px var(--vurgu)); }
+
+  .tabak { position: relative; z-index: 4; width: 290px; height: 150px; flex: none; animation: tabak-bob 2.8s ease-in-out infinite; }
+  .tabak.hazir .plaka { animation: plaka-parla 0.8s ease-in-out infinite; }
+  .tabak.hazir::before { content: "▼"; position: absolute; left: 50%; top: -6px; z-index: 6; margin-left: -10px; color: var(--basari); font-size: 20px; text-shadow: 0 2px 0 var(--kart); animation: zipla-o 0.6s ease-in-out infinite; }
   .kule { position: absolute; left: 0; right: 0; bottom: 28px; display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; }
   .t-krep { width: 170px; height: 20px; border-radius: 10px; box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.2); background-image: linear-gradient(180deg, rgb(255 255 255 / 0.25) 0 38%, transparent 38%); }
   .t-krep.ince { height: 12px; } .t-krep.kalin { height: 28px; border-radius: 14px; }
@@ -609,6 +757,14 @@
   @keyframes lvl { 0% { transform: translateX(-50%) scale(0.4); opacity: 0; } 12% { transform: translateX(-50%) scale(1.15); opacity: 1; } 22% { transform: translateX(-50%) scale(1); } 80% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-14px) scale(1); opacity: 0; } }
   @keyframes parla { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--renk-ana) 45%, transparent); } }
   @keyframes parla-s { 50% { transform: scale(1.12); } }
+  @keyframes konuk { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(2px) rotate(3deg); } }
+  @keyframes don { to { transform: rotate(360deg); } }
+  @keyframes sallan { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  @keyframes balon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  @keyframes kap-sal { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-4px) rotate(-3deg); } 60% { transform: translateY(0) rotate(2deg); } }
+  @keyframes tabak-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+  @keyframes plaka-parla { 50% { box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
+  @keyframes zipla-o { 50% { transform: translateY(6px); } }
   @keyframes tedirgin { 25% { translate: -1px 0; } 75% { translate: 1px 0; } }
   @keyframes kavanoz { 0%, 90%, 100% { transform: none; } 94% { transform: translateY(-3px) rotate(-4deg); } 97% { transform: rotate(3deg); } }
   @keyframes dus { 0% { transform: translateY(-130px) scale(0.8); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(0) scale(1.1, 0.7); opacity: 0; } }

@@ -1,7 +1,7 @@
 <script lang="ts">
   // Tek tava: basılı tut = hamur dök, yukarı swipe = çevir, aşağı swipe = tabağa kaydır.
   // Kurallar saf mantıktan gelir (pisirme.ts, hamur.ts); burası yalnızca gösterir, jestleri iletir ve "juice" ekler.
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { AYAR } from "$lib/oyun/veri";
   import { cal } from "$lib/oyun/ses";
   import {
@@ -11,7 +11,7 @@
   import { hamurIcinde } from "$lib/oyun/hamur";
   import type { Kalinlik, PismeDurumu, TabakParcasi } from "../../types/oyun";
 
-  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla }: {
+  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir }: {
     seviye: number;
     ipucuAcik?: boolean;
     /** Tabağın gittiği siparişin istediği kalınlık: dökme hedef halkası buna göre çizilir */
@@ -23,6 +23,8 @@
     tabakHedef: () => { x: number; y: number } | null;
     onTabaga: (p: TabakParcasi) => void;
     onSalla: (siddet: number) => void;
+    /** Tavadaki krep tabağa alınabilir hale gelince / bırakılınca (tabak parlar) */
+    onHazir?: (hazir: boolean) => void;
   } = $props();
 
   // Görsel ölçüler (px): krep elipsi ve uçuş yüksekliği
@@ -150,6 +152,18 @@
   const duman = $derived(t.faz === "yanik" ? 1 : t.faz === "pisir" ? Math.max(0, Math.min(1, (aktifP - AYAR.pisirme.fazlaP + 0.1) / 0.4)) : 0);
   const kabarcik = $derived(t.faz === "pisir" ? aktifP : 0);
   const kalkik = $derived(mukemmel);
+  const servisHazir = $derived(servisEdilebilir(t, baglam));
+  let hazirBildirildi = false;
+  $effect(() => {
+    const h = servisHazir;
+    if (h !== hazirBildirildi) {
+      hazirBildirildi = h;
+      onHazir?.(h);
+    }
+  });
+  onDestroy(() => {
+    if (hazirBildirildi) onHazir?.(false);
+  });
   const stilKrep = $derived(
     `transform: translate(${G.x}px, ${G.y}px) rotate(${G.rot}deg) scale(${G.sx}, ${G.sy})`,
   );
@@ -422,6 +436,7 @@
     {/if}
 
     <div class="tava" style={stilPan}>
+      <div class="isi"></div>
       <div class="govde" bind:this={govdeEl} data-hal={hal}>
         <div class="sap" class:sag></div>
         <div class="kasa">
@@ -440,6 +455,7 @@
             <div
               class="y"
               class:kalkik
+              class:yanikli={gorunen === "yanik"}
               style:width={`${sekil.w}px`}
               style:height={`${(sekil.w * KH) / KW}px`}
               style:background={`radial-gradient(ellipse at 50% 42%, ${merkez} 0 50%, ${kenar} 100%)`}
@@ -460,6 +476,10 @@
       {#each [0, 1, 2] as i}
         <span class="buhar" class:kara={duman > 0.15} style:--o={duman > 0.15 ? 0.25 + duman * 0.55 : buhar * 0.55} style:left={`${78 + i * 40}px`} style:animation-delay={`${i * 0.45}s`}></span>
       {/each}
+
+      {#if hazir}
+        <i class="kv k1">✦</i><i class="kv k2">✦</i><i class="kv k3">✦</i>
+      {/if}
 
       {#if hazir && (t.faz === "pisir")}
         <div class="ok">{t.yuz === 0 ? "⬆" : "⬇"}</div>
@@ -485,6 +505,14 @@
 
   .tava { position: absolute; left: 10px; top: 70px; width: 230px; height: 110px; transition: transform 0.08s; }
   .govde { position: absolute; inset: 0; }
+  /* Boştayken tava hafifçe nefes alır, kenarında ışık gezer, altı ılık parlar (CSS translate: dokunma sıçramalarıyla çakışmaz) */
+  .alan[data-faz="bos"] .govde { animation: tava-bos 3.4s ease-in-out infinite; }
+  .isi { position: absolute; left: -8px; right: -8px; top: 38px; height: 84px; border-radius: 50%; background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--renk-logo) 55%, transparent), transparent 70%); opacity: 0.22; animation: isi 2.8s ease-in-out infinite; pointer-events: none; }
+  .kasa { overflow: hidden; }
+  .kasa::after { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 18%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.28), transparent); transform: skewX(-20deg); animation: tava-isilti 6s ease-in-out infinite; pointer-events: none; }
+  .kv { position: absolute; z-index: 10; color: var(--renk-logo); font-style: normal; font-size: 14px; line-height: 1; text-shadow: 0 1px 0 var(--kart); pointer-events: none; animation: kv 1.1s ease-in-out infinite; }
+  .kv.k1 { left: 10px; top: 4px; } .kv.k2 { right: 8px; top: 18px; animation-delay: 0.35s; font-size: 18px; } .kv.k3 { left: 44%; top: -10px; animation-delay: 0.7s; }
+  .y.yanikli::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 24% 42%, rgb(0 0 0 / 0.6) 0 6px, transparent 7px), radial-gradient(circle at 60% 28%, rgb(0 0 0 / 0.55) 0 5px, transparent 6px), radial-gradient(circle at 72% 60%, rgb(0 0 0 / 0.6) 0 7px, transparent 8px), radial-gradient(circle at 42% 68%, rgb(0 0 0 / 0.5) 0 4px, transparent 5px); }
   .sap { position: absolute; left: -62px; top: 38px; width: 92px; height: 17px; border-radius: 9px; background: linear-gradient(var(--sahne-tava), var(--sahne-tava-koyu)); transform: rotate(-14deg); }
   .sap.sag { left: auto; right: -62px; transform: rotate(14deg); }
   .kasa { position: absolute; inset: 0; border-radius: 50% / 46%; background: radial-gradient(ellipse at 50% 30%, var(--sahne-tava) 0%, var(--sahne-tava-koyu) 100%); box-shadow: 0 10px 0 rgb(0 0 0 / 0.2), inset 0 0 0 5px color-mix(in srgb, var(--sahne-tava) 70%, white); }
@@ -537,6 +565,10 @@
   .fx.yazi.iyi { border-color: var(--renk-logo); color: var(--renk-ana); }
   .fx.yazi.kotu { border-color: var(--vurgu); color: var(--vurgu); }
 
+  @keyframes tava-bos { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: 0 -3px; rotate: -0.8deg; } }
+  @keyframes isi { 50% { opacity: 0.38; } }
+  @keyframes tava-isilti { 0%, 70% { transform: translateX(0) skewX(-20deg); } 100% { transform: translateX(900%) skewX(-20deg); } }
+  @keyframes kv { 0%, 100% { transform: scale(0.4) rotate(0); opacity: 0.2; } 50% { transform: scale(1.1) rotate(45deg); opacity: 1; } }
   @keyframes nabiz { 50% { transform: scale(1.04); } }
   @keyframes goz { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
   @keyframes kalk { 50% { transform: translateY(-4px) rotate(1.2deg); } }
