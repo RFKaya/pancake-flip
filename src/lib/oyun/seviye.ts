@@ -68,7 +68,7 @@ export function seviyeAyari(seviye: number): SeviyeAyari {
     d: k.d,
     tava: k.tava,
     eszamanli: k.eszamanli,
-    cevirmeAcik: mekanikAcik("cevirme", L),
+    cevirmeAcik: true, // ilk krepten itibaren her krebin iki yüzü de pişer
     tercihAcik: mekanikAcik("tercih", L),
     yogunSaatAcik: mekanikAcik("yogun-saat", L),
     ipucu: L <= SEVIYE.ipucuSeviyesi,

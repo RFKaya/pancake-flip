@@ -33,7 +33,7 @@ export interface Baglam {
 export const baglamOlustur = (seviye: number, ayar: Ayarlar): Baglam => ({
   ayar,
   seviye,
-  cevirmeAcik: mekanikAcik("cevirme", seviye),
+  cevirmeAcik: true, // her seviyede çevirmek şart: iki yüzü de pişmeyen krep servis edilemez
   tercihAcik: mekanikAcik("tercih", seviye),
 });
 
@@ -135,7 +135,7 @@ export function tavaBirak(t: Tava, c: Baglam): HamurSonuc | null {
   return s;
 }
 
-/** Yukarı swipe: 1. yüz PİŞMİŞse çevirir. Çiğken, havadayken/boşken/yanıkken ya da çevirme kapalıyken null döner. */
+/** Yukarı swipe: 1. yüz PİŞMİŞse çevirir. Çiğken, havadayken/boşken/yanıkken null döner. */
 export function tavaCevir(t: Tava, c: Baglam): CevirKalitesi | null {
   if (t.faz !== "pisir" || t.yuz !== 0 || !c.cevirmeAcik) return null;
   if (pismeDurumu(t.p[0], c.ayar) !== "pismis") return null;
@@ -149,7 +149,7 @@ export function tavaCevir(t: Tava, c: Baglam): CevirKalitesi | null {
   return k;
 }
 
-/** Krep tabağa kaydırılabilir mi? Yalnızca son yüz PİŞMİŞken: 2. yüz; çevirme kapalıyken 1. yüz. Çiğ ya da yanık krep alınamaz. */
+/** Krep tabağa kaydırılabilir mi? Yalnızca 2. (son) yüz PİŞMİŞken: krep her zaman çevrilmiş olmalı. Çiğ ya da yanık krep alınamaz. */
 export const servisEdilebilir = (t: Tava, c: Baglam): boolean =>
   t.faz === "pisir" && (t.yuz === 1 || !c.cevirmeAcik) && pismeDurumu(t.p[t.yuz], c.ayar) === "pismis";
 

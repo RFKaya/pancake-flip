@@ -53,7 +53,6 @@
   ],
   "mekanikler": [
     { "seviye": 1, "id": "temel", "ad": "Sade krep", "ikon": "🥞" },
-    { "seviye": 3, "id": "cevirme", "ad": "Çevirme", "ikon": "🔄" },
     { "seviye": 15, "id": "coklu-musteri", "ad": "Birden fazla müşteri + 2. tava", "ikon": "👥" },
     { "seviye": 20, "id": "tercih", "ad": "Kalınlık tercihleri", "ikon": "📏" },
     { "seviye": 75, "id": "uc-musteri", "ad": "3 müşteri aynı anda", "ikon": "🧑‍🤝‍🧑" },
