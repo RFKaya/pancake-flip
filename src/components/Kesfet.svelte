@@ -63,7 +63,7 @@
   .cipler button.aktif {
     background: var(--renk-ana);
     border-color: var(--renk-ana);
-    color: #fff;
+    color: var(--renk-ana-yazi);
     font-weight: 600;
   }
 </style>

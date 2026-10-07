@@ -86,7 +86,7 @@
     padding: 0 5px;
     border-radius: 9px;
     background: var(--renk-ana);
-    color: #fff;
+    color: var(--renk-ana-yazi);
     font-size: 11px;
     line-height: 18px;
     text-align: center;

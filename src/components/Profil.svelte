@@ -75,7 +75,7 @@
     margin: 0 auto;
     border-radius: 50%;
     background: var(--renk-ana);
-    color: #fff;
+    color: var(--renk-ana-yazi);
     font-size: 32px;
     font-weight: 700;
     line-height: 72px;

@@ -1,12 +1,17 @@
 /* Adım 2: Global stil — tüm sayfaların ortak renkleri ve yardımcı sınıfları */
 :root {
-  --renk-ana: #e4002b;
-  --renk-koyu: #1a1a2e;
-  --zemin: #f4f5f7;
-  --kart: #ffffff;
-  --yazi: #1a1a2e;
-  --yazi-soluk: #6b7280;
-  --kenar: #e5e7eb;
+  --renk-ana: #B45309;
+  --renk-ana-yazi: #FFFFFF;
+  --renk-koyu: #3B2416;
+  --renk-logo: #F59E0B;
+  --ust-yazi: #FFF8EC;
+  --zemin: #FFF8EC;
+  --kart: #FFFFFF;
+  --yazi: #3B2416;
+  --yazi-soluk: #7A5A45;
+  --kenar: #EBD9C3;
+  --vurgu: #BE123C;
+  --basari: #0F766E;
   --radius: 14px;
   color-scheme: light;
 
@@ -18,11 +23,18 @@
 
 /* Adım 15: Gece modu — <html data-tema="gece"> olunca değişkenler koyulaşır */
 :root[data-tema="gece"] {
-  --zemin: #0f1117;
-  --kart: #1a1d26;
-  --yazi: #f3f4f6;
-  --yazi-soluk: #9ca3af;
-  --kenar: #2a2e3a;
+  --renk-ana: #F59E0B;
+  --renk-ana-yazi: #1E1510;
+  --renk-koyu: #120C08;
+  --renk-logo: #F59E0B;
+  --ust-yazi: #FFF8EC;
+  --zemin: #1E1510;
+  --kart: #2A1F18;
+  --yazi: #FDF3E3;
+  --yazi-soluk: #C9B09A;
+  --kenar: #4A3628;
+  --vurgu: #FB7185;
+  --basari: #2DD4BF;
   color-scheme: dark;
 }
 
@@ -68,7 +80,7 @@ button {
   border: 0;
   border-radius: var(--radius);
   background: var(--renk-ana);
-  color: #fff;
+  color: var(--renk-ana-yazi);
   font-weight: 600;
   text-align: center;
 }

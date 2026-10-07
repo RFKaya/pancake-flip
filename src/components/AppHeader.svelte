@@ -4,7 +4,7 @@
 </script>
 
 <header class="ust">
-  <a href="/" class="logo">passo<span>klon</span></a>
+  <a href="/" class="logo">pancake<span>flip</span></a>
   <button
     class="tema-dugme"
     onclick={() => tema.degistir()}
@@ -27,7 +27,7 @@
   }
 
   .logo {
-    color: #fff;
+    color: var(--ust-yazi);
     font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.5px;
@@ -35,15 +35,15 @@
   }
 
   .logo span {
-    color: var(--renk-ana);
+    color: var(--renk-logo);
   }
 
   .tema-dugme {
     width: 38px;
     height: 38px;
-    border: 1px solid #ffffff33;
+    border: 1px solid color-mix(in srgb, var(--ust-yazi) 20%, transparent);
     border-radius: 50%;
-    background: #ffffff14;
+    background: color-mix(in srgb, var(--ust-yazi) 8%, transparent);
     font-size: 18px;
     cursor: pointer;
     display: flex;
