@@ -2,8 +2,23 @@
   // Adım 14: Profil — basit (sahte) giriş formu, kullanıcı localStorage'da tutulur
   import { onMount } from "svelte";
   import { kayit } from "$lib/kayit.svelte";
+  import { cal, sesDurumu, sesKaydet, sesYukle } from "$lib/oyun/ses";
 
-  onMount(() => kayit.yukle());
+  let sesAcik = $state(true);
+  let sfx = $state(1);
+  onMount(() => {
+    kayit.yukle();
+    sesYukle();
+    sesAcik = sesDurumu.acik;
+    sfx = sesDurumu.sfx;
+  });
+
+  function sesDegisti(ornek: boolean) {
+    sesDurumu.acik = sesAcik;
+    sesDurumu.sfx = sfx;
+    sesKaydet();
+    if (ornek) cal("coin"); // ayarı duyurmak için kısa örnek
+  }
 
   let kullanici = $state(
     // Node 25+ SSR'de de global bir `localStorage` nesnesi tanımlar (getItem yok); bu yüzden window'a bakılır
@@ -52,6 +67,19 @@
     </form>
   {/if}
 
+  <h2 class="bilgi-baslik">Ses</h2>
+  <div class="kart ses-ayar">
+    <label class="ses-satir">
+      <span>Ses efektleri</span>
+      <input type="checkbox" bind:checked={sesAcik} onchange={() => sesDegisti(true)} />
+    </label>
+    <label class="ses-satir">
+      <span>Efekt seviyesi</span>
+      <input type="range" min="0" max="1" step="0.05" bind:value={sfx} disabled={!sesAcik} onchange={() => sesDegisti(true)} />
+    </label>
+    <small>Müzik ayarı, müzik eklendiğinde buraya gelecek.</small>
+  </div>
+
   <h2 class="bilgi-baslik">Bilgi</h2>
   <nav class="kart bilgi-linkler">
     <a href="/hakkinda">📖 Hakkında</a>
@@ -62,6 +90,11 @@
 </div>
 
 <style>
+  .ses-ayar { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; }
+  .ses-satir { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .ses-satir input[type="range"] { flex: 1; max-width: 160px; }
+  .ses-ayar small { color: var(--yazi-soluk); }
+
   h1 {
     margin: 0;
     font-size: 22px;

@@ -59,7 +59,7 @@ src/lib/oyun/                     # saf mantık (+ *.test.ts)
   servis.svelte.ts                # canlı servis durumu ($state sınıfı) + eylemler
   motor.ts                        # rAF döngüsü, duraklatma, görünürlük olayı
   jest.ts                         # (eski) dokunma / yukarı kaydırma; tava jestleri artık Tava.svelte içinde
-  ses.ts                          # Web Audio ile sentez sesler
+  ses.ts                          # Web Audio sentez sesler + mikser (sfx/ortam/arayüz/müzik yolları, sıkıştırıcı, cooldown, hafif perde farkı), sürekli döngüler (dökme, cızırtı), ayar: Profil → Ses
 src/lib/kayit.svelte.ts           # sürümlü localStorage kaydı
 src/lib/fisler.svelte.ts          # Rust fis_olustur + Fişlerim listesi
 src/components/oyun/              # Restoran, MusteriSlotu, SiparisKarti, Tava, Tabak,

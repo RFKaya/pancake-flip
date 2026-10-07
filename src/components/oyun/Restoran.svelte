@@ -15,7 +15,7 @@
   import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
   import { sayiKisalt, type Acilis } from "$lib/oyun/seviye";
-  import { cal } from "$lib/oyun/ses";
+  import { cal, coinYagmuru, sesYukle } from "$lib/oyun/ses";
   import { AYAR, malzeme, tip as tipBul } from "$lib/oyun/veri";
   import sahneAyar from "$lib/veri/sahne.json";
   import GelistiriciPaneli from "./GelistiriciPaneli.svelte";
@@ -124,32 +124,49 @@
 
   function oyna() {
     oyunda = true;
-    cal("pop");
+    cal("tikla");
   }
 
   // ---- Oyun döngüsü: tek rAF, dt ile ----
   onMount(() => {
+    sesYukle();
     let id = 0;
     let son = performance.now();
     const kare = (n: number) => {
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
-      if (!paneAcik && oyunda) olaylar(oturumIlerlet(oturum, dt, rng));
+      if (!paneAcik && oyunda) {
+        olaylar(oturumIlerlet(oturum, dt, rng));
+        ruhSesleri();
+      }
       id = requestAnimationFrame(kare);
     };
     id = requestAnimationFrame(kare);
     return () => cancelAnimationFrame(id);
   });
 
+  /** Müşteri sabırsızlandıkça kısa karakter sesleri (her eşikte bir kez): 0 → sabırsız (tık tık) → sinirli (homurtu) */
+  const ruhSeviyesi = new Map<number, number>();
+  function ruhSesleri() {
+    for (const m of oturum.musteriler) {
+      const oran = sabirOrani(m);
+      const sv = oran < 0.2 ? 2 : oran < 0.4 ? 1 : 0;
+      if (sv > (ruhSeviyesi.get(m.id) ?? 0)) {
+        ruhSeviyesi.set(m.id, sv);
+        cal(sv === 2 ? "homurtu" : "sabirsiz");
+      }
+    }
+  }
+
   function olaylar(liste: OturumOlayi[]) {
     for (const o of liste) {
       if (o.tur === "geldi") {
-        cal("pop");
+        cal("musteri"); // sipariş fişi de aynı anda belirir
         kontrolEt(false);
       } else if (o.tur === "gitti") {
         ayrilanEkle(o.musteri, "kizgin");
         gittiNo++;
-        cal("puf");
+        cal("uzgun");
         const no = gittiNo;
         setTimeout(() => {
           if (gittiNo === no) gittiNo = 0;
@@ -183,6 +200,8 @@
     tabak.push(p);
     tabakZipla(1.2);
     salla(0.5);
+    cal("plop"); // krep tabağa temas etti
+    cal("boing"); // tabağın zıplamasıyla birlikte
     kontrolEt(true);
   }
 
@@ -219,7 +238,12 @@
     dusenler.push({ id: ++sayac, ikon: malzeme(id).ikon });
     if (dusenler.length > 4) dusenler.shift();
     tabakZipla(0.8);
-    cal("malzeme");
+    // Malzeme sesi türüne göre; yanlış tabakta bunun yerine kontrolEt "boop" çalar (iki ses üst üste binmesin)
+    if (tabakDurumu(oturum, tabak).durum !== "yanlis") {
+      const m = malzeme(id);
+      cal(id.includes("krema") ? "krema" : m.kategori === "sos" ? "squish" : m.kategori === "dolgu" ? "meyve" : "serpme");
+      cal("tik");
+    }
     kontrolEt(true);
   }
 
@@ -227,7 +251,7 @@
     if (!tabak.length) return;
     tabak = [];
     tabakZipla(0.6);
-    cal("cop");
+    cal("bonk");
     copAt = true;
     setTimeout(() => (copAt = false), 380);
   }
@@ -265,7 +289,7 @@
     if (d.durum === "dogru") teslim();
     else if (d.durum === "yanlis" && oyuncuDegistirdi) {
       sonucGoster("olmadi", nedenYazisi(d.degerlendirme.hatalar[0]), 0);
-      cal("olmadi");
+      cal("boop");
       anim(tabakEl, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], 320);
     }
   }
@@ -283,11 +307,12 @@
       const n = r.sonuc === "perfect" ? 6 : 3;
       for (let i = 0; i < n; i++) coinler.push({ id: ++sayac, dx: (i - (n - 1) / 2) * 22 });
       setTimeout(() => anim(coinEl, [{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], 300), 350);
-      cal("coin");
+      setTimeout(() => coinYagmuru(n), 140);
     }
     if (r.sonuc === "perfect") salla(1);
     tabak = [];
-    cal(r.sonuc);
+    cal(r.sonuc === "perfect" ? "perfect" : "great"); // başarı: en yüksek öncelik
+    setTimeout(() => cal("yay"), 280); // müşteri tepkisi
     if (r.seviyeAtladi.length) seviyeAtlandi(r.seviyeAtladi);
     if (!testModu) ilerleme.oturumKaydet(oturum);
   }
@@ -301,7 +326,7 @@
     barDolu = true;
     setTimeout(() => (barDolu = false), 520);
     anim(seviyeEl, [{ transform: "scale(1)" }, { transform: "scale(1.35)" }, { transform: "scale(1)" }], 480);
-    cal("parilti");
+    setTimeout(() => cal("levelup"), 450); // başarı sesinin ardından
     salla(kil ? 1.2 : 0.7);
     // Fişlerim: her kilometre taşında ve her 10. seviyede adisyon (Rust fis_olustur; "bolum" alanı artık seviyedir)
     if (!testModu) for (const x of liste) if (x.kilometre || x.seviye % 10 === 0) fisKaydet(x.seviye, 3, oturum.toplamCoin).catch(() => {});
@@ -355,7 +380,7 @@
 
 <div class="sahne" bind:this={sahneEl}>
   <header class="ust">
-    <button class="geri" class:gizli={!oyunda} onclick={() => (oyunda = false)} aria-label="Lobiye dön" tabindex={oyunda ? 0 : -1}>←</button>
+    <button class="geri" class:gizli={!oyunda} onclick={() => { oyunda = false; cal("tikla"); }} aria-label="Lobiye dön" tabindex={oyunda ? 0 : -1}>←</button>
     <span class="seviye" bind:this={seviyeEl} title={`Seviye ${oturum.seviye}`}>LEVEL {sayiKisalt(oturum.seviye)}</span>
     {#if testModu}<span class="test-rozet">TEST</span>{/if}
     {#if oturum.seri >= 2}<span class="seri" title="Üst üste başarılı müşteri">🔥 {oturum.seri}</span>{/if}

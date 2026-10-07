@@ -3,7 +3,7 @@
   // Kurallar saf mantıktan gelir (pisirme.ts, hamur.ts); burası yalnızca gösterir, jestleri iletir ve "juice" ekler.
   import { onDestroy, onMount } from "svelte";
   import { AYAR } from "$lib/oyun/veri";
-  import { cal } from "$lib/oyun/ses";
+  import { cal, donguAyarla } from "$lib/oyun/ses";
   import {
     baglamOlustur, cevirKalitesi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
     type Tava,
@@ -63,6 +63,9 @@
   let dokSes = 0;
   let cizSes = 0;
   let dingAnahtar = "";
+  let ucusSes = 0; // havada çalan seslerin sırası: 0 hiçbiri, 1 kalkış (whoop), 2 whip
+  /** Sürekli sesler (dökme, cızırtı) için bu tavanın kimliği */
+  const kimlik = Math.random();
   let parilti = 0;
   let hedefTutturuldu = false;
 
@@ -163,6 +166,8 @@
   });
   onDestroy(() => {
     if (hazirBildirildi) onHazir?.(false);
+    donguAyarla("dok", kimlik, 0);
+    donguAyarla("cizirti", kimlik, 0);
   });
   const stilKrep = $derived(
     `transform: translate(${G.x}px, ${G.y}px) rotate(${G.rot}deg) scale(${G.sx}, ${G.sy})`,
@@ -219,30 +224,31 @@
     switch (o) {
       case "tasti":
         yazi("ÇOK FAZLA!", "kotu");
-        cal("plap");
+        cal("boop");
         break;
       case "yayildi":
-        cal("pop");
+        cal("yayil");
         break;
       case "indi": {
         const k = t.cevirme;
-        cal("plap");
+        cal("plap"); // krep tavaya tam temas ettiği an
         salla(Math.abs(t.egim) > 8 ? 1.4 : 0.8);
         onSalla(k === "mukemmel" ? 0.7 : 0.4);
         if (k === "mukemmel") {
           yazi("MÜKEMMEL ÇEVİRİŞ!", "perfect");
           patlat(125, 100, 9);
-          cal("parilti");
+          cal("mukemmelCevir");
         } else if (k === "iyi") yazi("GÜZEL ÇEVİRİŞ", "iyi");
-        else if (k === "erken") yazi("ERKEN ÇEVİRDİN", "kotu");
-        else if (k === "gec") yazi("GEÇ ÇEVİRDİN", "kotu");
-        else yazi("ISKA!", "kotu");
+        else {
+          yazi(k === "erken" ? "ERKEN ÇEVİRDİN" : k === "gec" ? "GEÇ ÇEVİRDİN" : "ISKA!", "kotu");
+          setTimeout(() => cal("womp"), 110);
+        }
         break;
       }
       case "yandi":
         yazi("YANDI! 🔥", "kotu");
         patlat(125, 80, 5, "puf", "💨");
-        cal("puf");
+        cal("yanik");
         onSalla(0.5);
         break;
       case "cop":
@@ -250,8 +256,7 @@
         break;
       case "tabaga":
         if (kayan) {
-          cal("flop");
-          onTabaga(kayan);
+          onTabaga(kayan); // tabağa temas sesi (plop) Restoran'da, krep yığına eklendiği anda çalar
           kayan = null;
         }
         break;
@@ -264,7 +269,6 @@
       dokSes += dt;
       if (dokSes > 0.11) {
         dokSes = 0;
-        cal("dok");
         if (Math.random() < 0.5) ekle({ tur: "damla", x: 125 + parmakX * 0.25 + (Math.random() - 0.5) * 60, y: 112, dx: (Math.random() - 0.5) * 70, dy: -20 - Math.random() * 20, txt: "·" });
       }
     }
@@ -274,7 +278,6 @@
       cizSes += dt;
       if (cizSes > 0.28 && aktifP > 0.1) {
         cizSes = 0;
-        if (Math.random() < 0.55) cal("cizirti");
       }
       const anahtar = `${t.yuz}${hazir}`;
       if (hazir && dingAnahtar !== anahtar) {
@@ -286,7 +289,19 @@
     if (t.faz === "doku" && hedefte && !hedefTutturuldu) {
       hedefTutturuldu = true;
       ekle({ tur: "yildiz", x: 125 + hedefW / 2 - 6, y: 92, dx: 10, dy: -16, txt: "✓" });
+      cal("tik"); // doğru miktara ulaşıldı
     }
+
+    // Havadaki sesler fiziksel anlara bağlı: kalkış (anticipation bitince) ve havada dönerken
+    if (t.faz === "ucus") {
+      const u = (t.t - AYAR.pisirme.anticipSn) / AYAR.pisirme.ucusSn;
+      if (ucusSes < 1 && u >= 0) { ucusSes = 1; cal("kalk"); }
+      if (ucusSes < 2 && u >= 0.5) { ucusSes = 2; cal("whip"); }
+    } else ucusSes = 0;
+
+    // Sürekli sesler: dökerken yumuşak "şhh" (miktarla hafif güçlenir), pişerken çok hafif cızırtı (yanmaya doğru artar)
+    donguAyarla("dok", kimlik, t.faz === "doku" ? 0.55 + 0.45 * Math.min(1, t.hamur.miktar / Math.max(0.01, hedefMiktar)) : 0);
+    donguAyarla("cizirti", kimlik, t.faz === "pisir" ? Math.min(1, 0.25 + 0.55 * buhar + 0.5 * duman) : t.faz === "yanik" ? 1 : 0);
 
     if (t.faz === "ucus" && t.cevirme === "mukemmel") {
       const u = (t.t - AYAR.pisirme.anticipSn) / AYAR.pisirme.ucusSn;
@@ -306,6 +321,10 @@
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
       if (!duraklat) adim(dt);
+      else {
+        donguAyarla("dok", kimlik, 0);
+        donguAyarla("cizirti", kimlik, 0);
+      }
       id = requestAnimationFrame(kare);
     };
     id = requestAnimationFrame(kare);
@@ -373,6 +392,7 @@
       tuketildi = true;
       if (!ok) {
         salla(0.5);
+        cal("boop");
         if (t.faz === "pisir" && durum === "cig") yazi("HENÜZ PİŞMEDİ!", "kotu");
       }
     }
@@ -388,7 +408,7 @@
       // Hedefin toleransı dışında: krep olmaz, tava boşalır, hemen yeniden dökülebilir
       yazi(miktar < hedefMiktar ? "AZ HAMUR! 😅" : "ÇOK HAMUR! 😅", "kotu");
       patlat(125, 100, 3, "puf", "💨");
-      cal("plap");
+      cal("boop");
       return;
     }
     zipla(1.2);
@@ -399,7 +419,6 @@
       patlat(125, 100, 6);
       cal("parilti");
     } else yazi("GÜZEL DÖKÜŞ", "iyi");
-    cal("plap");
   }
 </script>
 
