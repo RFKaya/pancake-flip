@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ServisEkrani from '../../components/oyun/ServisEkrani.svelte';
+import bolumler from '../../lib/veri/bolumler.json';
+
+export function getStaticPaths() {
+  return bolumler.map((b) => ({ params: { id: String(b.id) }, props: { bolumNo: b.id } }));
+}
+
+const { bolumNo } = Astro.props;
+---
+
+<Layout title={`Bölüm ${bolumNo} — Pancake Flip!`} tamEkran>
+  <ServisEkrani client:only="svelte" bolumNo={bolumNo} />
+</Layout>

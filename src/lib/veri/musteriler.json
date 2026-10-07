@@ -1,0 +1,4 @@
+[
+  { "id": "normal", "ad": "Müşteri", "ikon": "🧑", "acilis": 1, "sabir": 1.0, "odeme": 1.0, "bahsis": 1.0, "ceza": 1.0, "dKaydirma": 0 },
+  { "id": "cocuk", "ad": "Çocuk", "ikon": "🧒", "acilis": 4, "sabir": 1.4, "odeme": 0.8, "bahsis": 1.2, "ceza": 0.5, "dKaydirma": 0, "dMax": 4, "tatliMi": true }
+]

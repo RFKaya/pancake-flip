@@ -100,7 +100,7 @@ Tavaya dokununca hamur dökülür ve **pişme değeri** `p` 0'dan yukarı çıka
 | > 1,15 | Yanık | Siyah | Duman: krep 1,5 sn sonra kendiliğinden çöpe gider (maliyet kaybı) |
 
 - Başlangıç hızı: `p`, 6 sn'de 1,00'e ulaşır. **Tava yükseltmesi yalnızca çiğ evreyi kısaltır**, bölgelerin süresi aynı kalır. Böylece yükseltme oyunu hızlandırır ama tepki penceresini daraltmaz.
-- **Çevirme:** Tavanın üzerinde yukarı kaydırma (≥40 px). Krep zıplar, döner ve **seçili tabağa** düşer. Ayarlardan "dokunarak çevir" seçeneği de açılabilir (erişilebilirlik).
+- **Çevirme:** Tavanın üzerinde yukarı kaydırma (≥40 px, 600 ms içinde). Krep zıplar, döner ve **seçili tabağa** düşer. Ayarlardan "dokunarak çevir" seçeneği de açılabilir (erişilebilirlik).
 - **Bölüm 1–7:** Sipariş pişme derecesi istemez. 0,30–1,00 arası her şey "pişti" sayılır.
 - **Bölüm 8+:** Kartta pişme derecesi gösterilir: **A** (az, sarı nokta), **O** (orta, altın nokta), **İ** (iyi, kahve nokta). Harf ve renk birlikte kullanılır (renk körlüğü için). Bir siparişteki bütün krepler aynı dereceyi ister.
 - **Tam isabet:** Bölgenin tam ortasında (±0,04) çevirince küçük parıltı ve +1 coin. İsteğe bağlı bir ustalık ödülüdür.

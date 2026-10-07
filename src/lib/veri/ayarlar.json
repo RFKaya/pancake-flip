@@ -1,0 +1,94 @@
+{
+  "pismeSuresi": 6,
+  "bolgeler": {
+    "cig": 0.3,
+    "az": 0.55,
+    "orta": 0.8,
+    "iyi": 1,
+    "fazla": 1.15
+  },
+  "yanikBekleme": 1.5,
+  "sosSuresi": 0.8,
+  "dolguSuresi": 0.3,
+  "toppingSuresi": 0.3,
+  "copBasma": 0.5,
+  "tabakMax": 12,
+  "cevirmePx": 40,
+  "cevirmeMs": 600,
+  "perfectBonus": 5,
+  "combo": {
+    "adim": 0.1,
+    "max": 0.5,
+    "baslangicBolumu": 6
+  },
+  "hiz": {
+    "dusus": 0.007,
+    "min": 0.65
+  },
+  "gelmeAraligi": {
+    "baslangic": 12,
+    "azalma": 0.16,
+    "min": 4
+  },
+  "sabirDondurmaBolumu": 3,
+  "gitmeBolumu": 10,
+  "sabirTaban": 0.01,
+  "cikisSuresi": 1.1,
+  "mesajSuresi": 1.4,
+  "zorlukAgirlik": {
+    "krep": 1,
+    "dolgu": 1.5,
+    "sos": 1.5,
+    "topping": 1
+  },
+  "hataCezasi": {
+    "eksik": 25,
+    "fazla": 20,
+    "yanlis": 25,
+    "sira": 10,
+    "pisme": 25
+  },
+  "kalite": {
+    "perfect": 100,
+    "great": 80,
+    "good": 50
+  },
+  "odemeCarpani": {
+    "perfect": 1,
+    "great": 0.9,
+    "good": 0.7,
+    "olmadi": 0.3
+  },
+  "ruhHali": [
+    {
+      "esik": 0.8,
+      "yuz": "😊",
+      "bahsis": 0.3
+    },
+    {
+      "esik": 0.6,
+      "yuz": "🙂",
+      "bahsis": 0.2
+    },
+    {
+      "esik": 0.4,
+      "yuz": "😐",
+      "bahsis": 0.1
+    },
+    {
+      "esik": 0.2,
+      "yuz": "😠",
+      "bahsis": 0
+    },
+    {
+      "esik": 0,
+      "yuz": "🤬",
+      "bahsis": 0
+    }
+  ],
+  "yildiz": [
+    0.4,
+    0.65,
+    0.85
+  ]
+}

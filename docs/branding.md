@@ -22,6 +22,20 @@ Kontrast, WCAG göreli parlaklık formülüyle **ölçülmüştür**; metin içi
 | `--vurgu` (çilek) | `#BE123C` | `#FB7185` | Hata, kırmızı uyarı, kaçırılan sipariş | 5,95 / 6,67 (zemin), 6,29 / 5,97 (kart) |
 | `--basari` (nane) | `#0F766E` | `#2DD4BF` | Başarı, onay işareti, PERFECT | 5,18 / 9,64 (zemin), 5,47 / 8,63 (kart) |
 
+### Oyun renkleri (gündüz ve gece aynı)
+
+Krebin pişme rengi ve tava halkasının gri bölgesi. Halkanın diğer bölgeleri mevcut tokenlardır: sarı `--krep-az`, yeşil `--basari`, turuncu `--renk-ana`, kırmızı `--vurgu`. Pişme durumu yalnızca renkle değil, harf ve duman/damla ile de belli edilir.
+
+| Token | Hex | Kullanım yeri |
+|---|---|---|
+| `--krep-cig` | `#F3E3C3` | Çiğ krep (soluk krem) |
+| `--krep-az` | `#F2D272` | Az pişmiş krep, halkada sarı bölge |
+| `--krep-orta` | `#D99A2B` | Tam kıvam krep (altın) |
+| `--krep-iyi` | `#A8641C` | İyi pişmiş krep (kahve) |
+| `--krep-fazla` | `#5A3216` | Fazla pişmiş krep (koyu kahve) |
+| `--krep-yanik` | `#1F1511` | Yanık krep |
+| `--halka-gri` | `#B8A99A` | Tava halkasında çiğ bölge |
+
 ## 2. Tipografi ve Yuvarlaklık
 
 - **Yazı Tipi (Font):** System UI (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`)
