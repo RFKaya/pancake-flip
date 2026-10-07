@@ -11,9 +11,9 @@ Dizin yapısı (ana klasörler) için tek kaynak: [`klasor-mimarisi.md`](klasor-
 ```
 Pancake Flip!
 ├── / (Ana ekran)
-│   └── Lobi: canlı mutfak sahnesi (tava, krep, tabak, pencerede müşteriler), küçük LEVEL rozeti, coin, ? ve ⚙, büyük "OYNA" → /oyna
+│   └── Restoran sahnesi, LOBİ durumu: aynı tava/tabak/duvar, LEVEL rozeti, coin, ? ve ⚙, büyük "OYNA". OYNA sayfa değiştirmez; aynı sahne OYUN durumuna geçer (fişler ve malzeme çubuğu kısa süre içinde belirir, kamera/tava yerinde kalır)
 │
-├── /oyna (Sonsuz oyun ekranı; bölüm yok, bkz. sonsuz-seviye.md)
+│   └── (aynı sayfada) OYUN durumu: sonsuz oyun, bölüm yok, bkz. sonsuz-seviye.md
 │   ├── Tava(lar), tabak, malzeme rafı, müşteri fişleri + sabır çubuğu, LEVEL ve ilerleme çubuğu
 │   ├── LEVEL UP bildirimi (oyunu durdurmaz); geliştirici modu 🛠 (seviye ayarlama)
 │   └── (G5) Fiş/adisyon: Rust fis_olustur → KRP-… kodu; yeni modele uyarlanacak
@@ -37,7 +37,7 @@ Pancake Flip!
     └── /gizlilik (MDX, veriler yalnızca cihazda)
 ```
 
-Alt menü sekmeleri: Oyna · Fişlerim · Mutfak · Profil. `/oyna` tam ekran açılır, alt menü gizlenir. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
+Alt menü sekmeleri: Oyna · Fişlerim · Mutfak · Profil. Ayrı bir `/oyna` rotası yoktur: OYNA'ya basınca alt menü aşağı kayıp aynı yerdeki malzeme çubuğuna yer açar. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
 
 ---
 

@@ -48,6 +48,14 @@
     background: var(--kart);
     border-top: 1px solid var(--kenar);
     z-index: 20;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Restoran sahnesinde oyun başlayınca menü aşağı kayıp yerini malzeme çubuğuna bırakır */
+  :global(body[data-oyunda]) .alt-menu {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
   }
 
   .alt-menu a {

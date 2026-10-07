@@ -141,7 +141,7 @@ Bu proje salt bir web sayfası değil; tek bir kod tabanından masaüstü ve mob
 
 ## ✨ Temel Yetenekler
 
-- 🍳 **Lobi (Ana Sayfa):** Canlı mutfak sahnesi, küçük LEVEL rozeti, coin ve büyük **OYNA** düğmesi; sahne seviyeyle gelişir.
+- 🍳 **Lobi (Ana Sayfa):** Oyunun kendi restoran sahnesi; büyük **OYNA** düğmesi sayfa değiştirmeden aynı sahneyi oyun durumuna geçirir.
 - 🥞 **Oyun:** Basılı tutarak hamur dökme (yeşil hedef halka), pişince yukarı kaydırarak çevirme, aşağı kaydırarak tabağa alma, malzemeleri sırayla koyma; doğru tabak kendiliğinden servis edilir, yanlış tabak kabul edilmez.
 - ♾️ **Sonsuz Seviye:** Seviye atladıkça yeni malzemeler, müşteri tipleri, ikinci tava, kalınlık tercihleri ve yoğun saat açılır; kilometre taşlarında özel başlıklar çıkar.
 - 🧾 **Fişlerim:** Rust backend'i tarafından üretilen adisyon kodları (`KRP-BBB-YXXXXXX`) ve yerel depolama.

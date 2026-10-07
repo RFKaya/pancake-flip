@@ -1,9 +1,11 @@
 <script lang="ts">
-  // Sonsuz oyun ekranı: duvarda müşteri fişleri, ortada tava(lar), yakında tabak. Bölüm yok; her başarılı müşteri
+  // Restoran sahnesi: lobi ve oyun AYNI sahnenin iki durumudur (sayfa/kamera geçişi yok). Duvar, tezgâh, tava ve tabak tek kez
+  // çizilir; OYNA yalnızca `oyunda` durumunu açar: lobi arayüzü kapanır, oyun arayüzü (fişler, malzeme çubuğu) kısa sürede belirir.
+  // Sonsuz oyun: duvarda müşteri fişleri, ortada tava(lar), yakında tabak. Bölüm yok; her başarılı müşteri
   // seviyeyi ilerletir (kurallar: oturum.ts / seviye.ts). Tavalar Tava.svelte'dedir:
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al.
   // Temel kural: tabak bir siparişin BİREBİR aynısı olunca kendiliğinden servis edilir; yanlış tabak asla kabul edilmez.
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import { fisKaydet } from "$lib/fisler.svelte";
   import { gelistiriciModuAcik, ilerleme } from "$lib/ilerleme.svelte";
@@ -18,11 +20,15 @@
   import Tava from "./Tava.svelte";
   import type { Musteri, Sonuc, TabakParcasi } from "../../types/oyun";
 
+  let { baslangic = "lobi" }: { baslangic?: "lobi" | "oyun" } = $props();
+
   // Oyun ekranı yalnızca istemcide yüklenir (client:only), bu yüzden kayıt doğrudan okunabilir
   ilerleme.yukle();
   const rng = rngOlustur(Math.floor(Math.random() * 1e9));
   const gelistirici = gelistiriciModuAcik();
 
+  /** false = lobi (sahne canlı, oyun donuk, tava kilitli), true = servis başladı */
+  let oyunda = $state(baslangic === "oyun");
   let oturum = $state(yeniOturum({ ...ilerleme.veri }));
   let tabak = $state<TabakParcasi[]>([]);
   let sonuc = $state<{ s: Sonuc; neden: string; kazanc: number } | null>(null);
@@ -83,6 +89,17 @@
   /** Tavadaki dökme hedefi: tabağın gittiği siparişin istediği kalınlık */
   const hedefKalinlik = $derived(hedef?.siparis.tercih ?? "normal");
 
+  // Alt menü lobide sahnenin altında durur, oyun başlayınca aynı yerdeki malzeme çubuğuna yer açar (AppNav.svelte kaydırır)
+  $effect(() => {
+    document.body.toggleAttribute("data-oyunda", oyunda);
+  });
+  onDestroy(() => document.body?.removeAttribute("data-oyunda"));
+
+  function oyna() {
+    oyunda = true;
+    cal("pop");
+  }
+
   // ---- Oyun döngüsü: tek rAF, dt ile ----
   onMount(() => {
     let id = 0;
@@ -90,7 +107,7 @@
     const kare = (n: number) => {
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
-      if (!paneAcik) olaylar(oturumIlerlet(oturum, dt, rng));
+      if (!paneAcik && oyunda) olaylar(oturumIlerlet(oturum, dt, rng));
       id = requestAnimationFrame(kare);
     };
     id = requestAnimationFrame(kare);
@@ -282,12 +299,16 @@
 
 <div class="sahne" bind:this={sahneEl}>
   <header class="ust">
-    <a class="geri" href="/" aria-label="Ana ekran">←</a>
+    <button class="geri" class:gizli={!oyunda} onclick={() => (oyunda = false)} aria-label="Lobiye dön" tabindex={oyunda ? 0 : -1}>←</button>
     <span class="seviye" bind:this={seviyeEl} title={`Seviye ${oturum.seviye}`}>LEVEL {sayiKisalt(oturum.seviye)}</span>
     {#if testModu}<span class="test-rozet">TEST</span>{/if}
     {#if oturum.seri >= 2}<span class="seri" title="Üst üste başarılı müşteri">🔥 {oturum.seri}</span>{/if}
     <span class="bosluk"></span>
     <span class="para" bind:this={coinEl}>🪙 {sayiKisalt(oturum.toplamCoin)}</span>
+    <span class="lobi-ust" class:gizli={oyunda}>
+      <a class="yuvarlak" href="/hakkinda" aria-label="Nasıl oynanır" tabindex={oyunda ? -1 : 0}>?</a>
+      <a class="yuvarlak" href="/profil" aria-label="Ayarlar ve profil" tabindex={oyunda ? -1 : 0}>⚙</a>
+    </span>
     {#if gelistirici}
       <button class="dev" onclick={() => (paneAcik = !paneAcik)} aria-label="Geliştirici paneli">🛠</button>
     {/if}
@@ -300,7 +321,11 @@
 
   <!-- Duvar: müşteri fişleri, raf, kavanozlar -->
   <div class="duvar">
-    <div class="fisler">
+    <div class="tabela" class:gizli={oyunda} aria-hidden="true">
+      <span class="ip sol"></span><span class="ip sag"></span>
+      <b>pancake<em>flip</em></b>
+    </div>
+    <div class="fisler" class:gizli={!oyunda}>
       {#each oturum.musteriler as m, i (m.id)}
         {@const t = tipBul(m.tip)}
         {@const oran = sabirOrani(m)}
@@ -348,7 +373,7 @@
     {#key tekrar}
       <div class="tavalar" class:cift={tavaSayisi > 1}>
         {#each Array(tavaSayisi) as _, i (i)}
-          <Tava seviye={oturum.seviye} ipucuAcik={sv.ipucu} {hedefKalinlik} {olcek} duraklat={paneAcik} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
+          <Tava kilit={!oyunda} seviye={oturum.seviye} ipucuAcik={sv.ipucu && oyunda} {hedefKalinlik} {olcek} duraklat={paneAcik || !oyunda} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
         {/each}
       </div>
     {/key}
@@ -394,7 +419,11 @@
     {/key}
   {/if}
 
-  <footer class="alt-bar" class:cift-sira={menu.length > 4}>
+  <button class="oyna" class:gizli={oyunda} onclick={oyna} tabindex={oyunda ? -1 : 0}>
+    <span class="ok">▶</span> OYNA
+  </button>
+
+  <footer class="alt-bar" class:cift-sira={menu.length > 4} class:gizli={!oyunda} inert={!oyunda}>
     <div class="malzemeler">
       {#each menu as m (m.id)}
         <button class="dugme" class:parlak={siradaki === m.id} onpointerdown={() => koy(m.id)}>
@@ -440,9 +469,37 @@
     -webkit-user-select: none;
   }
 
-  .ust { position: relative; z-index: 10; display: flex; align-items: center; gap: 8px; width: 100%; }
+  /* Lobi ↔ oyun: yalnızca opacity/transform, kısa; sahne (kamera, tava, tabak) yerinde kalır */
+  .gizli { opacity: 0; pointer-events: none; }
+  .fisler, .tabela, .lobi-ust, .geri, .oyna, .alt-bar { transition: opacity 0.3s ease, transform 0.3s ease; }
+  .fisler.gizli { transform: translateY(-12px); }
+  .alt-bar.gizli { transform: translateY(24px); }
+  .lobi-ust { display: flex; gap: 6px; }
+  .lobi-ust.gizli { position: absolute; right: 0; }
+  .geri.gizli { position: absolute; left: 0; }
+  .yuvarlak { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 3px 0 var(--kenar); color: var(--yazi); font-size: 17px; font-weight: 900; text-decoration: none; }
+  .yuvarlak:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--kenar); }
+
+  .tabela { position: absolute; left: 50%; top: 14px; z-index: 3; padding: 8px 18px 10px; border-radius: 14px; background: linear-gradient(180deg, var(--krep-iyi), color-mix(in srgb, var(--krep-iyi) 70%, black)); box-shadow: 0 5px 0 rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.18); transform-origin: 50% -26px; translate: -50% 0; animation: salin 4.5s ease-in-out infinite; }
+  .tabela b { display: block; color: var(--ust-yazi); font-size: 24px; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
+  .tabela em { font-style: normal; color: var(--renk-logo); }
+  .ip { position: absolute; top: -26px; width: 2px; height: 28px; background: var(--sahne-tezgah-koyu); }
+  .ip.sol { left: 22px; transform: rotate(14deg); }
+  .ip.sag { right: 22px; transform: rotate(-14deg); }
+
+  /* OYNA: alt menünün hemen üstünde; basınca kaybolur, yerini (alt menüyle birlikte) malzeme çubuğu alır */
+  .oyna { position: absolute; left: 50%; bottom: calc(62px + 14px + env(safe-area-inset-bottom)); z-index: 12; display: flex; align-items: center; justify-content: center; gap: 10px; width: min(calc(100% - 48px), 300px); padding: 14px 24px; border: 0; border-radius: 999px; background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 80%, white) 0%, var(--renk-ana) 55%); color: var(--renk-ana-yazi); box-shadow: 0 7px 0 color-mix(in srgb, var(--renk-ana) 55%, black), 0 12px 20px rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.35); font-size: 28px; font-weight: 900; letter-spacing: 2px; translate: -50% 0; -webkit-tap-highlight-color: transparent; animation: cagir 2.4s ease-in-out infinite; }
+  .oyna.gizli { animation: none; transform: translateY(12px); }
+  .oyna .ok { font-size: 22px; }
+  .oyna:active { animation: none; transform: translateY(6px) scale(0.96); box-shadow: 0 1px 0 color-mix(in srgb, var(--renk-ana) 55%, black), 0 4px 10px rgb(0 0 0 / 0.15); }
+  .oyna:focus-visible { outline: 3px solid var(--renk-logo); outline-offset: 4px; }
+  @keyframes cagir { 0%, 70%, 100% { transform: translateY(0) scale(1); } 80% { transform: translateY(-5px) scale(1.03); } 90% { transform: translateY(0) scale(0.99); } }
+  @keyframes salin { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  @media (prefers-reduced-motion: reduce) { .oyna, .tabela { animation: none; } }
+
+  .ust { position: relative; z-index: 10; display: flex; flex: none; height: 40px; align-items: center; gap: 8px; width: 100%; }
   .bosluk { flex: 1; }
-  .geri { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); font-size: 18px; }
+  .geri { border: 1px solid var(--kenar); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); font-size: 18px; }
   .seviye { max-width: 150px; padding: 5px 12px; overflow: hidden; border-radius: 999px; background: var(--renk-ana); color: var(--renk-ana-yazi); font-size: 16px; font-weight: 900; letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; }
   .seri { padding: 4px 8px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 13px; font-weight: 800; }
   .test-rozet { padding: 3px 8px; border-radius: 6px; background: var(--vurgu); color: var(--renk-ana-yazi); font-size: 11px; font-weight: 900; }
