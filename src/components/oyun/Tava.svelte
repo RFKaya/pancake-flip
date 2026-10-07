@@ -198,7 +198,7 @@
   function olayIsle(o: ReturnType<typeof tavaIlerlet>[number]) {
     switch (o) {
       case "tasti":
-        yazi("TOO MUCH!", "kotu");
+        yazi("ÇOK FAZLA!", "kotu");
         cal("plap");
         break;
       case "yayildi":
@@ -210,17 +210,17 @@
         salla(Math.abs(t.egim) > 8 ? 1.4 : 0.8);
         onSalla(k === "mukemmel" ? 0.7 : 0.4);
         if (k === "mukemmel") {
-          yazi("PERFECT FLIP!", "perfect");
+          yazi("MÜKEMMEL ÇEVİRİŞ!", "perfect");
           patlat(125, 100, 9);
           cal("parilti");
-        } else if (k === "iyi") yazi("GOOD FLIP", "iyi");
-        else if (k === "erken") yazi("EARLY FLIP", "kotu");
-        else if (k === "gec") yazi("LATE FLIP", "kotu");
-        else yazi("MISS!", "kotu");
+        } else if (k === "iyi") yazi("GÜZEL ÇEVİRİŞ", "iyi");
+        else if (k === "erken") yazi("ERKEN ÇEVİRDİN", "kotu");
+        else if (k === "gec") yazi("GEÇ ÇEVİRDİN", "kotu");
+        else yazi("ISKA!", "kotu");
         break;
       }
       case "yandi":
-        yazi("BURNT!", "kotu");
+        yazi("YANDI!", "kotu");
         patlat(125, 80, 5, "puf", "💨");
         cal("puf");
         onSalla(0.5);
@@ -357,10 +357,10 @@
     if (!s) return;
     zipla(1.2);
     if (s.mukemmel) {
-      yazi("PERFECT POUR!", "perfect");
+      yazi("MÜKEMMEL DÖKÜŞ!", "perfect");
       patlat(125, 100, 6);
       cal("parilti");
-    } else yazi(s.kalinlik === "ince" ? "THIN" : "THICK", "kotu");
+    } else yazi(s.kalinlik === "ince" ? "İNCE" : "KALIN", "kotu");
     cal("plap");
   }
 </script>

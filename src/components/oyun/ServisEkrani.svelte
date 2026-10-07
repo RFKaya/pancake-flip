@@ -154,7 +154,7 @@
     cal("cop");
   }
 
-  const YAZI: Record<Sonuc, string> = { perfect: "PERFECT!", great: "GREAT", good: "GOOD", olmadi: "OLMADI" };
+  const YAZI: Record<Sonuc, string> = { perfect: "MÜKEMMEL!", great: "HARİKA", good: "İYİ", olmadi: "OLMADI" };
 
   function nedenYazisi(d: VerSonucu): string {
     const ilk = d.degerlendirme.hatalar[0];
