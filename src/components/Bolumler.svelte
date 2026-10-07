@@ -13,6 +13,7 @@
     Tavaya <b>dokun</b> (hamur dökülür), krep pişince <b>yukarı kaydır</b> (tabağa düşer), malzemeleri koy,
     sonra müşteriye <b>dokun</b>.
   </p>
+  <a class="btn hizli" href="/oyna">▶ Hızlı mod: krep çevirmeyi dene</a>
   <div class="izgara">
     {#each BOLUMLER as b (b.id)}
       {@const acik = kayit.acik(b.id)}
@@ -38,6 +39,10 @@
     color: var(--yazi-soluk);
     font-size: 14px;
     line-height: 1.5;
+  }
+
+  .hizli {
+    display: block;
   }
 
   .izgara {
