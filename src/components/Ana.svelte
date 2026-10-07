@@ -30,6 +30,8 @@
     if (giriyor) return;
     const az = matchMedia("(prefers-reduced-motion: reduce)").matches;
     giriyor = true;
+    // Zoom animasyonu zaten geçiş işini görüyor; ClientRouter'ın solma efekti sayfa değişmiş gibi göstermesin
+    document.documentElement.dataset.oynaGecis = "";
     setTimeout(() => navigate("/oyna"), az ? 0 : lobi.girisMs);
   }
 </script>
@@ -141,11 +143,11 @@
     flex-direction: column;
     background: linear-gradient(180deg, var(--sahne-duvar) 0%, var(--sahne-duvar-koyu) 100%);
     transform-origin: 50% 62%;
-    transition: transform var(--giris) cubic-bezier(0.5, 0, 0.75, 0), opacity var(--giris) ease-in;
+    transition: transform var(--giris) cubic-bezier(0.5, 0, 0.75, 0);
   }
 
   /* OYNA'ya basınca: kamera tavaya yaklaşır gibi */
-  .giriyor .dunya { transform: scale(1.9); opacity: 0; }
+  .giriyor .dunya { transform: scale(1.9); }
   .giriyor .hud { opacity: 0; transform: translateY(-12px); }
 
   /* ---------- Üst bilgi ---------- */

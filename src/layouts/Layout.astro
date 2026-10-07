@@ -55,6 +55,11 @@ const dil = dilBul(currentPath);
 </style>
 
 <style is:global>
+  /* Lobiden OYNA ile girişte sayfa solması yok: zoom animasyonu doğrudan oyuna bağlanır */
+  html[data-oyna-gecis]::view-transition-old(root),
+  html[data-oyna-gecis]::view-transition-new(root) {
+    animation: none;
+  }
   body.tam-ekran {
     overflow: hidden;
     overscroll-behavior: none;
