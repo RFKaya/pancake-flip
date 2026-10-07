@@ -129,6 +129,9 @@
     </div>
   </header>
 
+  <div class="raf-dekor"></div>
+  <div class="dekor" aria-hidden="true">🫙🪴</div>
+
   <aside class="hedef">
     <b>Hedef sipariş</b>
     <div class="mini">
@@ -205,7 +208,6 @@
 
 <style>
   .sahne {
-    --tava-renk: color-mix(in srgb, var(--renk-koyu) 45%, var(--yazi-soluk));
     --d: 420px;
     position: relative;
     display: flex;
@@ -219,14 +221,16 @@
     overflow: hidden;
     color: var(--yazi);
     background:
-      linear-gradient(var(--kenar) 0 0) bottom / 100% 34% no-repeat,
-      linear-gradient(180deg, color-mix(in srgb, var(--zemin) 85%, var(--renk-ana)) 0%, var(--zemin) 60%);
+      linear-gradient(180deg, var(--sahne-tezgah) 0, var(--sahne-tezgah-koyu) 100%) bottom / 100% 36% no-repeat,
+      linear-gradient(180deg, var(--sahne-duvar) 0%, var(--sahne-duvar-koyu) 100%);
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
   }
 
   .ust { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .raf-dekor { position: absolute; left: 0; right: 0; top: 150px; height: 10px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 #0002; }
+  .dekor { position: absolute; top: 96px; right: 18px; font-size: 38px; letter-spacing: 6px; opacity: 0.9; }
   .geri { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--kart); border: 1px solid var(--kenar); font-size: 18px; }
   .cubuk { position: relative; flex: 1; height: 16px; border-radius: 8px; background: var(--kart); border: 2px solid var(--kenar); }
   .dolu { height: 100%; border-radius: 6px; background: var(--basari); transition: width 0.4s; }
@@ -240,13 +244,16 @@
   .tava-alan { position: relative; margin-top: 90px; width: 100%; height: 190px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
   .tava { position: relative; width: 230px; height: 90px; margin-top: 36px; }
   .tava.salla { animation: salla 0.4s ease-out; }
-  .sap { position: absolute; left: -62px; top: 30px; width: 90px; height: 16px; border-radius: 8px; background: var(--tava-renk); transform: rotate(-14deg); }
-  .govde { position: absolute; inset: 0; border-radius: 50% / 45%; background: var(--tava-renk); box-shadow: 0 8px 0 color-mix(in srgb, var(--tava-renk) 65%, black); }
+  .sap { position: absolute; left: -62px; top: 30px; width: 90px; height: 16px; border-radius: 8px; background: linear-gradient(var(--sahne-tava), var(--sahne-tava-koyu)); transform: rotate(-14deg); }
+  .govde { position: absolute; inset: 0; border-radius: 50% / 45%; background: radial-gradient(ellipse at 50% 30%, var(--sahne-tava) 0%, var(--sahne-tava-koyu) 100%); box-shadow: 0 10px 0 #0003, inset 0 0 0 5px color-mix(in srgb, var(--sahne-tava) 70%, white); }
   .pkrep { position: absolute; left: 12%; right: 12%; top: calc(8px - var(--yuk)); height: calc(34px + var(--yuk)); border-radius: 50%; box-shadow: inset 0 -6px 0 #0003; transition: background 0.25s; }
   .yuz { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 18px; }
-  .yuz i { width: 9px; height: 12px; border-radius: 50%; background: var(--ust-yazi); }
-  .yuz b { position: absolute; bottom: -6px; width: 16px; height: 8px; border-bottom: 3px solid var(--ust-yazi); border-radius: 0 0 16px 16px; }
+  .yuz i { width: 9px; height: 12px; border-radius: 50%; background: var(--sahne-yuz); }
+  .yuz::before, .yuz::after { content: ""; position: absolute; bottom: -4px; width: 12px; height: 7px; border-radius: 50%; background: var(--vurgu); opacity: 0.35; }
+  .yuz::before { left: 28%; } .yuz::after { right: 28%; }
+  .yuz b { position: absolute; bottom: -6px; width: 16px; height: 8px; border-bottom: 3px solid var(--sahne-yuz); border-radius: 0 0 16px 16px; }
 
+  .pkrep, .ucan, .t-krep, .m-krep { background-image: linear-gradient(180deg, #ffffff40 0 38%, transparent 38%); }
   .pkrep.cig, .ucan.cig, .t-krep.cig { background: var(--krep-cig); }
   .pkrep.az, .ucan.az, .t-krep.az { background: var(--krep-az); }
   .pkrep.orta, .ucan.orta, .t-krep.orta { background: var(--krep-orta); }
@@ -255,7 +262,7 @@
   .pkrep.yanik, .ucan.yanik, .t-krep.yanik { background: var(--krep-yanik); }
 
   .duman { position: absolute; top: -34px; right: 30px; font-size: 28px; animation: yuksel 1s ease-out infinite; }
-  .ipucu { margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--yazi-soluk); }
+  .ipucu { margin-top: 18px; padding: 4px 14px; border-radius: 999px; background: var(--kart); font-size: 14px; font-weight: 700; color: var(--yazi); }
   .pisme { width: 140px; height: 8px; margin-top: 6px; border-radius: 4px; background: var(--kart); border: 1px solid var(--kenar); overflow: hidden; }
   .p-dolgu { height: 100%; background: linear-gradient(90deg, var(--krep-az), var(--basari) 60%, var(--renk-ana) 85%, var(--vurgu)); }
 
@@ -266,7 +273,7 @@
   .kule { display: flex; flex-direction: column-reverse; align-items: center; gap: 1px; }
   .t-krep { width: 170px; height: 20px; border-radius: 10px; box-shadow: inset 0 -4px 0 #0003; }
   .t-ek { font-size: 16px; line-height: 16px; height: 16px; }
-  .plaka { width: 270px; height: 34px; margin-top: -6px; border-radius: 50%; background: var(--basari); box-shadow: inset 0 -8px 0 #0003, 0 8px 0 color-mix(in srgb, var(--basari) 60%, black); }
+  .plaka { width: 270px; height: 34px; margin-top: -6px; border-radius: 50%; background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%); box-shadow: inset 0 -8px 0 #0002, 0 9px 0 var(--sahne-tabak-koyu); }
 
   .mesaj { position: absolute; left: 50%; top: 40%; z-index: 20; padding: 10px 20px; border-radius: 16px; border: 2px solid var(--renk-ana); background: var(--kart); text-align: center; pointer-events: none; animation: patla 0.45s ease-out forwards; transform: translateX(-50%); }
   .mesaj .ana { font-size: 34px; font-weight: 900; color: var(--renk-ana); }
