@@ -54,8 +54,12 @@ class Kayit {
     this.yaz();
   }
 
+  /** Kayıttaki adisyonlar, en yeni başta. Bozuk girdiler atlanır (Fişlerim ekranı çökmesin). */
   fisler(): Fis[] {
-    return Array.isArray(this.veri.fisler) ? this.veri.fisler : [];
+    if (!Array.isArray(this.veri.fisler)) return [];
+    return this.veri.fisler.filter(
+      (f) => f && typeof f.kod === "string" && typeof f.bolum === "number" && typeof f.tarih === "string"
+    );
   }
 
   /** Yeni adisyonu listenin başına ekler (servisKaydet gibi önce diskteki kaydı okur) */

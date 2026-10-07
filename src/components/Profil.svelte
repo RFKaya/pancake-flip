@@ -1,6 +1,9 @@
 <script lang="ts">
   // Adım 14: Profil — basit (sahte) giriş formu, kullanıcı localStorage'da tutulur
-  import { biletlerim } from "$lib/biletler.svelte";
+  import { onMount } from "svelte";
+  import { kayit } from "$lib/kayit.svelte";
+
+  onMount(() => kayit.yukle());
 
   let kullanici = $state(
     // Node 25+ SSR'de de global bir `localStorage` nesnesi tanımlar (getItem yok); bu yüzden window'a bakılır
@@ -30,9 +33,9 @@
     <div class="kart profil">
       <div class="avatar">{kullanici[0].toLocaleUpperCase("tr")}</div>
       <h2>Merhaba, {kullanici}</h2>
-      <p>{biletlerim.liste.length} biletiniz var</p>
+      <p>{kayit.fisler().length} adisyonunuz var</p>
     </div>
-    <a class="btn" href="/biletlerim">Biletlerime git</a>
+    <a class="btn" href="/fislerim">Fişlerime git</a>
     <button class="btn ikincil" onclick={cikisYap}>Çıkış yap</button>
   {:else}
     <h1>Giriş yap</h1>
