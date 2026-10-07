@@ -5,10 +5,19 @@
 ## 1. Akış
 
 ```
-Müşteri gelir → sipariş hazırlanır → Ver → +coin, +1 müşteri → ilerleme çubuğu dolar → LEVEL UP → yeni parametreler → sonraki müşteri
+Müşteri gelir → sipariş hazırlanır → tabak birebir doğru olunca kendiliğinden servis → +coin, +1 müşteri → ilerleme çubuğu dolar → LEVEL UP → yeni parametreler → sonraki müşteri
 ```
 
 Bölüm sonu ekranı, "tamamlandı" penceresi ya da oyun sonu **yoktur**. Seviye atlama kısa bir bildirimdir (`✨ LEVEL 25 ✨`), oyunu durdurmaz. Kilometre taşlarında (10, 25, 50, 100, 250, 500, 1000) başlık da çıkar: *YENİ MÜŞTERİLER!*, *YENİ SOSLAR!*, *VIP MÜŞTERİLER!*, *MASTER CHEF!*, *PANCAKE LEGEND!*, *PANCAKE GOD!*, *SONSUZ USTA!*. Bunlar bitiş değil, başarımdır; 501, 502… devam eder.
+
+### 1.1 Temel kurallar (siparişin geçerliliği)
+
+Bunlar görsel tercih değil, **oyunun kurallarıdır** (kod: `oturum.ts` → `tabakDurumu`, `musteriyeVer`; `pisirme.ts`; `hamur.ts`):
+
+1. **Yanlış krep asla kabul edilmez.** Tabak, bekleyen bir siparişin **birebir** aynısı olmalıdır: kat sayısı, malzemeler, sıra, her krebin **pişmiş** olması ve istenen **kalınlık** (tercih yoksa normal). Eksik, fazla, yanlış, çiğ ya da yanık tek bir parça bile varsa sipariş tamamlanmaz: teslim edilmez, ilerleme / coin / müşteri sayısı artmaz, adisyon tetiklenmez. Oyuncu kısa bir "BU DEĞİL! 😅" uyarısı görür; tabak ✖ ile işaretlenir ve **Boşalt** ile atılıp yeniden hazırlanır. Ceza yoktur.
+2. **Doğru tabak kendiliğinden servis edilir.** "Ver" düğmesi yoktur: son parça konduğu anda tabak siparişi tutan müşteriye gider (birden çok müşteri tutuyorsa sabrı en az kalana), MÜKEMMEL / HARİKA gösterilir, sonraki sipariş hemen hazırlanabilir. Servis tabağı boşalttığı için aynı tabak iki kez ödül veremez. Kreplerin hepsi kusursuz (kusursuz döküm + kusursuz çevirme) ise MÜKEMMEL, değilse HARİKA.
+3. **Hamur miktarı: görsel hedef.** Dökerken tavada beyaz kesik çizgili bir hedef halka çıkar; miktar hedefin **±toleransı** içindeyken halka **yeşil** olur. Tolerans `seviye.json → egriler.hamurTolerans` (±%10'dan ±%7'ye). Hedefler `ayarlar.json → hamur.hedef` (ince 0,7 · normal 1 · kalın 1,35); ince / kalın yalnızca kalınlık tercihleri açıkken (20. seviye) geçerlidir. Hedefin dışında bırakılan hamur krep olmaz: "AZ HAMUR!" / "ÇOK HAMUR!" yazısıyla tava boşalır.
+4. **Pişme: oyuncuya yalnızca üç durum.** Her yüz **ÇİĞ** (`p < pismisP`) → **PİŞMİŞ** (`pismisP ≤ p < yanikP`) → **YANIK** (`p ≥ yanikP`); eşikler `ayarlar.json → pisirme`. Görünüm de üçtür: soluk, altın, siyah. Yalnızca PİŞMİŞ yüz çevrilebilir ya da tabağa alınabilir (çiğken kaydırınca "HENÜZ PİŞMEDİ!"). Akış: hamur → 1. yüz pişer → çevir → 2. yüz pişer → aşağı kaydır. Yanık krep alınamaz, kısa sürede kendiliğinden çöpe gider ("YANDI! 🔥").
 
 ## 2. İlerleme: `gerekenMusteri(seviye)`
 
@@ -31,7 +40,7 @@ Her sürekli parametre `seviye.json → egriler` içinde **[kolay uç, zor uç]*
 | Parametre | Kolay (L1) | Zor (plato) | Etkisi |
 |---|---|---|---|
 | `cevirPencere` | 0,40 | 0,08 | çevirme / servis zamanlaması penceresi |
-| `hamurTolerans` | 0,45 | 0,12 | ideal hamur miktarı toleransı |
+| `hamurTolerans` | 0,10 | 0,07 | hamur hedefinin ± toleransı (§1.1) |
 | `pisirmeHizi` | ×1,0 | ×1,8 | krep pişme hızı |
 | `sabirCarpani` | ×3,0 | ×0,85 | müşteri sabrı (taban: `sabirMin` = 8 sn) |
 | `gelmeAraligi` | 10 sn | 4 sn | birden fazla slotta yeni müşteri sıklığı |

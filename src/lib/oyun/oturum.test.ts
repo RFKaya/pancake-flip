@@ -1,15 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import type { TabakParcasi } from "../../types/oyun";
-import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, yeniOturum, type Oturum } from "./oturum";
+import type { Kalinlik, TabakParcasi } from "../../types/oyun";
+import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type Oturum } from "./oturum";
 import { rngOlustur } from "./rng";
 import { gerekenMusteri } from "./seviye";
 import { MALZEMELER } from "./veri";
 
 const kategoriOf = (id: string) => MALZEMELER.find((m) => m.id === id)!.kategori;
 
-/** Müşterinin siparişini birebir doğru ve iyi pişmiş krepten oluşan tabağa çevirir */
-const mukemmelTabak = (parcalar: string[]): TabakParcasi[] =>
-  parcalar.map((malzeme) => (malzeme === "krep" ? { malzeme, pisme: "iyi" as const, kalinlik: "normal" as const } : { malzeme }));
+/** Müşterinin siparişini birebir doğru, pişmiş ve kusursuz (usta) kreplerden oluşan tabağa çevirir */
+const mukemmelTabak = (parcalar: string[], tercih: Kalinlik = "normal"): TabakParcasi[] =>
+  parcalar.map((malzeme) => (malzeme === "krep" ? { malzeme, pisme: "iyi" as const, kalinlik: tercih, usta: true } : { malzeme }));
 
 /** Müşteri gelene kadar zamanı ilerletir */
 function musteriBekle(o: Oturum, rng = rngOlustur(1), azami = 30) {
@@ -85,19 +85,73 @@ describe("oturum: servis ve ilerleme", () => {
     expect(o.sv.seviye).toBe(2);
   });
 
-  test("yanlış sipariş (OLMADI): ilerleme yok, seri sıfırlanır, müşteri tabağı alıp gider", () => {
+  test("yanlış tabak ASLA teslim edilmez: müşteri kalır, ilerleme / coin / seri değişmez", () => {
     const o = yeniOturum({ seviye: 5 });
     musteriBekle(o);
     o.seri = 3;
-    const r = musteriyeVer(o, [{ malzeme: "tereyagi" }, { malzeme: "tereyagi" }, { malzeme: "tereyagi" }])!;
-    expect(r.sonuc).toBe("olmadi");
-    expect(r.ilerlemeEkle).toBe(0);
+    const m = o.musteriler[0];
+    expect(musteriyeVer(o, [{ malzeme: "tereyagi" }, { malzeme: "tereyagi" }, { malzeme: "tereyagi" }])).toBeNull();
+    expect(o.musteriler.map((x) => x.id)).toEqual([m.id]);
     expect(o.ilerleme).toBe(0);
     expect(o.seviye).toBe(5);
-    expect(o.seri).toBe(0);
+    expect(o.seri).toBe(3);
     expect(o.toplamMusteri).toBe(0);
-    expect(r.kazanc).toBeGreaterThanOrEqual(0);
-    expect(o.toplamCoin).toBeGreaterThanOrEqual(0);
+    expect(o.toplamCoin).toBe(0);
+  });
+
+  test("tarif kuralı: kat sayısı, eksik/fazla/yanlış malzeme, çiğ/yanık krep, kalınlık → yanlış; eksik ama doğru gidiş → hazırlanıyor", () => {
+    const o = yeniOturum({ seviye: 5 });
+    musteriBekle(o);
+    const m = o.musteriler[0];
+    m.siparis = { parcalar: ["krep", "cikolata", "krep", "cikolata", "krep"], d: 6 };
+    const dogru = mukemmelTabak(m.siparis.parcalar);
+    const durum = (t: TabakParcasi[]) => tabakDurumu(o, t).durum;
+
+    expect(durum([])).toBe("bos");
+    expect(durum(dogru.slice(0, 3))).toBe("hazirlaniyor"); // 2 kat: henüz bitmedi, teslim edilmez
+    expect(musteriyeVer(o, dogru.slice(0, 3))).toBeNull();
+    expect(durum([...dogru, ...mukemmelTabak(["krep"])])).toBe("yanlis"); // fazla kat
+    expect(durum(dogru.map((p) => (p.malzeme === "cikolata" ? { malzeme: "cilek-dilimi" } : p)))).toBe("yanlis"); // yanlış malzeme
+    expect(durum([dogru[0], dogru[2]])).toBe("yanlis"); // eksik malzeme (krep krep)
+    expect(durum([{ ...dogru[0], pisme: "cig" }])).toBe("yanlis"); // çiğ krep
+    expect(durum([{ ...dogru[0], pisme: "yanik" }])).toBe("yanlis"); // yanık krep
+    expect(durum([{ ...dogru[0], kalinlik: "kalin" }])).toBe("yanlis"); // istenmeyen kalınlık
+    for (const yanlis of [[...dogru, ...mukemmelTabak(["krep"])], [{ ...dogru[0], pisme: "cig" as const }]]) {
+      expect(musteriyeVer(o, yanlis)).toBeNull();
+    }
+    expect(o.musteriler.length).toBe(1);
+    expect(o.toplamMusteri + o.ilerleme + o.toplamCoin).toBe(0);
+    expect(durum(dogru)).toBe("dogru");
+  });
+
+  test("tercihli siparişte yalnızca istenen kalınlık kabul edilir", () => {
+    const o = yeniOturum({ seviye: 20 });
+    musteriBekle(o);
+    const m = o.musteriler[0];
+    m.siparis = { parcalar: ["krep"], d: 1, tercih: "ince" };
+    expect(tabakDurumu(o, mukemmelTabak(["krep"])).durum).toBe("yanlis");
+    expect(tabakDurumu(o, [{ malzeme: "krep", pisme: "iyi", kalinlik: "ince", usta: true }]).durum).toBe("dogru");
+  });
+
+  test("doğru tabak bir kez teslim edilir; aynı tabakla ikinci deneme ödül vermez (çift servis yok)", () => {
+    const o = yeniOturum({ seviye: 5 });
+    musteriBekle(o);
+    const tabak = mukemmelTabak(o.musteriler[0].siparis.parcalar);
+    const r = musteriyeVer(o, tabak)!;
+    expect(r).not.toBeNull();
+    const sonra = { coin: o.toplamCoin, musteri: o.toplamMusteri, ilerleme: o.ilerleme, seviye: o.seviye };
+    expect(musteriyeVer(o, tabak)).toBeNull();
+    expect({ coin: o.toplamCoin, musteri: o.toplamMusteri, ilerleme: o.ilerleme, seviye: o.seviye }).toEqual(sonra);
+  });
+
+  test("kusursuz olmayan (usta değil) ama doğru krep GREAT olur, yine de ilerleme verir", () => {
+    const o = yeniOturum({ seviye: 5 });
+    musteriBekle(o);
+    const tabak = mukemmelTabak(o.musteriler[0].siparis.parcalar).map((p) => (p.malzeme === "krep" ? { ...p, usta: false } : p));
+    const r = musteriyeVer(o, tabak)!;
+    expect(r.sonuc).toBe("great");
+    expect(r.ilerlemeEkle).toBeGreaterThan(0);
+    expect(o.toplamMusteri).toBe(1);
   });
 
   test("boş tabak ya da bekleyen müşteri yokken hiçbir şey olmaz", () => {
@@ -108,7 +162,7 @@ describe("oturum: servis ve ilerleme", () => {
     expect(o.musteriler.length).toBe(1);
   });
 
-  test("birden fazla müşteri: tabak siparişine en çok benzeyene gider", () => {
+  test("birden fazla müşteri: tabak, siparişi birebir tutan müşteriye gider", () => {
     const o = yeniOturum({ seviye: 40 });
     const rng = rngOlustur(21);
     for (let t = 0; t < 60 && o.musteriler.length < 2; t += 0.1) {
@@ -164,7 +218,7 @@ describe("oturum: servis ve ilerleme", () => {
     for (let i = 0; i < 25 && !basladi; i++) {
       for (let t = 0; t < 60 && !o.musteriler.length; t += 0.1) oturumIlerlet(o, 0.1, rng);
       const m = o.musteriler[0];
-      basladi = musteriyeVer(o, mukemmelTabak(m.siparis.parcalar))!.yogunBasladi;
+      basladi = musteriyeVer(o, mukemmelTabak(m.siparis.parcalar, m.siparis.tercih))!.yogunBasladi;
     }
     expect(basladi).toBe(true);
     expect(o.yogunKalan).toBeGreaterThan(0);

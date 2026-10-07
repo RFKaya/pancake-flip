@@ -2,12 +2,14 @@
   // Sonsuz oyun ekranı: duvarda müşteri fişleri, ortada tava(lar), yakında tabak. Bölüm yok; her başarılı müşteri
   // seviyeyi ilerletir (kurallar: oturum.ts / seviye.ts). Tavalar Tava.svelte'dedir:
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al.
+  // Temel kural: tabak bir siparişin BİREBİR aynısı olunca kendiliğinden servis edilir; yanlış tabak asla kabul edilmez.
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import { fisKaydet } from "$lib/fisler.svelte";
   import { gelistiriciModuAcik, ilerleme } from "$lib/ilerleme.svelte";
   import { ruhHali } from "$lib/oyun/musteri";
-  import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, yeniOturum, type OturumOlayi, type SeviyeAtlama, type VerSonucu } from "$lib/oyun/oturum";
+  import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type OturumOlayi, type SeviyeAtlama } from "$lib/oyun/oturum";
+  import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
   import { sayiKisalt, type Acilis } from "$lib/oyun/seviye";
   import { cal } from "$lib/oyun/ses";
@@ -73,8 +75,13 @@
   const siradaki = $derived.by(() => {
     if (!hedef) return null;
     const n = onek(hedef.siparis.parcalar);
-    return n === tabak.length ? (hedef.siparis.parcalar[tabak.length] ?? "ver") : null;
+    return n === tabak.length ? (hedef.siparis.parcalar[tabak.length] ?? null) : null;
   });
+
+  /** Tabak hiçbir siparişe dönüşemiyorsa (yanlış tarif) kırmızı gösterilir ve Boşalt parlar */
+  const tabakYanlis = $derived(tabakDurumu(oturum, tabak).durum === "yanlis");
+  /** Tavadaki dökme hedefi: tabağın gittiği siparişin istediği kalınlık */
+  const hedefKalinlik = $derived(hedef?.siparis.tercih ?? "normal");
 
   // ---- Oyun döngüsü: tek rAF, dt ile ----
   onMount(() => {
@@ -92,8 +99,10 @@
 
   function olaylar(liste: OturumOlayi[]) {
     for (const o of liste) {
-      if (o.tur === "geldi") cal("pop");
-      else if (o.tur === "gitti") {
+      if (o.tur === "geldi") {
+        cal("pop");
+        kontrolEt(false);
+      } else if (o.tur === "gitti") {
         gittiNo++;
         cal("puf");
         const no = gittiNo;
@@ -129,6 +138,7 @@
     tabak.push(p);
     tabakZipla(1.2);
     salla(0.5);
+    kontrolEt(true);
   }
 
   /** Krep tabağın neresine düşecek: kulenin üst yüzü */
@@ -145,6 +155,7 @@
     if (dusenler.length > 4) dusenler.shift();
     tabakZipla(0.8);
     cal("malzeme");
+    kontrolEt(true);
   }
 
   function bosalt() {
@@ -154,10 +165,9 @@
     cal("cop");
   }
 
-  const YAZI: Record<Sonuc, string> = { perfect: "MÜKEMMEL!", great: "HARİKA", good: "İYİ", olmadi: "OLMADI" };
+  const YAZI: Record<Sonuc, string> = { perfect: "MÜKEMMEL!", great: "HARİKA", good: "İYİ", olmadi: "BU DEĞİL! 😅" };
 
-  function nedenYazisi(d: VerSonucu): string {
-    const ilk = d.degerlendirme.hatalar[0];
+  function nedenYazisi(ilk: Hata | undefined): string {
     if (!ilk) return "";
     switch (ilk.tur) {
       case "eksik": return `Eksik: ${malzeme(ilk.malzeme).ad}`;
@@ -170,18 +180,33 @@
     }
   }
 
-  function ver() {
-    if (!tabak.length) return;
-    const r = musteriyeVer(oturum, tabak);
-    if (!r) {
-      salla(0.4); // bekleyen müşteri yok
-      return;
-    }
+  function sonucGoster(s: Sonuc, neden: string, kazanc: number) {
     const no = ++sonucNo;
-    sonuc = { s: r.sonuc, neden: nedenYazisi(r), kazanc: r.kazanc };
+    sonuc = { s, neden, kazanc };
     setTimeout(() => {
       if (sonucNo === no) sonuc = null;
     }, 1500);
+  }
+
+  /**
+   * Tabak her değiştiğinde (krep indi, malzeme kondu) ya da müşteri gelince çağrılır.
+   * Birebir doğru tabak → hemen servis. Yanlış tabak → kısa "Bu değil!" uyarısı (yalnızca oyuncu tabağı değiştirdiyse).
+   * Servis tabağı boşalttığı için aynı tabak iki kez ödül veremez.
+   */
+  function kontrolEt(oyuncuDegistirdi: boolean) {
+    const d = tabakDurumu(oturum, tabak);
+    if (d.durum === "dogru") teslim();
+    else if (d.durum === "yanlis" && oyuncuDegistirdi) {
+      sonucGoster("olmadi", nedenYazisi(d.degerlendirme.hatalar[0]), 0);
+      cal("olmadi");
+      anim(tabakEl, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], 320);
+    }
+  }
+
+  function teslim() {
+    const r = musteriyeVer(oturum, tabak);
+    if (!r) return;
+    sonucGoster(r.sonuc, "", r.kazanc);
 
     // Madeni para patlaması + sayaç zıplaması
     if (r.sonuc !== "olmadi") {
@@ -323,12 +348,12 @@
     {#key tekrar}
       <div class="tavalar" class:cift={tavaSayisi > 1}>
         {#each Array(tavaSayisi) as _, i (i)}
-          <Tava seviye={oturum.seviye} ipucuAcik={sv.ipucu} {olcek} duraklat={paneAcik} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
+          <Tava seviye={oturum.seviye} ipucuAcik={sv.ipucu} {hedefKalinlik} {olcek} duraklat={paneAcik} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
         {/each}
       </div>
     {/key}
 
-    <div class="tabak" bind:this={tabakEl}>
+    <div class="tabak" class:yanlis={tabakYanlis} bind:this={tabakEl}>
       <div class="kule" bind:this={kuleEl}>
         {#each tabak as p, i (i)}
           {#if p.malzeme === "krep"}<div class="t-krep {p.pisme} {p.kalinlik ?? 'normal'}"></div>
@@ -349,7 +374,7 @@
     <div class="mesaj {sonuc.s}">
       <div class="ana">{YAZI[sonuc.s]}</div>
       {#if sonuc.neden}<div class="alt">{sonuc.neden}</div>{/if}
-      <div class="alt kazanc">{#if sonuc.s !== "olmadi"}+1 👤 · {/if}+{sonuc.kazanc} 🪙</div>
+      {#if sonuc.s !== "olmadi"}<div class="alt kazanc">+1 👤 · +{sonuc.kazanc} 🪙</div>{:else}<div class="alt">Boşalt ve yeniden dene</div>{/if}
     </div>
   {/if}
 
@@ -378,8 +403,7 @@
       {/each}
     </div>
     <div class="eylemler">
-      <button class="dugme ver" class:parlak={siradaki === "ver"} onpointerdown={ver}><span>✅</span><small>Ver</small></button>
-      <button class="dugme kucuk" onpointerdown={bosalt} aria-label="Tabağı boşalt"><span>🗑</span><small>Boşalt</small></button>
+      <button class="dugme kucuk" class:parlak={tabakYanlis} class:uyari={tabakYanlis} onpointerdown={bosalt} aria-label="Tabağı boşalt"><span>🗑</span><small>Boşalt</small></button>
     </div>
   </footer>
 
@@ -518,7 +542,9 @@
   .dugme:active { transform: translateY(4px) scale(0.97); box-shadow: none; }
   .dugme span { font-size: 26px; line-height: 1; }
   .dugme small { font-size: 11px; }
-  .dugme.ver { flex: 1.6; border-color: var(--basari); }
+  .dugme.uyari { border-color: var(--vurgu); }
+  .tabak.yanlis .plaka { filter: saturate(0.4); }
+  .tabak.yanlis::after { content: "✖"; position: absolute; right: 24px; top: 6px; z-index: 6; color: var(--vurgu); font-size: 26px; font-weight: 900; }
   .dugme.kucuk { flex: 0.8; min-height: 56px; align-self: center; }
   .dugme.parlak { animation: parla 0.9s ease-in-out infinite; }
 

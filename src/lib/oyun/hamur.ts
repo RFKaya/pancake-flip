@@ -1,4 +1,5 @@
-// Hamur dökme: basılı tutma süresi = miktar. 1 = ideal; tolerans seviyeyle daralır (docs/oyun-tasarimi.md §4)
+// Hamur dökme: basılı tutma süresi = miktar. Her kalınlığın bir hedef miktarı vardır; yalnızca hedefin ±toleransı
+// içindeki döküm geçerli krep olur (docs/sonsuz-seviye.md §1.1). Tolerans seviyeyle biraz daralır.
 import type { Ayarlar, Kalinlik } from "../../types/oyun";
 import { hamurToleransDegeri } from "./seviye";
 
@@ -24,13 +25,25 @@ export function hamurYay(h: Hamur, px: number, ayar: Ayarlar) {
 }
 
 export interface HamurSonuc {
-  kalinlik: Kalinlik;
-  mukemmel: boolean; // "PERFECT POUR!"
+  /** Dökülen miktarın denk geldiği kalınlık; hiçbir hedefin toleransına girmiyorsa null (krep geçersiz, atılır) */
+  kalinlik: Kalinlik | null;
+  mukemmel: boolean; // "PERFECT POUR!": hedefe toleransın yarısından yakın
+  az: boolean; // geçersizse: hedefin altında mı kaldı (geri bildirim için)
 }
 
-export function hamurSonucu(miktar: number, seviye: number): HamurSonuc {
+/** Miktar, hedefin ±tolerans aralığında mı? (sınırlar dahil; ör. hedef 1, tolerans 0,10 → 0,90–1,10) */
+export function hamurIcinde(miktar: number, hedef: number, seviye: number): boolean {
+  return Math.abs(miktar / hedef - 1) <= hamurToleransi(seviye) + 1e-9;
+}
+
+/** Geçerli kalınlık hedefleri: tercihler açılmadan yalnızca "normal" */
+export const hamurHedefleri = (tercihAcik: boolean): Kalinlik[] => (tercihAcik ? ["ince", "normal", "kalin"] : ["normal"]);
+
+export function hamurSonucu(miktar: number, seviye: number, ayar: Ayarlar, tercihAcik = false): HamurSonuc {
   const tol = hamurToleransi(seviye);
-  if (miktar < 1 - tol) return { kalinlik: "ince", mukemmel: false };
-  if (miktar > 1 + tol) return { kalinlik: "kalin", mukemmel: false };
-  return { kalinlik: "normal", mukemmel: true };
+  for (const k of hamurHedefleri(tercihAcik)) {
+    const h = ayar.hamur.hedef[k];
+    if (hamurIcinde(miktar, h, seviye)) return { kalinlik: k, mukemmel: Math.abs(miktar / h - 1) <= tol / 2, az: false };
+  }
+  return { kalinlik: null, mukemmel: false, az: miktar < ayar.hamur.hedef.normal };
 }

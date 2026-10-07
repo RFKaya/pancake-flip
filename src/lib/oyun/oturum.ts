@@ -135,38 +135,65 @@ export function oturumIlerlet(o: Oturum, dt: number, rng: Rng): OturumOlayi[] {
   return olay;
 }
 
+/** Tabaktaki i. parça, siparişin i. parçasını tam karşılıyor mu? (malzeme; krepte pişme ve kalınlık da) */
+function parcaUyar(m: Musteri, parca: TabakParcasi, i: number): boolean {
+  if (parca.malzeme !== m.siparis.parcalar[i]) return false;
+  if (parca.malzeme !== "krep") return true;
+  return parca.pisme === "iyi" && (parca.kalinlik ?? "normal") === (m.siparis.tercih ?? "normal");
+}
+
+/** Tabak bu müşterinin siparişinin geçerli bir başlangıcı mı (henüz eksik olabilir)? */
+const onekUyar = (m: Musteri, tabak: TabakParcasi[]) =>
+  tabak.length <= m.siparis.parcalar.length && tabak.every((p, i) => parcaUyar(m, p, i));
+
+export type TabakDurumu =
+  | { durum: "bos" }
+  | { durum: "hazirlaniyor" } // bir siparişin doğru başlangıcı (ya da bekleyen müşteri yok)
+  | { durum: "dogru"; musteri: Musteri } // bir siparişin birebir aynısı → otomatik servis
+  | { durum: "yanlis"; musteri: Musteri; degerlendirme: Degerlendirme }; // hiçbir siparişe dönüşemez → atılmalı
+
 /**
- * Tabağı müşteriye verir. Tabak, bekleyen müşterilerden siparişine EN ÇOK benzeyene gider
- * (eşitlikte sabrı en az kalan). Bekleyen yoksa ya da tabak boşsa null döner ve hiçbir şey değişmez.
+ * Temel tarif kuralı (docs/sonsuz-seviye.md §1.1): tabak yalnızca bir siparişin BİREBİR aynısıysa doğrudur —
+ * kat sayısı, malzemeler, sıra, her krebin pişmiş olması ve istenen kalınlık. Eksik / fazla / yanlış hiçbir şey kabul edilmez.
+ */
+export function tabakDurumu(o: Oturum, tabak: TabakParcasi[]): TabakDurumu {
+  if (!tabak.length) return { durum: "bos" };
+  const tam = o.musteriler
+    .filter((m) => tabak.length === m.siparis.parcalar.length && onekUyar(m, tabak))
+    .sort((a, b) => sabirOrani(a) - sabirOrani(b));
+  if (tam.length) return { durum: "dogru", musteri: tam[0] };
+  if (!o.musteriler.length || o.musteriler.some((m) => onekUyar(m, tabak))) return { durum: "hazirlaniyor" };
+  // Yanlış: neden yazısı için tabağa en yakın sipariş
+  let en: { m: Musteri; d: Degerlendirme } | null = null;
+  for (const m of o.musteriler) {
+    const d = degerlendir(m.siparis.parcalar, tabak, 1, AYAR, m.siparis.tercih);
+    if (!en || d.kalite > en.d.kalite) en = { m, d };
+  }
+  const { m, d } = en as NonNullable<typeof en>;
+  return { durum: "yanlis", musteri: m, degerlendirme: d };
+}
+
+/**
+ * Tabağı, siparişi BİREBİR karşılanan müşteriye verir (eşitlikte sabrı en az kalan). Tabak hiçbir siparişle
+ * birebir aynı değilse (yanlış ya da eksik) null döner ve HİÇBİR ŞEY değişmez: müşteri kalır, ilerleme / coin artmaz.
+ * Krepler kusursuz (döküm + çevirme) ise PERFECT, değilse GREAT.
  */
 export function musteriyeVer(o: Oturum, tabak: TabakParcasi[]): VerSonucu | null {
-  if (!tabak.length || !o.musteriler.length) return null;
-
-  let secilen: { m: Musteri; tip: MusteriTipi; d: Degerlendirme } | null = null;
-  for (const m of o.musteriler) {
-    const tip = TIPLER.find((t) => t.id === m.tip) as MusteriTipi;
-    const d = degerlendir(m.siparis.parcalar, tabak, tip.ceza, AYAR, m.siparis.tercih);
-    if (!secilen || d.kalite > secilen.d.kalite || (d.kalite === secilen.d.kalite && sabirOrani(m) < sabirOrani(secilen.m))) {
-      secilen = { m, tip, d };
-    }
-  }
-  const { m, tip, d } = secilen as NonNullable<typeof secilen>;
+  const durum = tabakDurumu(o, tabak);
+  if (durum.durum !== "dogru") return null;
+  const m = durum.musteri;
+  const tip = TIPLER.find((t) => t.id === m.tip) as MusteriTipi;
+  const d = degerlendir(m.siparis.parcalar, tabak, tip.ceza, AYAR, m.siparis.tercih);
   o.musteriler = o.musteriler.filter((x) => x.id !== m.id);
 
-  const sonuc = d.sonuc;
-  const basarili = sonuc !== "olmadi";
+  const sonuc: Sonuc = tabak.every((p) => p.malzeme !== "krep" || p.usta) ? "perfect" : "great";
   let puan = SEVIYE.ilerleme[sonuc];
-  if (basarili) {
-    o.seri++;
-    o.toplamMusteri++;
-    if (sonuc === "perfect") {
-      o.mukemmelSeri++;
-      if (o.mukemmelSeri % SEVIYE.ilerleme.seri.esik === 0) puan += SEVIYE.ilerleme.seri.bonus;
-    } else o.mukemmelSeri = 0;
-  } else {
-    o.seri = 0;
-    o.mukemmelSeri = 0;
-  }
+  o.seri++;
+  o.toplamMusteri++;
+  if (sonuc === "perfect") {
+    o.mukemmelSeri++;
+    if (o.mukemmelSeri % SEVIYE.ilerleme.seri.esik === 0) puan += SEVIYE.ilerleme.seri.bonus;
+  } else o.mukemmelSeri = 0;
 
   const yogun = o.yogunKalan > 0 ? SEVIYE.yogunSaat.kazancCarpani : 1;
   const gelir = gelirHesapla({
@@ -195,7 +222,7 @@ export function musteriyeVer(o: Oturum, tabak: TabakParcasi[]): VerSonucu | null
   }
 
   let yogunBasladi = false;
-  if (basarili && o.sv.yogunSaatAcik) {
+  if (o.sv.yogunSaatAcik) {
     o.yogunSayac++;
     if (o.yogunSayac >= SEVIYE.yogunSaat.aralik && o.yogunKalan <= 0) {
       o.yogunSayac = 0;
