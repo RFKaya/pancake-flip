@@ -11,7 +11,7 @@ Bu belge, projenin temel dizin yapısını, önemli klasörlerin sorumlulukları
 ## 📂 Temel Dizin Mimarisi
 
 ```
-hello-mobil/
+pancake-flip/
 ├── package.json             # Bağımlılıklar, scriptler ve motor tanımları
 ├── astro.config.mjs         # Astro entegrasyonları (Svelte, React, MDX) ve Vite port ayarları
 ├── tsconfig.json            # TypeScript yapılandırması ve $lib alias'ı
@@ -28,6 +28,8 @@ hello-mobil/
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Yeniden kullanılabilir UI bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, mock veri, Svelte 5 state store'ları ($state)
+│   │   ├── veri/            # Oyun değerleri (JSON): malzemeler, müşteriler, bölümler, yükseltmeler
+│   │   └── oyun/            # Saf TypeScript oyun kuralları (Svelte yok, testlenebilir)
 │   ├── types/               # TypeScript tip tanımları ve arayüzler (.ts)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
 │
