@@ -26,7 +26,7 @@ Etiketler: Hafta 3 sonu `v0.1.0-batch-01` (Görev 09), MVP sonu `v0.2.0-mvp`, ta
 | Durum | Görev | Dal | Hocanın dosyası |
 |---|---|---|---|
 | [x] | 02 Proje fikri + oyun planı | `feature/proje-fikri` | [02](tasks/week-3/02-proje-fikriniz.task.md) |
-| [ ] | 04 AGENTS.md, CLAUDE.md, GEMINI.md | `feature/agents-md` | [04](tasks/week-3/04-agents.task.md) |
+| [x] | 04 AGENTS.md, CLAUDE.md, GEMINI.md | `feature/agents-md` | [04](tasks/week-3/04-agents.task.md) |
 | [ ] | 05 Markalama, renk, ikon | `feature/branding` | [05](tasks/week-3/05-branding.task.md) |
 | [ ] | 07 Mimari ağaç, responsive | `feature/mimari-agac` | [07](tasks/week-3/07-hedefler-agac-yapisi.task.md) |
 | [ ] | 06 Bilgi sayfaları (4 dil) | `feature/bilgi-sayfalari` | [06](tasks/week-3/06-info-pages.task.md) |
