@@ -1,39 +1,18 @@
 // Sonsuz seviye kaydı (sürümlü localStorage). Eski bölüm kaydı (kayit.svelte.ts) bununla ilgilenmez.
 // Açılan malzeme ve mekanikler kayda yazılmaz: seviyeden hesaplanır (seviye.ts), böylece bayatlayamaz.
 import type { Oturum } from "./oyun/oturum";
+import { bosIlerleme as bos, ilerlemeCoz, type IlerlemeVerisi } from "./oyun/ilerlemeKaydi";
 import { seviyeSinirla } from "./oyun/seviye";
+
+export type { IlerlemeVerisi };
 
 const ANAHTAR = "pancakeflip-ilerleme";
 const DEV_ANAHTAR = "pancakeflip-dev";
 
-export interface IlerlemeVerisi {
-  surum: 1;
-  seviye: number; // playerLevel
-  ilerleme: number; // progressToNextLevel
-  toplamMusteri: number; // totalCustomersServed
-  toplamCoin: number; // totalCoins
-  enYuksekSeviye: number;
-}
-
-const bos = (): IlerlemeVerisi => ({ surum: 1, seviye: 1, ilerleme: 0, toplamMusteri: 0, toplamCoin: 0, enYuksekSeviye: 1 });
-const sayi = (x: unknown, varsayilan: number) => (typeof x === "number" && Number.isFinite(x) && x >= 0 ? x : varsayilan);
-
 function oku(): IlerlemeVerisi {
   if (typeof window === "undefined") return bos();
   try {
-    const ham = localStorage.getItem(ANAHTAR);
-    if (!ham) return bos();
-    const v = JSON.parse(ham);
-    if (v?.surum !== 1) return bos();
-    const seviye = seviyeSinirla(sayi(v.seviye, 1));
-    return {
-      surum: 1,
-      seviye,
-      ilerleme: sayi(v.ilerleme, 0),
-      toplamMusteri: sayi(v.toplamMusteri, 0),
-      toplamCoin: sayi(v.toplamCoin, 0),
-      enYuksekSeviye: Math.max(seviye, seviyeSinirla(sayi(v.enYuksekSeviye, 1))),
-    };
+    return ilerlemeCoz(localStorage.getItem(ANAHTAR));
   } catch {
     return bos();
   }

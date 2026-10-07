@@ -119,7 +119,7 @@ Her kare: motor → servis.ilerle(dt) → pisirme.ilerle / musteri.sabirAzalt / 
 ```
 
 - `olaylar[]` kuyruğu ("perfect", "coin", "yanik", "gitti"…) arayüzdeki animasyon ve sesleri tetikler. Mantık, animasyonu beklemez.
-- Servis bitince `SonucPenceresi` açılır, `fisler.fisKaydet(bolumId, yildiz, net)` çağrılır, kayda yazılır.
+- Her kilometre taşında ve her 10. seviyede `fisler.fisKaydet(seviye, yildiz, kasa)` çağrılır, kayda yazılır. `kasa` o anki toplam coin'dir; fişin kazancı (`net`) bir önceki fişten bu yana kazanılandır (`oyun/fis.ts` → `fisNeti`), böylece Fişlerim'deki toplam kasayı aşmaz.
 
 ---
 
