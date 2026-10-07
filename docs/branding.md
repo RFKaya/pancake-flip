@@ -10,6 +10,7 @@ Kontrast, WCAG göreli parlaklık formülüyle **ölçülmüştür**; metin içi
 | Token | Açık (gündüz) | Koyu (gece) | Kullanım yeri | Kontrast (açık / koyu) |
 |---|---|---|---|---|
 | `--renk-ana` (karamel) | `#B45309` | `#F59E0B` | Butonlar, aktif sekme, marka vurgusu | 4,76 / 8,36 (zemin üzerinde) |
+| `--renk-ana-koyu` | `#7C3A0A` | `#A85F06` | Düğmelerin basılan alt kenarı ve gölgesi (metin değil) | — |
 | `--renk-ana-yazi` | `#FFFFFF` | `#1E1510` | `--renk-ana` zemin üstündeki yazı | 5,02 / 8,36 |
 | `--renk-koyu` | `#3B2416` | `#120C08` | Üst bar arka planı | `--ust-yazi` ile 13,72 / 17,66 |
 | `--renk-logo` | `#F59E0B` | `#F59E0B` | Logodaki "flip" yazısı (üst bar üstünde) | 6,74 / 9,04 |
@@ -51,7 +52,21 @@ Hızlı mod sahnesi (pastel mutfak) her iki temada da açık renklidir; sahne ü
 ## 2. Tipografi ve Yuvarlaklık
 
 - **Yazı Tipi (Font):** System UI (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`)
-- **Köşe Yuvarlaklığı (`--radius`):** `14px`
+- **Köşe Yuvarlaklığı (`--radius`):** `14px`; küçük öğeler (kaşe, rozet içi) `--radius-kucuk` `10px`
+
+### Derinlik ve dokunma
+
+Ekranlar "dokunulabilir küçük bir krep dükkânı" gibi durur: yüzeyler tezgâha konmuş gibi alt kenar + yumuşak gölge taşır, düğmeler basılınca o kenara iner. Gölgeler yalnızca mevcut renklerden türetilir (`color-mix`), yeni hex yazılmaz.
+
+| Token / sınıf | Değer | Kullanım yeri |
+|---|---|---|
+| `--golge-kart` | `--kenar` alt kenar + `--renk-koyu` %35 yumuşak gölge | `.kart` |
+| `--golge-yuksek` | daha belirgin alt kenar ve gölge | öne çıkan yüzey (seçili sekme, kasa) |
+| `--basma` | `4px` | `.btn` alt kenar yüksekliği; `:active` iken düğme bu kadar iner |
+| `.btn` | karamel degrade (üstte %6 açık; beyaz yazı en açık yerde 4,55:1) + `--renk-ana-koyu` kenar | ana eylem düğmesi |
+| `.hap` | kart zeminli, `--kenar` kenarlı hap | küçük sayaç ve etiketler |
+
+Form denetimleri `accent-color: var(--renk-ana)` alır; klavye odağı `--renk-logo` çerçeveyle görünür. `prefers-reduced-motion` açıkken basma geçişi kapanır.
 
 ## 3. Logo ve İkon Tanımı
 

@@ -85,17 +85,6 @@
     gap: 6px;
   }
 
-  .hap {
-    padding: 4px 10px;
-    border: 1px solid var(--kenar);
-    border-radius: 999px;
-    background: var(--kart);
-    box-shadow: 0 3px 0 var(--kenar);
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
   /* Gölge sarmalayıcıda: mask aynı elemandaki drop-shadow'u da keseceği için ayrı tutulur */
   .golge {
     filter: drop-shadow(0 3px 0 var(--kenar));
@@ -239,7 +228,6 @@
 
   .bos-durum .btn {
     max-width: 260px;
-    box-shadow: 0 4px 0 var(--renk-koyu);
   }
 
   /* Boş tabak: oyun sahnesindeki turkuaz tabak, hafif sallanır */
