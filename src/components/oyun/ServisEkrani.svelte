@@ -137,7 +137,9 @@
     margin: 0 auto;
     padding: env(safe-area-inset-top) 12px calc(12px + env(safe-area-inset-bottom));
     gap: 8px;
-    background: var(--zemin);
+    background:
+      linear-gradient(180deg, var(--sahne-tezgah) 0, var(--sahne-tezgah-koyu) 100%) bottom / 100% 44% no-repeat,
+      linear-gradient(180deg, var(--sahne-duvar) 0%, var(--sahne-duvar-koyu) 100%);
     color: var(--yazi);
     overflow: hidden;
     touch-action: none;
@@ -160,6 +162,16 @@
     border-radius: 12px;
     background: var(--kart);
     font-size: 18px;
+    box-shadow: 0 3px 0 var(--kenar);
+  }
+
+  .coin,
+  .sayac,
+  .combo {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--kart);
+    color: var(--yazi);
   }
 
   .coin {
@@ -167,14 +179,16 @@
   }
 
   .sayac {
-    color: var(--yazi-soluk);
     font-size: 14px;
   }
 
   .combo {
     margin-left: auto;
     font-size: 14px;
-    color: var(--yazi-soluk);
+  }
+
+  .combo:empty {
+    display: none;
   }
 
   .combo.aktif {
@@ -199,7 +213,8 @@
     padding: 10px;
     border: 1px solid var(--kenar);
     border-radius: var(--radius);
-    background: color-mix(in srgb, var(--kart) 70%, var(--zemin));
+    background: transparent;
+    border: 0;
   }
 
   .tavalar {

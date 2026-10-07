@@ -94,9 +94,11 @@
   }
 
   .tipi {
-    min-height: 14px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--kart);
     font-size: 11px;
-    color: var(--yazi-soluk);
+    color: var(--yazi);
   }
 
   .kart {
@@ -108,6 +110,7 @@
     border: 1px solid var(--kenar);
     border-radius: 10px;
     background: var(--kart);
+    box-shadow: 0 3px 0 var(--kenar);
     gap: 2px;
   }
 

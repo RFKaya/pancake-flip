@@ -66,8 +66,8 @@
     height: 12px;
     margin-top: 2px;
     border-radius: 50%;
-    background: var(--kart);
-    border: 2px solid var(--renk-koyu);
+    background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%);
+    box-shadow: inset 0 -4px 0 #0002, 0 5px 0 var(--sahne-tabak-koyu);
   }
 
   .parca {
@@ -82,6 +82,7 @@
     box-shadow: inset 0 -3px 0 #0003;
   }
 
+  .krep { background-image: linear-gradient(180deg, #ffffff40 0 38%, transparent 38%); }
   .krep.cig { background: var(--krep-cig); }
   .krep.az { background: var(--krep-az); }
   .krep.orta { background: var(--krep-orta); }
@@ -111,6 +112,7 @@
     border-radius: 12px;
     background: var(--kart);
     font-size: 24px;
+    box-shadow: 0 3px 0 var(--kenar);
     touch-action: none;
     user-select: none;
   }

@@ -42,13 +42,15 @@
     border: 2px solid var(--kenar);
     border-radius: 12px;
     background: var(--kart);
+    box-shadow: 0 3px 0 var(--kenar);
     touch-action: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
 
   .dugme:active {
-    transform: scale(0.94);
+    transform: translateY(3px);
+    box-shadow: none;
   }
 
   .dugme.parlak {
