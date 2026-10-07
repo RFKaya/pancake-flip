@@ -42,7 +42,10 @@
   let bildirim = $state<{ id: number; seviye: number; baslik: string; alt: string; acilanlar: Acilis[] } | null>(null);
   let gittiNo = $state(0);
   let dusenler = $state<{ id: number; ikon: string }[]>([]);
-  let coinler = $state<{ id: number; dx: number }[]>([]);
+  /** Ödül paraları: teslim anında tabağın (müşterinin önündeki) yerinden üst bardaki gerçek kasaya uçar (sahne koordinatları) */
+  let coinler = $state<{ id: number; x: number; y: number; tx: number; ty: number; gec: number }[]>([]);
+  /** Kasaya varınca kasanın yanında kısa süre görünen kazanç (+12) */
+  let kazancEtiket = $state<{ id: number; deger: number } | null>(null);
   let sayac = 0;
   /** Servis edilmiş / öfkeyle gitmiş müşteriler: tepkilerini göstermek için kısa süre sahnede kalır */
   type Ayrilan = { m: Musteri; durum: "mutlu" | "kizgin"; yemek: boolean };
@@ -352,11 +355,19 @@
     if (servis) ayrilanEkle(servis, "mutlu");
     sonucGoster(r.sonuc, "", r.kazanc);
 
-    // Madeni para patlaması + sayaç zıplaması
+    // Ödül: paralar müşterinin önündeki tabaktan üst bardaki kasaya uçar; vardıklarında kasa zıplar ve kazanç yazar.
+    // Yalnızca görünüm: kazanç ve bakiye musteriyeVer'de zaten hesaplandı.
     if (r.sonuc !== "olmadi") {
       const n = r.sonuc === "perfect" ? 6 : 3;
-      for (let i = 0; i < n; i++) coinler.push({ id: ++sayac, dx: (i - (n - 1) / 2) * 22 });
-      setTimeout(() => anim(coinEl, [{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], 300), 350);
+      const varis = paraUcur(n);
+      const no = ++sayac;
+      setTimeout(() => {
+        anim(coinEl, [{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], 300);
+        kazancEtiket = { id: no, deger: r.kazanc };
+      }, varis);
+      setTimeout(() => {
+        if (kazancEtiket?.id === no) kazancEtiket = null;
+      }, varis + 1100);
       setTimeout(() => coinYagmuru(n), 140);
     }
     if (r.sonuc === "perfect") salla(1);
@@ -365,6 +376,24 @@
     setTimeout(() => cal("yay"), 280); // müşteri tepkisi
     if (r.seviyeAtladi.length) seviyeAtlandi(r.seviyeAtladi);
     if (!testModu) ilerleme.oturumKaydet(oturum);
+  }
+
+  /** n parayı tabağın şu anki yerinden (teslimde müşterinin önü) kasaya uçurur; son paranın varış süresini (ms) döner */
+  function paraUcur(n: number): number {
+    const UCUS = 620;
+    const ARA = 55;
+    if (!sahneEl || !tabakEl || !coinEl) return 350;
+    // Azaltılmış harekette uçan para yok (gizli para animationend almaz, DOM'da birikirdi); kazanç yine kasanın yanında yazar
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return 350;
+    const s = sahneEl.getBoundingClientRect();
+    const a = tabakEl.getBoundingClientRect();
+    const c = coinEl.getBoundingClientRect();
+    const x = a.left + a.width / 2 - s.left;
+    const y = a.top + a.height * 0.4 - s.top;
+    const tx = c.left + 16 - s.left;
+    const ty = c.top + c.height / 2 - s.top;
+    for (let i = 0; i < n; i++) coinler.push({ id: ++sayac, x: x + (i - (n - 1) / 2) * 16, y, tx, ty, gec: i * ARA });
+    return UCUS + (n - 1) * ARA;
   }
 
   /** LEVEL UP: kısa, oyunu bölmeyen geri bildirim (çubuk dolar, seviye zıplar, başlık belirir) */
@@ -382,7 +411,7 @@
     if (!testModu) for (const x of liste) if (x.kilometre || x.seviye % 10 === 0) fisKaydet(x.seviye, 3, oturum.toplamCoin).catch(() => {});
     setTimeout(() => {
       if (bildirim?.id === no) bildirim = null;
-    }, kil ? 2800 : 1800);
+    }, (kil ? 2800 : 1800) + 500); // şerit, başarı damgasının ardından 0,5 sn gecikmeyle girer
   }
 
   // ---- Geliştirici modu (yalnızca test amaçlı; docs/sonsuz-seviye.md §Geliştirici modu) ----
@@ -435,7 +464,10 @@
     {#if testModu}<span class="test-rozet">TEST</span>{/if}
     {#if oturum.seri >= 2}<span class="seri" title="Üst üste başarılı müşteri">🔥 {oturum.seri}</span>{/if}
     <span class="bosluk"></span>
-    <span class="para" bind:this={coinEl}>🪙 {sayiKisalt(oturum.toplamCoin)}</span>
+    <span class="para-kap">
+      <span class="para" bind:this={coinEl}>🪙 {sayiKisalt(oturum.toplamCoin)}</span>
+      {#if kazancEtiket}{#key kazancEtiket.id}<span class="kazanc-etiket" aria-hidden="true">+{kazancEtiket.deger}</span>{/key}{/if}
+    </span>
     <span class="lobi-ust" class:gizli={oyunda}>
       <a class="yuvarlak" href="/hakkinda" aria-label="Nasıl oynanır" tabindex={oyunda ? -1 : 0}>?</a>
       <a class="yuvarlak" href="/profil" aria-label="Ayarlar ve profil" tabindex={oyunda ? -1 : 0}>⚙</a>
@@ -528,6 +560,18 @@
   <!-- Tezgâh: tava(lar) + tabak -->
   <main class="tezgah" class:cift-sira={menu.length > 4}>
     <!-- Tezgâhın arka sırası: kaşıklık, açılan malzemelerin kapları, peçete kutusu -->
+    <!-- Seviye şeridi: başarı damgasından sonra, tezgâhın üst kenarında; müşteri / sipariş fişlerini örtmez -->
+    {#if bildirim}
+      {#key bildirim.id}
+        <div class="lvl" class:kilometre={bildirim.baslik} role="status">
+          <div class="lvl-ana">⬆ LEVEL {sayiKisalt(bildirim.seviye)}</div>
+          {#if bildirim.baslik}<div class="lvl-baslik">{bildirim.baslik} <span class="lvl-alt">{bildirim.alt}</span></div>{/if}
+          {#if bildirim.acilanlar.length}
+            <div class="acilan">{#each bildirim.acilanlar as a}<span>{a.ikon} {a.ad}</span>{/each}</div>
+          {/if}
+        </div>
+      {/key}
+    {/if}
     <div class="arka-sira" aria-hidden="true">
       <span class="kasiklik"><i class="bardak"></i><em class="k1">🥄</em><em class="k2">🍴</em></span>
       <span class="un"><i></i><b>un</b></span>
@@ -552,6 +596,15 @@
     <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} class:ucuyor={teslimde} bind:this={tabakEl}>
       <!-- Katman sırası: tabak (zemin) → krepler / toppingler (üstte, yüzeyleri açık) -->
       <div class="plaka"></div>
+      {#if sonuc}
+        {#key sonuc}
+          <div class="mesaj {sonuc.s}" role="status">
+            <div class="ana">{YAZI[sonuc.s]}</div>
+            {#if sonuc.neden}<div class="alt">{sonuc.neden}</div>{/if}
+            {#if sonuc.s === "olmadi"}<div class="alt">Boşalt ve yeniden dene</div>{/if}
+          </div>
+        {/key}
+      {/if}
       <div class="kule" bind:this={kuleEl} style:--kw={`${sahneAyar.katman.genislik}px`} style:--kh={`${sahneAyar.katman.yukseklik}px`}>
         {#each katmanlar as k, i (i)}
           {#if k.p.malzeme === "krep"}
@@ -564,9 +617,6 @@
       {#each dusenler as d (d.id)}
         <span class="dusen" onanimationend={() => (dusenler = dusenler.filter((x) => x.id !== d.id))}>{d.ikon}</span>
       {/each}
-      {#each coinler as c (c.id)}
-        <span class="coin" style:--dx={`${c.dx}px`} onanimationend={() => (coinler = coinler.filter((x) => x.id !== c.id))}>🪙</span>
-      {/each}
     </div>
 
     <span class="tabak-yigini" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -575,29 +625,23 @@
     </button>
   </main>
 
-  {#if sonuc}
-    <div class="mesaj {sonuc.s}">
-      <div class="ana">{YAZI[sonuc.s]}</div>
-      {#if sonuc.neden}<div class="alt">{sonuc.neden}</div>{/if}
-      {#if sonuc.s !== "olmadi"}<div class="alt kazanc">+1 👤 · +{sonuc.kazanc} 🪙</div>{:else}<div class="alt">Boşalt ve yeniden dene</div>{/if}
-    </div>
-  {/if}
+  <!-- Ödül paraları: sahne düzeyinde, tabaktan (müşterinin önü) üst bardaki kasaya uçar; animasyon bitince kaldırılır -->
+  {#each coinler as c (c.id)}
+    <span
+      class="coin"
+      style:left={`${c.x}px`}
+      style:top={`${c.y}px`}
+      style:--tx={`${c.tx - c.x}px`}
+      style:--ty={`${c.ty - c.y}px`}
+      style:animation-delay={`${c.gec}ms`}
+      onanimationend={() => (coinler = coinler.filter((x) => x.id !== c.id))}
+      aria-hidden="true">🪙</span>
+  {/each}
 
   {#if gittiNo}
     <div class="gitti">😞 Müşteri gitti</div>
   {/if}
 
-  {#if bildirim}
-    {#key bildirim.id}
-      <div class="lvl" class:kilometre={bildirim.baslik}>
-        <div class="lvl-ana">✨ LEVEL {sayiKisalt(bildirim.seviye)} ✨</div>
-        {#if bildirim.baslik}<div class="lvl-baslik">{bildirim.baslik}</div><div class="lvl-alt">{bildirim.alt}</div>{/if}
-        {#if bildirim.acilanlar.length}
-          <div class="acilan">{#each bildirim.acilanlar as a}<span>{a.ikon} {a.ad}</span>{/each}</div>
-        {/if}
-      </div>
-    {/key}
-  {/if}
 
   <button class="oyna" class:gizli={oyunda} onclick={oyna} tabindex={oyunda ? -1 : 0}>
     <span class="ok">▶</span> OYNA
@@ -680,6 +724,8 @@
   .seviye { max-width: 150px; padding: 5px 12px; overflow: hidden; border-radius: 999px; background: var(--renk-ana); color: var(--renk-ana-yazi); font-size: 16px; font-weight: 900; letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; }
   .seri { padding: 4px 8px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 13px; font-weight: 800; }
   .test-rozet { padding: 3px 8px; border-radius: 6px; background: var(--vurgu); color: var(--renk-ana-yazi); font-size: 11px; font-weight: 900; }
+  .para-kap { position: relative; }
+  .kazanc-etiket { position: absolute; right: calc(100% + 6px); top: 50%; margin-top: -10px; z-index: 12; line-height: 20px; color: var(--basari); font-size: 15px; font-weight: 900; text-shadow: 0 1px 0 var(--kart), 0 -1px 0 var(--kart); white-space: nowrap; pointer-events: none; animation: kazanc 1.1s ease-out forwards; }
   .para { padding: 4px 10px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .dev { width: 36px; height: 36px; border-radius: 50%; border: 1px dashed var(--vurgu); background: var(--kart); font-size: 16px; }
 
@@ -826,25 +872,27 @@
   .t-ek { position: absolute; left: 50%; width: 24px; margin-left: -12px; font-size: 20px; line-height: 1; text-align: center; }
   .plaka { position: absolute; left: 20px; bottom: 9px; width: 250px; height: 88px; border-radius: 50%; background: radial-gradient(ellipse at 50% 38%, var(--sahne-tabak) 62%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 63%); box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu); }
   .dusen { position: absolute; left: 50%; bottom: 60px; z-index: 3; margin-left: -12px; font-size: 24px; pointer-events: none; animation: dus 0.4s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
-  .coin { position: absolute; left: 50%; bottom: 80px; z-index: 20; margin-left: -10px; font-size: 20px; pointer-events: none; animation: coin 0.9s ease-out forwards; }
+  /* Ödül parası: müşterinin önündeki tabaktan üst bardaki kasaya kısa bir yay çizerek uçar (yalnızca transform / opacity) */
+  .coin { position: absolute; z-index: 30; width: 22px; height: 22px; margin: -11px 0 0 -11px; font-size: 20px; line-height: 22px; text-align: center; pointer-events: none; animation: para-uc 0.62s cubic-bezier(0.5, 0, 0.75, 0.6) backwards; }
 
-  .mesaj { position: absolute; left: 50%; top: 46%; z-index: 20; padding: 10px 20px; border-radius: 16px; border: 2px solid var(--renk-ana); background: var(--kart); text-align: center; pointer-events: none; animation: patla 0.45s ease-out forwards; transform: translateX(-50%); }
-  .mesaj .ana { font-size: 34px; font-weight: 900; color: var(--renk-ana); }
-  .mesaj.perfect { border-color: var(--basari); } .mesaj.perfect .ana { color: var(--basari); font-size: 42px; }
-  .mesaj.olmadi { border-color: var(--vurgu); } .mesaj.olmadi .ana { color: var(--vurgu); }
-  .mesaj .alt { font-size: 14px; }
-  .mesaj .kazanc { font-weight: 800; }
+  /* Başarı damgası: teslimin yapıldığı tabağın üstünde, kısa ve dokunsal; büyük bir pano değil */
+  .mesaj { position: absolute; left: 50%; top: 18px; z-index: 8; padding: 4px 16px 6px; border-radius: 16px; border: 3px solid var(--renk-ana); background: var(--kart); box-shadow: 0 4px 0 var(--renk-ana); text-align: center; white-space: nowrap; pointer-events: none; transform: translateX(-50%) rotate(-4deg); animation: damga 1.5s ease-out forwards; }
+  .mesaj .ana { font-size: 28px; font-weight: 900; line-height: 1.1; color: var(--renk-ana); letter-spacing: 0.5px; }
+  .mesaj.perfect { border-color: var(--basari); box-shadow: 0 4px 0 var(--basari); } .mesaj.perfect .ana { color: var(--basari); font-size: 32px; }
+  .mesaj.olmadi { border-color: var(--vurgu); box-shadow: 0 4px 0 var(--vurgu); transform: translateX(-50%) rotate(2deg); } .mesaj.olmadi .ana { color: var(--vurgu); font-size: 24px; }
+  .mesaj .alt { font-size: 13px; font-weight: 700; }
 
   .gitti { position: absolute; left: 50%; top: 40%; z-index: 19; padding: 6px 14px; border-radius: 999px; background: var(--kart); border: 2px solid var(--vurgu); color: var(--vurgu); font-size: 14px; font-weight: 800; pointer-events: none; animation: patla 0.35s ease-out forwards; transform: translateX(-50%); }
 
   /* Seviye atlama: oyunu durdurmaz (pointer-events yok), kendiliğinden kaybolur */
-  .lvl { position: absolute; left: 50%; top: 24%; z-index: 25; display: flex; flex-direction: column; align-items: center; gap: 4px; width: max-content; max-width: 92%; padding: 12px 22px; border-radius: 18px; border: 3px solid var(--renk-logo); background: var(--kart); text-align: center; pointer-events: none; transform: translateX(-50%); animation: lvl 1.8s ease-out forwards; }
-  .lvl.kilometre { border-color: var(--vurgu); animation-duration: 2.8s; }
-  .lvl-ana { font-size: 26px; font-weight: 900; color: var(--renk-ana); }
-  .lvl-baslik { font-size: 30px; font-weight: 900; color: var(--vurgu); line-height: 1.1; }
-  .lvl-alt { font-size: 14px; color: var(--yazi-soluk); }
-  .acilan { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: 4px; font-size: 13px; font-weight: 800; }
-  .acilan span { padding: 2px 8px; border-radius: 999px; background: var(--zemin); border: 1px solid var(--kenar); }
+  /* Seviye şeridi: tezgâhın üst kenarında, kompakt karamel kurdele; başarı damgasından 0,5 sn sonra girer */
+  .lvl { position: absolute; left: 50%; top: 2px; z-index: 12; display: flex; flex-direction: column; align-items: center; gap: 2px; width: max-content; max-width: 94%; padding: 5px 16px 6px; border-radius: 16px; background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 94%, var(--ust-yazi)), var(--renk-ana) 60%); box-shadow: 0 4px 0 var(--renk-ana-koyu); color: var(--renk-ana-yazi); text-align: center; pointer-events: none; transform: translateX(-50%); animation: serit 1.8s ease-out 0.5s both; }
+  .lvl.kilometre { border: 2px solid var(--renk-logo); animation-duration: 2.8s; }
+  .lvl-ana { font-size: 19px; font-weight: 900; letter-spacing: 1px; }
+  .lvl-baslik { font-size: 14px; font-weight: 900; line-height: 1.2; }
+  .lvl-alt { font-size: 12px; font-weight: 700; }
+  .acilan { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px 6px; margin-top: 2px; font-size: 12px; font-weight: 800; }
+  .acilan span { padding: 1px 8px; border-radius: 999px; background: var(--kart); color: var(--yazi); }
 
   .alt-bar { position: absolute; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 10; display: flex; gap: 8px; }
   .malzemeler, .eylemler { display: contents; }
@@ -864,7 +912,10 @@
   .dugme.parlak { animation: parla 0.9s ease-in-out infinite; }
 
   @keyframes patla { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 60% { transform: translateX(-50%) scale(1.12); opacity: 1; } 100% { transform: translateX(-50%) scale(1); } }
-  @keyframes lvl { 0% { transform: translateX(-50%) scale(0.4); opacity: 0; } 12% { transform: translateX(-50%) scale(1.15); opacity: 1; } 22% { transform: translateX(-50%) scale(1); } 80% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-14px) scale(1); opacity: 0; } }
+  @keyframes serit { 0% { transform: translateX(-50%) translateY(-10px) scale(0.85); opacity: 0; } 12% { transform: translateX(-50%) scale(1.06); opacity: 1; } 20% { transform: translateX(-50%) scale(1); } 85% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-6px) scale(1); opacity: 0; } }
+  @keyframes damga { 0% { transform: translateX(-50%) rotate(-4deg) scale(1.7); opacity: 0; } 14% { transform: translateX(-50%) rotate(-4deg) scale(0.92); opacity: 1; } 22% { transform: translateX(-50%) rotate(-4deg) scale(1.05); } 30% { transform: translateX(-50%) rotate(-4deg) scale(1); } 80% { transform: translateX(-50%) rotate(-4deg) scale(1); opacity: 1; } 100% { transform: translateX(-50%) rotate(-4deg) translateY(-10px); opacity: 0; } }
+  @keyframes kazanc { 0% { transform: translateX(10px) scale(0.6); opacity: 0; } 20% { transform: translateX(0) scale(1.15); opacity: 1; } 32% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-8px); opacity: 0; } }
+  @keyframes solma { 0% { opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes parla { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--renk-ana) 45%, transparent); } }
   @keyframes parla-s { 50% { transform: scale(1.12); } }
   @keyframes konuk { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(2px) rotate(3deg); } }
@@ -879,5 +930,14 @@
   @keyframes tedirgin { 25% { translate: -1px 0; } 75% { translate: 1px 0; } }
   @keyframes kavanoz { 0%, 90%, 100% { transform: none; } 94% { transform: translateY(-3px) rotate(-4deg); } 97% { transform: rotate(3deg); } }
   @keyframes dus { 0% { transform: translateY(-130px) scale(0.8); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(0) scale(1.1, 0.7); opacity: 0; } }
-  @keyframes coin { 0% { transform: translate(0, 0) scale(0.6); opacity: 1; } 100% { transform: translate(calc(var(--dx) * 1.5), -300px) scale(1); opacity: 0; } }
+  @keyframes para-uc { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 12% { transform: translate(0, -22px) scale(1.15); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.7); opacity: 0.9; } }
+
+  /* Azaltılmış hareket (stil sayfasının sonunda: temel kuralları ezsin): uçan paralar hiç üretilmez (paraUcur), kazanç
+     kasanın yanında yazar; damga / şerit / etiket yalnızca belirip söner */
+  @media (prefers-reduced-motion: reduce) {
+    .mesaj { animation: solma 1.5s linear forwards; }
+    .lvl { animation: solma 1.8s linear 0.5s both; }
+    .lvl.kilometre { animation-duration: 2.8s; }
+    .kazanc-etiket { animation: solma 1.1s linear forwards; }
+  }
 </style>

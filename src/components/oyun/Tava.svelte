@@ -173,6 +173,10 @@
   const kabarcik = $derived(t.faz === "pisir" ? aktifP : 0);
   const kalkik = $derived(mukemmel);
   const servisHazir = $derived(servisEdilebilir(t, baglam));
+  // Yalnızca görünüm: yüz PİŞMİŞ olduğu anda, az önce çiğken kaydırmadan kalan "HENÜZ PİŞMEDİ!" yazısı silinir (çelişmesin)
+  $effect(() => {
+    if (hazir && fx.some((f) => f.txt === "HENÜZ PİŞMEDİ!")) fx = fx.filter((f) => f.txt !== "HENÜZ PİŞMEDİ!");
+  });
   let hazirBildirildi = false;
   $effect(() => {
     const h = servisHazir;
