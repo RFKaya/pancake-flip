@@ -88,3 +88,12 @@ export interface Ayarlar {
   ruhHali: { esik: number; yuz: string; bahsis: number }[];
   yildiz: [number, number, number];
 }
+
+/** Servis sonu adisyonu (docs/oyun-tasarimi.md §14) */
+export interface Fis {
+  kod: string;
+  bolum: number;
+  yildiz: number;
+  net: number;
+  tarih: string;
+}
