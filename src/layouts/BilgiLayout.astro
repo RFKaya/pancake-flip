@@ -1,0 +1,45 @@
+---
+// Bilgi sayfaları (hakkında, iletişim, koşullar, gizlilik) için ortak kart + dil seçici
+import Layout from './Layout.astro';
+import DilSecici from '../components/bilgi/DilSecici.astro';
+
+const { frontmatter, title: baslik } = Astro.props;
+const title = frontmatter?.title ?? baslik ?? 'Pancake Flip!';
+---
+
+<Layout title={title}>
+  <div class="sayfa">
+    <article class="kart icerik">
+      <DilSecici />
+      <slot />
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .icerik {
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  .icerik :global(h1) {
+    margin-top: 0;
+    font-size: 24px;
+  }
+
+  .icerik :global(h2) {
+    margin: 24px 0 8px;
+    font-size: 18px;
+  }
+
+  .icerik :global(p),
+  .icerik :global(ul) {
+    margin: 8px 0;
+  }
+
+  .icerik :global(p a),
+  .icerik :global(li a) {
+    color: var(--renk-ana);
+    text-decoration: underline;
+  }
+</style>

@@ -1,35 +1,34 @@
 ---
-layout: ../layouts/Layout.astro
-title: Proje Rehberi — Pancake Flip!
+layout: ../layouts/BilgiLayout.astro
+title: Hakkında — Pancake Flip!
 ---
 
-import CanliRozet from '../components/react/CanliRozet';
+import KrepCevir from '../components/bilgi/KrepCevir.svelte';
 
-<div class="sayfa">
-  <div class="kart" style="padding: 20px;">
-    <h1>🚀 Proje Mimarisi: Astro + Tauri v2</h1>
-    <p>
-      Bu proje, mobil ve masaüstü uygulama geliştirmede <strong>Astro</strong> altyapısına dönüştürülmüştür.
-    </p>
+<div dir="ltr">
 
-    <div style="margin: 16px 0;">
-      <CanliRozet client:load etiket="MDX içinde React Bileşeni" />
-    </div>
+# 🥞 Hakkında
 
-    <h2>✨ Neden Astro?</h2>
-    <ul>
-      <li><strong>Svelte 5 Runes:</strong> Reaktif mobil arayüzler ve state yönetimi (<code>$state</code>, <code>$derived</code>).</li>
-      <li><strong>React Desteği:</strong> Zengin React bileşen ekosistemini doğrudan kullanabilme.</li>
-      <li><strong>MDX Desteği:</strong> Markdown ile zengin içerik ve bileşenleri bir arada yazabilme.</li>
-      <li><strong>Hafif & Hızlı:</strong> Statik derleme ve Tauri v2 WebView ile ultra hafif paket boyutu.</li>
-    </ul>
+**Pancake Flip!**, küçük bir krep dükkânında müşterilerin siparişlerini zamana karşı hazırladığın dikey bir mobil oyundur. Krepi tavada pişir, doğru anda çevir, araya dolgu ve sos koy, üste topping ekle ve tabağı müşteriye ver. Müşteri bekliyor, krep yanıyor: çevir, diz, yetiştir!
 
-    <h2>📱 Sayfalar</h2>
-    <ul>
-      <li><strong>Keşfet (<code>/</code>):</strong> Etkinlik arama ve kategori filtreleri</li>
-      <li><strong>Biletlerim (<code>/biletlerim</code>):</strong> Satın alınan biletler ve Rust bilet kodları</li>
-      <li><strong>Sepet (<code>/sepet</code>):</strong> Sepet yönetimi ve ödeme tamamlama</li>
-      <li><strong>Profil (<code>/profil</code>):</strong> Kullanıcı bilgisi ve gece/gündüz modu</li>
-    </ul>
-  </div>
+<KrepCevir client:load dil="tr" />
+
+## Nasıl oynanır?
+
+- Tavadaki krepi pişince çevir; erken çevirirsen çiğ, geç çevirirsen yanık olur.
+- Siparişteki sıraya göre krepleri, dolguları ve sosları tabağa diz.
+- Tabağı sabrı bitmeden müşteriye ver. PERFECT servis combo ve bahşiş kazandırır.
+
+## Geliştirici
+
+- GitHub: [RFKaya](https://github.com/RFKaya)
+- İstinye Üniversitesi, Meslek Yüksekokulu, MYO063 Mobil Programlama dersi ödevi.
+
+## Kullanılan teknolojiler
+
+- Tauri v2 (Rust): masaüstü ve mobil kabuk, adisyon kodu üreten native komut
+- Astro (statik) ve MDX: sayfalar ve içerik
+- Svelte 5 (Runes) ve React 19: arayüz bileşenleri
+- Bun: paket yöneticisi ve test aracı
+
 </div>

@@ -1,0 +1,39 @@
+---
+import { diller, dilAdi, dilEtiketi, dilBul, sayfaBul, sayfaYolu } from '../../lib/i18n';
+
+const dil = dilBul(Astro.url.pathname);
+const sayfa = sayfaBul(Astro.url.pathname);
+---
+
+<nav class="dil-secici" aria-label={dilEtiketi[dil]}>
+  {diller.map((d) => (
+    <a href={sayfaYolu(d, sayfa)} hreflang={d} lang={d} aria-current={d === dil ? 'page' : undefined} class:list={{ aktif: d === dil }}>
+      {dilAdi[d]}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .dil-secici {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  a {
+    padding: 6px 12px;
+    border: 1px solid var(--kenar);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--yazi-soluk);
+    text-decoration: none;
+  }
+
+  a.aktif {
+    background: var(--renk-ana);
+    border-color: var(--renk-ana);
+    color: var(--renk-ana-yazi);
+    font-weight: 600;
+  }
+</style>
