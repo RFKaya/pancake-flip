@@ -1,7 +1,8 @@
-// Hamur dökme: basılı tutma süresi = miktar. Her kalınlığın bir hedef miktarı vardır; yalnızca hedefin ±toleransı
-// içindeki döküm geçerli krep olur (docs/sonsuz-seviye.md §1.1). Tolerans seviyeyle biraz daralır.
+// Hamur dökme: basılı tutma süresi = miktar. Her kalınlığın bir hedef miktarı vardır; hedefin ± payı içindeki döküm krep olur:
+// İDEAL (orta) ya da BİRAZ AZ / BİRAZ FAZLA (kenarlar). Yalnızca belirgin sapma krep yapmaz (docs/sonsuz-seviye.md §1.1).
 import type { Ayarlar, Kalinlik } from "../../types/oyun";
 import { hamurToleransDegeri } from "./seviye";
+import { AYAR } from "./veri";
 
 export interface Hamur {
   miktar: number; // 0 → boş, 1 → ideal, >1 → kalın
@@ -24,23 +25,45 @@ export function hamurYay(h: Hamur, px: number, ayar: Ayarlar) {
   h.yay = Math.min(1, h.yay + px * ayar.hamur.yayPx);
 }
 
+/** Dökümün hedefe göre durumu: İDEAL (payın yarısı içinde) · BİRAZ AZ / BİRAZ FAZLA (pay içinde, krep olur) · AZ / FAZLA (belirgin sapma, krep olmaz) */
+export type HamurDurumu = "az" | "biraz-az" | "ideal" | "biraz-fazla" | "fazla";
+
 export interface HamurSonuc {
-  /** Dökülen miktarın denk geldiği kalınlık; hiçbir hedefin toleransına girmiyorsa null (krep geçersiz, atılır) */
+  /** Dökülen miktarın denk geldiği kalınlık; hiçbir hedefin payına girmiyorsa null (krep geçersiz, atılır) */
   kalinlik: Kalinlik | null;
-  mukemmel: boolean; // "MÜKEMMEL DÖKÜŞ!": hedefe payın yarısından yakın
+  mukemmel: boolean; // İDEAL döküm ("MÜKEMMEL" siparişe katkı): hedefe payın yarısından yakın
   az: boolean; // geçersizse: hedefin altında mı kaldı (geri bildirim için)
+  durum: HamurDurumu;
+}
+
+/** Kalınlık hedefleri arasındaki en yakın komşunun yarı mesafesi: tercihler açıkken pencereler birbirine girmesin */
+function komsuPayi(hedef: number): number {
+  const d = Object.values(AYAR.hamur.hedef).filter((h) => h !== hedef).map((h) => Math.abs(h - hedef));
+  return d.length ? (Math.min(...d) / 2) * 0.98 : Infinity;
 }
 
 /**
  * Hedefin ± kabul payı (miktar birimiyle). Miktarlar normal krebe göre ölçeklidir (normal = 1), tolerans da normalin yüzdesidir.
  * Hiçbir hedefin payı normalinkinden dar olamaz: ince krep (hedef < 1) normal kadar süre tanır, kalın krep (hedef > 1) kendi
- * oranıyla genişler. Böylece müşterinin rastgele seçtiği kalınlık, dökme penceresini daraltıp zorluğu şansa bağlamaz.
+ * oranıyla genişler. Kalınlık tercihleri açıkken pay, komşu kalınlığın penceresine girmeyecek kadarla sınırlanır.
  */
-export const hamurPayi = (hedef: number, seviye: number): number => hamurToleransi(seviye) * Math.max(1, hedef);
+export const hamurPayi = (hedef: number, seviye: number, tercihAcik = false): number => {
+  const pay = hamurToleransi(seviye) * Math.max(1, hedef);
+  return tercihAcik ? Math.min(pay, komsuPayi(hedef)) : pay;
+};
 
-/** Miktar, hedefin ± payı içinde mi? (sınırlar dahil; ör. seviye 1'de normal 0,90–1,10, ince 0,60–0,80) */
-export function hamurIcinde(miktar: number, hedef: number, seviye: number): boolean {
-  return Math.abs(miktar - hedef) <= hamurPayi(hedef, seviye) + 1e-9;
+/** Miktar, hedefin ± payı içinde mi? (sınırlar dahil; ör. seviye 1'de normal 0,70–1,30) */
+export function hamurIcinde(miktar: number, hedef: number, seviye: number, tercihAcik = false): boolean {
+  return Math.abs(miktar - hedef) <= hamurPayi(hedef, seviye, tercihAcik) + 1e-9;
+}
+
+/** Aynı miktar her zaman aynı sonucu verir (rastgelelik yok). */
+export function hamurDurumu(miktar: number, hedef: number, seviye: number, tercihAcik = false): HamurDurumu {
+  const pay = hamurPayi(hedef, seviye, tercihAcik);
+  const sap = miktar - hedef;
+  if (Math.abs(sap) <= pay / 2 + 1e-9) return "ideal";
+  if (Math.abs(sap) <= pay + 1e-9) return sap < 0 ? "biraz-az" : "biraz-fazla";
+  return sap < 0 ? "az" : "fazla";
 }
 
 /** Geçerli kalınlık hedefleri: tercihler açılmadan yalnızca "normal" */
@@ -48,8 +71,9 @@ export const hamurHedefleri = (tercihAcik: boolean): Kalinlik[] => (tercihAcik ?
 
 export function hamurSonucu(miktar: number, seviye: number, ayar: Ayarlar, tercihAcik = false): HamurSonuc {
   for (const k of hamurHedefleri(tercihAcik)) {
-    const h = ayar.hamur.hedef[k];
-    if (hamurIcinde(miktar, h, seviye)) return { kalinlik: k, mukemmel: Math.abs(miktar - h) <= hamurPayi(h, seviye) / 2, az: false };
+    const d = hamurDurumu(miktar, ayar.hamur.hedef[k], seviye, tercihAcik);
+    if (d !== "az" && d !== "fazla") return { kalinlik: k, mukemmel: d === "ideal", az: false, durum: d };
   }
-  return { kalinlik: null, mukemmel: false, az: miktar < ayar.hamur.hedef.normal };
+  const az = miktar < ayar.hamur.hedef.normal;
+  return { kalinlik: null, mukemmel: false, az, durum: az ? "az" : "fazla" };
 }

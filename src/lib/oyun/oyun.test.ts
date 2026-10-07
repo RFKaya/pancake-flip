@@ -5,7 +5,7 @@ import tipler from "../veri/musteriler.json";
 import type { Ayarlar, Malzeme, MusteriTipi, TabakParcasi } from "../../types/oyun";
 import { degerlendir } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
-import { hamurIcinde, hamurPayi, hamurSonucu, hamurToleransi } from "./hamur";
+import { hamurDurumu, hamurIcinde, hamurPayi, hamurSonucu, hamurToleransi } from "./hamur";
 import { baglamOlustur, bolgeBul, cevirKalitesi, cevirPenceresi, krepParcasi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava, type Tava } from "./pisirme";
 import { rngOlustur } from "./rng";
 import { seviyeAyari } from "./seviye";
@@ -147,44 +147,53 @@ describe("ekonomi", () => {
 });
 
 describe("hamur dökme", () => {
-  test("tolerans ±%10 ile başlar, seviyeyle biraz daralır, ±%7'nin altına inmez", () => {
-    expect(hamurToleransi(1)).toBeCloseTo(0.1, 5);
+  test("tolerans ±%30 ile başlar, seviyeyle daralır, ±%15'in altına inmez", () => {
+    expect(hamurToleransi(1)).toBeCloseTo(0.3, 5);
     expect(hamurToleransi(1)).toBeGreaterThan(hamurToleransi(50));
     expect(hamurToleransi(50)).toBeGreaterThan(hamurToleransi(200));
-    expect(hamurToleransi(1e6)).toBeCloseTo(0.07, 5);
+    expect(hamurToleransi(1e6)).toBeCloseTo(0.15, 5);
   });
-  test("hedef ±tolerans: 0,90 ve 1,10 doğru (yeşil), 0,89 ve 1,11 yanlış (sınırlar dahil)", () => {
+  test("hedef ± pay: 0,70 ve 1,30 krep olur, 0,69 ve 1,31 olmaz (sınırlar dahil)", () => {
     expect(hamurIcinde(1, 1, 1)).toBe(true);
-    expect(hamurIcinde(0.9, 1, 1)).toBe(true);
-    expect(hamurIcinde(1.1, 1, 1)).toBe(true);
-    expect(hamurIcinde(0.89, 1, 1)).toBe(false);
-    expect(hamurIcinde(1.11, 1, 1)).toBe(false);
+    expect(hamurIcinde(0.7, 1, 1)).toBe(true);
+    expect(hamurIcinde(1.3, 1, 1)).toBe(true);
+    expect(hamurIcinde(0.69, 1, 1)).toBe(false);
+    expect(hamurIcinde(1.31, 1, 1)).toBe(false);
   });
-  test("tercih yokken yalnızca normal hedef geçerli; az/fazla döküm geçersiz krep (null)", () => {
-    expect(hamurSonucu(1, 1, A)).toEqual({ kalinlik: "normal", mukemmel: true, az: false });
-    expect(hamurSonucu(0.94, 1, A)).toEqual({ kalinlik: "normal", mukemmel: false, az: false });
-    expect(hamurSonucu(0.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: true });
-    expect(hamurSonucu(1.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: false });
-    expect(hamurSonucu(0.7, 1, A).kalinlik).toBeNull();
+  test("kademeli geri bildirim: İDEAL (payın yarısı) · BİRAZ AZ/FAZLA (pay içi) · AZ/FAZLA (belirgin); aynı miktar hep aynı sonuç", () => {
+    const d = (m: number) => hamurDurumu(m, 1, 1);
+    expect(["ideal", d(0.85), d(1.15)]).toEqual(["ideal", "ideal", "ideal"]);
+    expect([d(0.8), d(0.7)]).toEqual(["biraz-az", "biraz-az"]);
+    expect([d(1.2), d(1.3)]).toEqual(["biraz-fazla", "biraz-fazla"]);
+    expect([d(0.5), d(1.5)]).toEqual(["az", "fazla"]);
+    for (let i = 0; i < 5; i++) expect(d(0.93)).toBe("ideal");
+  });
+  test("tercih yokken yalnızca normal hedef geçerli; ideal ve kenar dökümler krep olur, belirgin az/fazla olmaz", () => {
+    expect(hamurSonucu(1, 1, A)).toEqual({ kalinlik: "normal", mukemmel: true, az: false, durum: "ideal" });
+    expect(hamurSonucu(0.8, 1, A)).toEqual({ kalinlik: "normal", mukemmel: false, az: false, durum: "biraz-az" });
+    expect(hamurSonucu(1.25, 1, A)).toEqual({ kalinlik: "normal", mukemmel: false, az: false, durum: "biraz-fazla" });
+    expect(hamurSonucu(0.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: true, durum: "az" });
+    expect(hamurSonucu(1.5, 1, A)).toEqual({ kalinlik: null, mukemmel: false, az: false, durum: "fazla" });
   });
   test("ince krebin dökme payı normalinkinden dar değil (kalınlık şansa bağlı zorluk yaratmaz); kalın aynı kalır", () => {
     const { ince, normal, kalin } = A.hamur.hedef;
     for (const s of [1, 20, 100, 500, 1e6]) {
       expect(hamurPayi(ince, s)).toBeCloseTo(hamurPayi(normal, s), 9);
-      expect(hamurPayi(kalin, s)).toBeCloseTo(hamurToleransi(s) * kalin, 9); // kalın: önceki oransal pay
-      expect(hamurPayi(normal, s)).toBeCloseTo(hamurToleransi(s), 9); // normal: değişmedi
+      expect(hamurPayi(kalin, s)).toBeCloseTo(hamurToleransi(s) * kalin, 9); // kalın: oransal pay
+      expect(hamurPayi(normal, s)).toBeCloseTo(hamurToleransi(s), 9);
+      expect(hamurPayi(ince, s, true)).toBeCloseTo(hamurPayi(normal, s, true), 9); // tercihler açıkken de eşit
     }
-    // Seviye 1 (±0,10): ince 0,60–0,80 doğru, dışı yanlış
-    expect(hamurIcinde(0.6, ince, 1)).toBe(true);
-    expect(hamurIcinde(0.8, ince, 1)).toBe(true);
-    expect(hamurIcinde(0.59, ince, 1)).toBe(false);
-    expect(hamurIcinde(0.81, ince, 1)).toBe(false);
+    // Tercihler açıkken pay komşu kalınlığa girmeyecek kadar sınırlanır (ince 0,553–0,847)
+    expect(hamurIcinde(0.56, ince, 1, true)).toBe(true);
+    expect(hamurIcinde(0.84, ince, 1, true)).toBe(true);
+    expect(hamurIcinde(0.55, ince, 1, true)).toBe(false);
+    expect(hamurIcinde(0.85, ince, 1, true)).toBe(false);
   });
-  test("üç kalınlık penceresi hiçbir seviyede çakışmaz (döküm tek bir kalınlığa karşılık gelir)", () => {
+  test("üç kalınlık penceresi (tercihler açıkken) hiçbir seviyede çakışmaz: döküm tek bir kalınlığa karşılık gelir", () => {
     const { ince, normal, kalin } = A.hamur.hedef;
     for (const s of [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 1e6, 1e9]) {
-      expect(ince + hamurPayi(ince, s)).toBeLessThan(normal - hamurPayi(normal, s));
-      expect(normal + hamurPayi(normal, s)).toBeLessThan(kalin - hamurPayi(kalin, s));
+      expect(ince + hamurPayi(ince, s, true)).toBeLessThan(normal - hamurPayi(normal, s, true));
+      expect(normal + hamurPayi(normal, s, true)).toBeLessThan(kalin - hamurPayi(kalin, s, true));
     }
   });
   test("tercihler açıkken ince / normal / kalın hedefleri ayrı ayrı geçerli", () => {
@@ -284,8 +293,8 @@ describe("tava durum makinesi", () => {
     expect(t.faz).toBe("bos");
   });
 
-  test("az ya da çok hamur (hedefin ±toleransı dışında) krep yapmaz: tava boşalır", () => {
-    for (const sn of [0.5, 1.15]) {
+  test("belirgin az ya da çok hamur (hedefin ± payı dışında) krep yapmaz: tava boşalır", () => {
+    for (const sn of [0.5, 1.4]) {
       const t = yeniTava();
       tavaDokBasla(t);
       kos(t, sn);

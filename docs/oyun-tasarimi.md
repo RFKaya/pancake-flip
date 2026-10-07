@@ -92,7 +92,7 @@ Basit örnek: `Krep · Krep · Çikolata · Krep · Çilek sosu`
 
 ## 4. Pişirme ve çevirme
 
-> **Temel kurallar** (yanlış krep kabul edilmez, doğru tabak kendiliğinden servis, hamur hedefi ±%10, üç pişme durumu): [`sonsuz-seviye.md` §1.1](sonsuz-seviye.md#11-temel-kurallar-siparişin-geçerliliği). Aşağıdaki ayrıntılarla çelişirse o bölüm geçerlidir.
+> **Temel kurallar** (yanlış krep kabul edilmez, doğru tabak kendiliğinden servis, hamur hedefi ±%30→±%15 (İDEAL / BİRAZ AZ / BİRAZ FAZLA), üç pişme durumu): [`sonsuz-seviye.md` §1.1](sonsuz-seviye.md#11-temel-kurallar-siparişin-geçerliliği). Aşağıdaki ayrıntılarla çelişirse o bölüm geçerlidir.
 
 **Güncel akış (7 Ekim 2026, `feature/akici-oynanis`):** Bir krep 5 adımdır ve her adım bir jesttir. Kodu: `src/lib/oyun/pisirme.ts` + `hamur.ts`, görünüm `src/components/oyun/Tava.svelte`.
 

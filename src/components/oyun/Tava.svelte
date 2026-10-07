@@ -8,7 +8,7 @@
     baglamOlustur, cevirKalitesi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
     type Tava,
   } from "$lib/oyun/pisirme";
-  import { hamurIcinde } from "$lib/oyun/hamur";
+  import { hamurDurumu } from "$lib/oyun/hamur";
   import type { Kalinlik, PismeDurumu, TabakParcasi } from "../../types/oyun";
 
   let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir }: {
@@ -78,7 +78,11 @@
   /** Pişmiş penceresinin içinde en iyi an (kusursuz çevirme → PERFECT için) */
   const mukemmel = $derived(hazir && cevirKalitesi(aktifP, seviye, AYAR) === "mukemmel");
   /** Dökerken hamur hedefin toleransında mı (hedef halka yeşil) */
-  const hedefte = $derived(t.faz === "doku" && hamurIcinde(t.hamur.miktar, hedefMiktar, seviye));
+  const dokDurum = $derived(t.faz === "doku" ? hamurDurumu(t.hamur.miktar, hedefMiktar, seviye, baglam.tercihAcik) : null);
+  /** Hedef halka yeşil = İDEAL; sarı = biraz az / biraz fazla (krep olur ama ideal değil) */
+  const hedefte = $derived(dokDurum === "ideal");
+  const yakin = $derived(dokDurum === "biraz-az" || dokDurum === "biraz-fazla");
+  const DOK_YAZI = { az: "Daha fazla…", "biraz-az": "Biraz az", ideal: "İdeal!", "biraz-fazla": "Biraz fazla", fazla: "Çok oldu!" } as const;
   const hal = $derived(
     t.faz === "yanik" ? "yanik" : t.faz === "ucus" ? "ucus" : t.faz === "doku" ? "doku" : hazir ? "hazir" : "normal",
   );
@@ -89,8 +93,10 @@
     const m = t.hamur.miktar;
     const dokW = KW * Math.min(1.08, 0.3 + 0.7 * Math.sqrt(m)) * (0.9 + 0.1 * t.hamur.yay);
     const dokD = Math.min(16, 2 + 7 * m);
-    const sonW = KW * BOYUT[t.kalinlik];
-    const sonD = KALINLIK[t.kalinlik];
+    // Son boyut kalınlık sınıfına göre, ama dökülen gerçek miktara da hafifçe uyar (biraz fazla → biraz büyük)
+    const oran = Math.min(1.12, Math.max(0.88, 1 + 0.5 * (t.hamur.miktar / AYAR.hamur.hedef[t.kalinlik] - 1)));
+    const sonW = KW * BOYUT[t.kalinlik] * Math.min(1.06, Math.max(0.94, oran));
+    const sonD = KALINLIK[t.kalinlik] * oran;
     if (t.faz === "bos") return { w: 0, d: 0 };
     if (t.faz === "doku") return { w: dokW, d: dokD };
     if (t.faz === "yayil") {
@@ -415,10 +421,10 @@
     if (baglam.tercihAcik && s.kalinlik !== hedefKalinlik) {
       yazi(s.kalinlik === "ince" ? "İNCE" : s.kalinlik === "kalin" ? "KALIN" : "NORMAL", "kotu");
     } else if (s.mukemmel) {
-      yazi("MÜKEMMEL DÖKÜŞ!", "perfect");
+      yazi("İDEAL DÖKÜŞ!", "perfect");
       patlat(125, 100, 6);
       cal("parilti");
-    } else yazi("GÜZEL DÖKÜŞ", "iyi");
+    } else yazi(s.durum === "biraz-az" ? "BİRAZ AZ" : "BİRAZ FAZLA", "iyi");
   }
 </script>
 
@@ -447,11 +453,15 @@
       <div
         class="hedef-halka"
         class:hedefte
+        class:yakin
         style:width={`${hedefW}px`}
         style:height={`${(hedefW * KH) / KW}px`}
         style:left={`${125 - hedefW / 2}px`}
         style:top={`${106 - (hedefW * KH) / KW / 2}px`}
       ></div>
+      {#if dokDurum && t.hamur.miktar > 0.2}
+        <div class="dok-etiket {dokDurum}" style:top={`${106 - (hedefW * KH) / KW / 2 - 26}px`}>{DOK_YAZI[dokDurum]}</div>
+      {/if}
     {/if}
 
     <div class="tava" style={stilPan}>
@@ -572,6 +582,11 @@
 
   .akis { position: absolute; top: 40px; height: 66px; z-index: 6; border-radius: 6px 6px 10px 10px; background: linear-gradient(90deg, var(--krep-cig), color-mix(in srgb, var(--krep-cig) 70%, white), var(--krep-cig)); animation: akisal 0.18s ease-in-out infinite alternate; pointer-events: none; transform-origin: top; }
   .hedef-halka { position: absolute; z-index: 9; border-radius: 50%; border: 3px dashed rgb(255 255 255 / 0.9); pointer-events: none; transition: border-color 0.12s, box-shadow 0.12s; }
+  .hedef-halka.yakin { border-color: var(--renk-logo); border-style: solid; box-shadow: 0 0 0 4px color-mix(in srgb, var(--renk-logo) 35%, transparent); }
+  .dok-etiket { position: absolute; left: 50%; z-index: 10; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: var(--kart); border: 2px solid var(--kenar); font-size: 12px; font-weight: 900; white-space: nowrap; pointer-events: none; }
+  .dok-etiket.ideal { border-color: var(--basari); color: var(--basari); }
+  .dok-etiket.biraz-az, .dok-etiket.biraz-fazla { border-color: var(--renk-logo); color: var(--renk-ana); }
+  .dok-etiket.fazla { border-color: var(--vurgu); color: var(--vurgu); }
   .hedef-halka.hedefte { border-color: var(--basari); border-style: solid; box-shadow: 0 0 0 4px color-mix(in srgb, var(--basari) 35%, transparent); }
 
   .ipucu { position: absolute; left: 50%; bottom: -8px; z-index: 9; transform: translateX(-50%); white-space: nowrap; padding: 4px 12px; border-radius: 999px; background: var(--kart); border: 1px solid var(--kenar); font-size: 13px; font-weight: 800; box-shadow: 0 2px 0 var(--kenar); pointer-events: none; }
