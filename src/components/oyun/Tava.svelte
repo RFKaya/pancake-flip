@@ -39,6 +39,12 @@
     pismis: { merkez: "var(--krep-orta)", kenar: "var(--krep-iyi)" },
     yanik: { merkez: "var(--krep-yanik)", kenar: "color-mix(in srgb, var(--krep-yanik) 80%, black)" },
   };
+  /** Kızarmış kenar: çiğde neredeyse görünmez, pişmişte koyu altın-kahve, yanıkta kömür */
+  const KIZARIK: Record<PismeDurumu, string> = {
+    cig: "color-mix(in srgb, var(--krep-az) 35%, var(--krep-cig))",
+    pismis: "color-mix(in srgb, var(--krep-iyi) 70%, var(--krep-fazla))",
+    yanik: "color-mix(in srgb, var(--krep-fazla) 75%, var(--krep-yanik))", // kavrulmuş kahve: koyu tavadan ayrılsın
+  };
   const KABARCIK = [[28, 38], [52, 30], [70, 44], [40, 58], [62, 64], [82, 58], [20, 62]];
 
   // Seviye değişince (seviye atlama ya da geliştirici modu) kurallar anında yenilenir; tavadaki pişen krep etkilenmez
@@ -110,6 +116,7 @@
   const G = $derived.by(() => {
     const P = AYAR.pisirme;
     let x = 0, y = 0, sx = 1, sy = 1, rot = 0, yuz: 0 | 1 = t.yuz, yuk = 0;
+    let yanG = 0; // yalnızca görünüm: kenarın ne kadar göründüğü (yüz önde 0, kenar önde 1); hareketi etkilemez
     if (t.faz === "ucus") {
       yuz = 0;
       if (t.t < P.anticipSn) {
@@ -122,6 +129,7 @@
         const v = u + (0.5 * Math.sin(2 * Math.PI * u)) / (2 * Math.PI); // tepe noktasında yavaşlar (hang time)
         const th = (540 * v * Math.PI) / 180;
         const c = Math.cos(th);
+        yanG = Math.abs(Math.sin(th));
         yuz = c >= 0 ? 0 : 1;
         yuk = 4 * v * (1 - v);
         y = -UCUS_Y * yuk;
@@ -147,7 +155,7 @@
       x = t.kayik * 70;
       rot = t.egim * (0.4 + 0.6 * Math.exp(-4 * lt)) * (1 + 0.2 * Math.cos(lt * 22) * Math.exp(-5 * lt));
     }
-    return { x, y, sx, sy, rot, yuz, yuk };
+    return { x, y, sx, sy, rot, yuz, yuk, yanG };
   });
 
   const yuzP = $derived(t.faz === "ucus" ? (G.yuz === 0 ? t.p[0] : 0) : t.faz === "kayma" ? t.p[t.yuz] : t.faz === "pisir" || t.faz === "yanik" ? aktifP : 0);
@@ -157,6 +165,9 @@
   /** Hedef halka: hedef miktardaki krebin boyutu (dökerken yayılmayla birlikte) */
   const hedefW = $derived(KW * Math.min(1.08, 0.3 + 0.7 * Math.sqrt(hedefMiktar)) * (0.9 + 0.1 * t.hamur.yay));
   const yan = $derived(`color-mix(in srgb, var(--krep-yanik) 30%, ${kenar})`);
+  const kizarik = $derived(KIZARIK[gorunen]);
+  /** Krep yüzünün (elips) yüksekliği: genişlikten, mevcut en-boy oranıyla */
+  const yuzH = $derived((sekil.w * KH) / KW);
   const buhar = $derived(t.faz === "pisir" || t.faz === "yanik" ? Math.max(0, Math.min(1, (aktifP - 0.12) / 0.5)) : 0);
   const duman = $derived(t.faz === "yanik" ? 1 : t.faz === "pisir" ? Math.max(0, Math.min(1, (aktifP - AYAR.pisirme.fazlaP + 0.1) / 0.4)) : 0);
   const kabarcik = $derived(t.faz === "pisir" ? aktifP : 0);
@@ -178,6 +189,23 @@
   const stilKrep = $derived(
     `transform: translate(${G.x}px, ${G.y}px) rotate(${G.rot}deg) scale(${G.sx}, ${G.sy})`,
   );
+  /**
+   * Havadaki kenar (yalnızca görünüm): krep, mevcut 540° dönüşte kenarı öne geldiğinde ince bir çizgiye inmesin diye
+   * yüzün arkasında aynı konum / eğim / yatay ölçekle duran bir "yan" katman. Yüksekliği yüzün görünen yüksekliği +
+   * kalınlık × |sin θ|; dikey ölçeklenmez. Krebin yüz merkezi, .krep'in ölçek orijininden (%70) ölçekle kayar.
+   */
+  const stilYan = $derived.by(() => {
+    if (t.faz !== "ucus" || G.yanG < 0.04) return "";
+    const kal = Math.max(3, sekil.d * 1.4) * G.yanG;
+    const h = yuzH * G.sy + kal;
+    const merkezY = 42 + (30 - 42) * G.sy;
+    return `transform: translate(${G.x}px, ${G.y}px) rotate(${G.rot}deg) scaleX(${G.sx}); --yw: ${sekil.w}px; --yh: ${h}px; --ym: ${merkezY}px`;
+  });
+  /** Temas gölgesi: tavada sıkı ve belirgin, havada krep yükseldikçe küçülür ve solar (G.yuk); x'i izler */
+  const stilGolge = $derived.by(() => {
+    const yer = t.faz === "ucus" ? G.yuk : 0;
+    return `transform: translateX(${G.x * 0.8}px) scale(${1 - 0.35 * yer}); opacity: ${0.55 - 0.4 * yer}; --gw: ${sekil.w * 1.04}px; --gh: ${yuzH * 0.9}px; --gy: ${30 + sekil.d * 0.6}px`;
+  });
   const stilPan = $derived.by(() => {
     const P = AYAR.pisirme;
     if (t.faz !== "ucus") return "";
@@ -476,8 +504,11 @@
 
       <!-- Krep -->
       <div class="krep-kap" class:havada={t.faz === "ucus" || t.faz === "kayma"} bind:this={kapEl}>
-        {#if t.faz === "ucus" && G.yuk > 0.02}
-          <div class="golge" style:opacity={0.35 * (1 - G.yuk)} style:transform={`scale(${1 - 0.25 * G.yuk})`}></div>
+        {#if t.faz === "yayil" || t.faz === "pisir" || t.faz === "yanik" || t.faz === "ucus"}
+          <div class="golge" style={stilGolge}></div>
+        {/if}
+        {#if stilYan}
+          <div class="yan-kap" style={stilYan}><i class="yan" style:--kiz={kizarik} style:--yr={yan}></i></div>
         {/if}
         {#if t.faz !== "bos"}
           <div class="krep" style={stilKrep}>
@@ -487,8 +518,10 @@
               class:yanikli={gorunen === "yanik"}
               style:width={`${sekil.w}px`}
               style:height={`${(sekil.w * KH) / KW}px`}
-              style:background={`radial-gradient(ellipse at 50% 42%, ${merkez} 0 50%, ${kenar} 100%)`}
-              style:box-shadow={`0 ${sekil.d}px 0 ${yan}`}
+              style:background={`radial-gradient(ellipse at 50% 42%, ${merkez} 0 46%, ${kenar} 80%, ${kizarik} 100%)`}
+              style:--d={`${sekil.d}px`}
+              style:--yr={yan}
+              style:--kiz={kizarik}
               style:--sal={t.faz === "doku" ? "1" : "0"}
             >
               <span class="parlak"></span>
@@ -562,12 +595,19 @@
   .krep-kap { position: absolute; left: 30px; top: 6px; width: 170px; height: 60px; z-index: 3; pointer-events: none; }
   .krep-kap.havada { z-index: 8; }
   .krep { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 50% 70%; will-change: transform; }
-  .y { position: relative; border-radius: 50%; }
+  /* Krep yüzü; alttaki kalınlık "yan" (::before) yüzün altından --d (sekil.d, #42 miktar oranıyla) kadar görünür.
+     Yan şerit üstte açık, altta koyu: alt yüzün gölgesi. Üst kenarda ince bir ışık dudağı yüzü tavadan ayırır. */
+  .y { position: relative; border-radius: 50%; box-shadow: inset 0 2px 1px color-mix(in srgb, var(--ust-yazi) 35%, transparent), inset 0 -2px 3px color-mix(in srgb, var(--kiz) 70%, transparent); }
+  .y::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 50%; transform: translateY(var(--d)); background: linear-gradient(180deg, var(--yr) 55%, color-mix(in srgb, var(--kiz) 75%, var(--krep-yanik))); }
+  /* Havadaki kenar katmanı: yüzün arkasında, aynı yatay boyutta bir hap; kenar öne geldikçe yükselir */
+  .yan-kap { position: absolute; inset: 0; transform-origin: 50% 70%; will-change: transform; }
+  .yan { position: absolute; left: 50%; top: var(--ym); width: var(--yw); height: var(--yh); border-radius: 50%; transform: translate(-50%, -50%); background: linear-gradient(180deg, var(--kiz), var(--yr) 45%, color-mix(in srgb, var(--kiz) 70%, var(--krep-yanik))); }
   .y.kalkik { animation: kalk 0.5s ease-in-out infinite; }
   .y::after { content: ""; position: absolute; inset: 0; border-radius: 50%; animation: sal 0.2s linear infinite; opacity: var(--sal); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.25); }
   .parlak { position: absolute; left: 14%; right: 14%; top: 8%; height: 30%; border-radius: 50%; background: linear-gradient(180deg, rgb(255 255 255 / 0.4), transparent); }
   .kab { position: absolute; width: 9px; height: 7px; margin: -3px 0 0 -4px; border-radius: 50%; background: rgb(255 255 255 / 0.5); box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.15); animation: kabar 1.1s ease-in-out infinite; }
-  .golge { position: absolute; left: 10px; right: 10px; top: 24px; height: 22px; border-radius: 50%; background: rgb(0 0 0 / 1); }
+  /* Yumuşak temas gölgesi: bulanıklık filtresi yok, yalnızca radyal degrade (kare başına ucuz) */
+  .golge { position: absolute; left: 50%; top: var(--gy); width: var(--gw); height: var(--gh); margin-left: calc(var(--gw) / -2); margin-top: calc(var(--gh) / -2); border-radius: 50%; background: radial-gradient(ellipse at 50% 45%, color-mix(in srgb, var(--renk-koyu) 75%, transparent) 0 45%, color-mix(in srgb, var(--renk-koyu) 30%, transparent) 62%, transparent 72%); pointer-events: none; }
 
   .buhar { position: absolute; top: 10px; z-index: 9; width: 22px; height: 22px; border-radius: 50%; background: rgb(255 255 255 / 0.85); opacity: 0; filter: blur(2px); pointer-events: none; animation: yuksel 1.4s ease-out infinite; }
   .buhar.kara { background: rgb(60 50 48 / 0.9); width: 28px; height: 28px; }
