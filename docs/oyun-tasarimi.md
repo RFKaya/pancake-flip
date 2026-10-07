@@ -4,6 +4,8 @@
 
 **Öncelik sırası (her kararda):** EĞLENCE > NETLİK > TEPKİ HIZI > İLERLEME > KARMAŞIKLIK
 
+> **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/ServisEkrani.svelte`). Müşteri slotları, sabır halkası ve süre baskısı (bu belgenin §7 ve ilgili kısımları) **henüz uygulanmadı**; eski müşterili ekran kaldırıldı. Karar verilirse G4'te geri getirilir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
+
 ---
 
 ## 1. Oyunun özü
