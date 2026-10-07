@@ -108,6 +108,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | Kişi | Görev | Dal / PR | Dokunduğu yerler |
 |---|---|---|---|
 | bulutgurgeli | G5 Rust adisyon kodu (arayüzsüz) | `feature/rust-adisyon` (PR #13) | `src-tauri/src/lib.rs`, `src/lib/fisler.svelte.ts`, `kayit.svelte.ts`, `types/oyun.ts` |
+| bulutgurgeli | G5 Fişlerim ekranı, Biletlerim yerine (#13'e bağlı) | `feature/fislerim` (PR #15) | `src/components/Fislerim.svelte`, `pages/fislerim.astro`, `AppNav.svelte` (1 satır), `Profil.svelte`, `kayit.svelte.ts`; silinen: `Biletlerim.svelte`, `pages/biletlerim.astro` |
 
 > Tablo güncel tutulur; eskimiş satır en kötü bilgidir.
 
