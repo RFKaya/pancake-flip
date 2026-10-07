@@ -1,9 +1,0 @@
-[
-  { "id": 1, "musteriSayisi": 3, "eszamanli": 1, "krep": [1, 1], "d": [1, 1], "tava": 1, "tabak": 1, "menu": [], "musteriAgirlik": { "normal": 1 }, "yeni": "Dök, çevir, ver" },
-  { "id": 2, "musteriSayisi": 3, "eszamanli": 1, "krep": [1, 2], "d": [1, 2], "tava": 1, "tabak": 1, "menu": [], "musteriAgirlik": { "normal": 1 }, "yeni": "2 katmanlı krep" },
-  { "id": 3, "musteriSayisi": 4, "eszamanli": 1, "krep": [2, 2], "d": [2, 3.5], "tava": 1, "tabak": 1, "menu": ["cikolata"], "musteriAgirlik": { "normal": 1 }, "yeni": "Çikolata (dolgu)" },
-  { "id": 4, "musteriSayisi": 4, "eszamanli": 1, "krep": [1, 3], "d": [2, 4], "tava": 1, "tabak": 1, "menu": ["cikolata"], "musteriAgirlik": { "normal": 0.7, "cocuk": 0.3 }, "yeni": "Çocuk müşteri" },
-  { "id": 5, "musteriSayisi": 5, "eszamanli": 1, "krep": [1, 3], "d": [2, 5], "tava": 1, "tabak": 1, "menu": ["cikolata", "cilek-sosu"], "musteriAgirlik": { "normal": 0.7, "cocuk": 0.3 }, "yeni": "Sos: çilek sosu" },
-  { "id": 6, "musteriSayisi": 5, "eszamanli": 2, "krep": [1, 3], "d": [2, 5], "tava": 2, "tabak": 1, "menu": ["cikolata", "cilek-sosu", "cilek-dilimi"], "musteriAgirlik": { "normal": 0.7, "cocuk": 0.3 }, "yeni": "2 müşteri aynı anda, combo" },
-  { "id": 7, "musteriSayisi": 6, "eszamanli": 2, "krep": [1, 3], "d": [2, 6], "tava": 2, "tabak": 1, "menu": ["cikolata", "cilek-sosu", "cilek-dilimi", "tereyagi"], "musteriAgirlik": { "normal": 0.7, "cocuk": 0.3 }, "yeni": "Topping: tereyağı (en üste)" }
-]

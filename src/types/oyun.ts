@@ -9,7 +9,7 @@ export interface Malzeme {
   id: string;
   ad: string;
   kategori: Kategori;
-  acilis: number;
+  acilis: number; // açıldığı seviye
   maliyet: number;
   deger: number;
   ikon: string;
@@ -21,7 +21,8 @@ export interface MusteriTipi {
   id: string;
   ad: string;
   ikon: string;
-  acilis: number;
+  acilis: number; // açıldığı seviye
+  agirlik: number; // açıldıktan sonra görülme ağırlığı (normal = 1)
   sabir: number;
   odeme: number;
   bahsis: number;
@@ -31,22 +32,51 @@ export interface MusteriTipi {
   tatliMi?: boolean;
 }
 
-export interface Bolum {
-  id: number;
-  musteriSayisi: number;
-  eszamanli: 1 | 2 | 3;
+/** Bir seviyenin bütün oyun parametreleri (seviye numarasından hesaplanır; bkz. docs/sonsuz-seviye.md) */
+export interface SeviyeAyari {
+  seviye: number;
+  zorluk: number; // 0..1, doyuma giden normalize zorluk
+  gerekenMusteri: number;
+  menu: string[]; // açık malzeme id'leri (krep hariç)
   krep: [number, number];
   d: [number, number];
-  tava: 1 | 2;
-  tabak: 1 | 2;
-  menu: string[];
+  tava: number;
+  eszamanli: number;
+  cevirmeAcik: boolean;
+  tercihAcik: boolean;
+  yogunSaatAcik: boolean;
+  ipucu: boolean;
+  cevirPencere: number;
+  hamurTolerans: number;
+  pisirmeHizi: number;
+  sabirCarpani: number;
+  gelmeAraligi: number;
+  tercihOlasiligi: number;
   musteriAgirlik: Record<string, number>;
-  yeni?: string;
+}
+
+export interface SeviyeYapilandirmasi {
+  seviyeSiniri: number;
+  devHizliSeviyeler: number[];
+  devEnYuksek: number;
+  gerekenMusteri: { noktalar: [number, number][]; ileriArtis: number; tavan: number };
+  zorluk: { olcek: number };
+  ilerleme: { perfect: number; great: number; good: number; olmadi: number; seri: { esik: number; bonus: number } };
+  egriler: Record<"cevirPencere" | "hamurTolerans" | "pisirmeHizi" | "sabirCarpani" | "gelmeAraligi" | "ozelMusteriCarpani" | "tercihOlasiligi", [number, number]>;
+  sabirMin: number;
+  musteriArasi: number;
+  ilkMusteriGecikmesi: number;
+  ipucuSeviyesi: number;
+  yogunSaat: { aralik: number; sure: number; gelmeCarpani: number; kazancCarpani: number };
+  kademeler: { seviye: number; krep: [number, number]; d: [number, number]; eszamanli: number; tava: number }[];
+  mekanikler: { seviye: number; id: string; ad: string; ikon: string }[];
+  kilometreTaslari: { seviye: number; baslik: string; alt: string }[];
 }
 
 export interface Siparis {
   parcalar: string[]; // aşağıdan yukarı malzeme id'leri
   d: number;
+  tercih?: Kalinlik; // müşteri bu kalınlıkta krep istiyor (yoksa fark etmez)
 }
 
 export interface TabakParcasi {
@@ -59,9 +89,8 @@ export interface Musteri {
   id: number;
   tip: string;
   siparis: Siparis;
-  gelisZamani: number;
-  sabirToplam: number;
-  sabir: number;
+  sabirToplam: number; // sn
+  sabir: number; // kalan sn
 }
 
 export interface Ayarlar {
@@ -74,7 +103,6 @@ export interface Ayarlar {
     fazlaP: number;
     yanikP: number;
     kacirP: number;
-    cevirPencere: { baslangic: number; adim: number; min: number };
     puanDusus: number;
     anticipSn: number;
     ucusSn: number;
@@ -88,9 +116,7 @@ export interface Ayarlar {
     min: number;
     yayPx: number;
     yayilSn: number;
-    tolerans: { baslangic: number; adim: number; min: number };
   };
-  ipucuBolumu: number;
   bolgeler: { cig: number; az: number; orta: number; iyi: number; fazla: number };
   yanikBekleme: number;
   sosSuresi: number;
@@ -101,16 +127,11 @@ export interface Ayarlar {
   cevirmePx: number;
   cevirmeMs: number;
   perfectBonus: number;
-  combo: { adim: number; max: number; baslangicBolumu: number };
-  hiz: { dusus: number; min: number };
-  gelmeAraligi: { baslangic: number; azalma: number; min: number };
-  sabirDondurmaBolumu: number;
-  gitmeBolumu: number;
-  sabirTaban: number;
+  combo: { adim: number; max: number; baslangicSeviye: number };
   cikisSuresi: number;
   mesajSuresi: number;
   zorlukAgirlik: { krep: number; dolgu: number; sos: number; topping: number };
-  hataCezasi: { eksik: number; fazla: number; yanlis: number; sira: number; pisme: number };
+  hataCezasi: { eksik: number; fazla: number; yanlis: number; sira: number; pisme: number; tercih: number };
   kalite: { perfect: number; great: number; good: number };
   odemeCarpani: { perfect: number; great: number; good: number; olmadi: number };
   ruhHali: { esik: number; yuz: string; bahsis: number }[];

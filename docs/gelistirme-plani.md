@@ -148,7 +148,7 @@ Sıra [oyun-tasarimi.md §15.2](oyun-tasarimi.md#152-tam-sürüm-final-hedefi-ö
 |---|---|---|
 | [ ] | F1 İkinci tabak + iki tabaklı sipariş | `feature/ikinci-tabak` |
 | [ ] | F2 Kararsız, VIP, Şüpheli müşteriler | `feature/ileri-musteriler` |
-| [ ] | F3 Bölüm 21–50, dondurma, dalgalar, özel bölümler | `feature/bolum-21-50` |
+| [x] | ~~F3 Bölüm 21–50~~ → **Sonsuz seviye sistemi** (bölümlerin yerini aldı; bkz. [`sonsuz-seviye.md`](sonsuz-seviye.md)) | `feature/sonsuz-seviye` |
 | [ ] | F4 Bahşiş kavanozu, bekleme köşesi, dekor | `feature/yukseltme-dekor` |
 | [ ] | F5 Oyun içi 4 dil + RTL | `feature/oyun-i18n` |
 | [ ] | F6 Başarımlar, günlük görev | `feature/basarimlar` |

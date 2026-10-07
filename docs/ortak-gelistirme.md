@@ -64,18 +64,18 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 - **Teknoloji:** Tauri v2 (Rust) + Astro (static, port 1420) + Svelte 5 (Runes) + React 19 + MDX, paket yöneticisi **Bun**. Oyun motoru yok.
 - **Oyun:** Dikey (9:16) krep oyunu. Ekranda hedef sipariş kartı, yüzlü tava, büyük tabak, malzeme düğmeleri, ilerleme çubuğu.
-  Tavada basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) §4). Bölüm 6–7'de 2 tava. Bölümler 1–7 oynanır. Müşteri/sabır sistemi **şu an yok** (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) en üstteki not).
+  Tavada basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al (bkz. [`oyun-tasarimi.md`](oyun-tasarimi.md) §4). Bölüm yoktur: **sonsuz LEVEL** (bkz. [`sonsuz-seviye.md`](sonsuz-seviye.md)); 1–3 müşteri fişi, sabır çubuğu, 15. seviyeden 2 tava.
 - **Nerede ne var** (dosya listesi değil, sorumluluklar; ağaç için [`klasor-mimarisi.md`](klasor-mimarisi.md)):
 
 | Konu | Yer |
 |---|---|
 | Oyun kuralları (saf TypeScript, Svelte yok, testli) | `src/lib/oyun/*.ts` (+ `oyun.test.ts`) |
-| Oyun sayıları (süre, fiyat, bölümler) | `src/lib/veri/*.json` — **kodda sabit sayı yazma** |
+| Oyun sayıları (süre, fiyat, seviye eğrileri) | `src/lib/veri/*.json` (`seviye.json` = sonsuz ilerleme) — **kodda sabit sayı yazma** |
 | JSON'a tipli erişim | `src/lib/oyun/veri.ts` |
 | Tipler | `src/types/oyun.ts` |
 | Oyun ekranı | `src/components/oyun/ServisEkrani.svelte` (düzen, sipariş fişi, tabak) + `Tava.svelte` (tava jestleri ve efektler) → rota `/servis/[id]` |
-| Bölümler listesi | `src/components/Bolumler.svelte` → rota `/` |
-| Kayıt (localStorage, sürümlü) | `src/lib/kayit.svelte.ts` |
+| Ana ekran (LEVEL özeti) | `src/components/Ana.svelte` → rota `/` ; oyun rotası `/oyna` |
+| Kayıt (localStorage, sürümlü) | `src/lib/ilerleme.svelte.ts` (seviye); eski bölüm kaydı `kayit.svelte.ts` kullanılmıyor, Fişlerim yeni modele uyarlanınca silinecek |
 | Bilgi sayfaları (4 dil) | `src/pages/{hakkinda,iletisim,kosullar,gizlilik}`, `src/pages/{en,ar,fa}/`, `src/lib/i18n.ts`, `src/components/bilgi/` |
 | Renkler / tema | `src/styles/app.css` ↔ [`branding.md`](branding.md) (aynı değerler) |
 | Rust komutları | `src-tauri/src/lib.rs` |
@@ -137,8 +137,8 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | Masaüstü penceresi | `bun run tauri dev` | Rust gerektirir; ilk derleme uzun sürer |
 
 **Elle test ipuçları**
-- Yeni bölümleri denerken kilit sorunu olursa tarayıcı konsolunda: `localStorage.removeItem("pancakeflip-kayit")`.
-- Bölüm 1: yalnızca krep. Bölüm 3'ten itibaren çikolata, 5'te çilek sosu, 6'da çilek dilimi, 7'de tereyağı.
+- Belirli bir seviyeyi denemek için oyunda 🛠 geliştirici paneli → **Set Level** (gerçek kaydı bozmaz). Kaydı sıfırlamak: `localStorage.removeItem("pancakeflip-ilerleme")`. Yayın derlemesinde panel için adrese `?dev=1` ekle.
+- Seviye 1: yalnızca krep ve çevirme yok. 3'te çevirme, 5'te çikolata, 8'de çilek dilimi, 10'da çilek sosu, 15'te 2 müşteri + 2 tava (tam liste: `sonsuz-seviye.md` §4).
 
 ---
 

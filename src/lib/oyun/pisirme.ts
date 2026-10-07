@@ -1,6 +1,7 @@
 // Tava durum makinesi: hamur dök → yayıl → 1. yüz → çevir (uçuş) → 2. yüz → tabağa kay (docs/oyun-tasarimi.md §4)
 import type { Ayarlar, CevirKalitesi, Kalinlik, PismeBolgesi, TabakParcasi } from "../../types/oyun";
 import { hamurDok, hamurSonucu, hamurYay, yeniHamur, type Hamur } from "./hamur";
+import { cevirPencereDegeri, mekanikAcik, pisirmeHiziDegeri } from "./seviye";
 
 export type TavaFaz = "bos" | "doku" | "yayil" | "pisir" | "ucus" | "kayma" | "yanik";
 export type TavaOlay = "tasti" | "yayildi" | "indi" | "yandi" | "cop" | "tabaga";
@@ -20,8 +21,16 @@ export interface Tava {
 
 export interface Baglam {
   ayar: Ayarlar;
-  bolumNo: number;
+  seviye: number;
+  /** Çevirme (3. seviyeden beri) kapalıyken krep ilk yüzü pişince doğrudan tabağa kayar */
+  cevirmeAcik: boolean;
 }
+
+export const baglamOlustur = (seviye: number, ayar: Ayarlar): Baglam => ({
+  ayar,
+  seviye,
+  cevirmeAcik: mekanikAcik("cevirme", seviye),
+});
 
 export const yeniTava = (): Tava => ({
   faz: "bos",
@@ -46,18 +55,14 @@ export function bolgeBul(p: number, ayar: Ayarlar): PismeBolgesi {
   return "yanik";
 }
 
-/** Bölüm ilerledikçe pişme hızlanır */
-export const hizCarpani = (bolumNo: number, ayar: Ayarlar) =>
-  Math.min(ayar.pisirme.hizMax, 1 + ayar.pisirme.hizArtis * (bolumNo - 1));
+/** Seviye yükseldikçe pişme hızlanır (doyuma ulaşır) */
+export const hizCarpani = (seviye: number) => pisirmeHiziDegeri(seviye);
 
-/** Çevirme penceresinin genişliği (p birimi); ilk bölümlerde çok geniş */
-export function cevirPenceresi(bolumNo: number, ayar: Ayarlar): number {
-  const w = ayar.pisirme.cevirPencere;
-  return Math.max(w.min, w.baslangic - w.adim * (bolumNo - 1));
-}
+/** Çevirme penceresinin genişliği (p birimi); ilk seviyelerde çok geniş, ileride sabit bir tabana yaklaşır */
+export const cevirPenceresi = (seviye: number): number => cevirPencereDegeri(seviye);
 
-export function cevirKalitesi(p: number, bolumNo: number, ayar: Ayarlar): CevirKalitesi {
-  const w = cevirPenceresi(bolumNo, ayar);
+export function cevirKalitesi(p: number, seviye: number, ayar: Ayarlar): CevirKalitesi {
+  const w = cevirPenceresi(seviye);
   const sap = p - 1;
   if (p < ayar.pisirme.kacirP) return "kacti";
   if (Math.abs(sap) <= w / 2) return "mukemmel";
@@ -66,15 +71,15 @@ export function cevirKalitesi(p: number, bolumNo: number, ayar: Ayarlar): CevirK
 }
 
 /** Bir yüzün 0..1 puanı: mükemmel pencerede 1, uzaklaştıkça doğrusal düşer */
-export function yuzPuani(p: number, bolumNo: number, ayar: Ayarlar): number {
-  const w = cevirPenceresi(bolumNo, ayar);
+export function yuzPuani(p: number, seviye: number, ayar: Ayarlar): number {
+  const w = cevirPenceresi(seviye);
   const uzak = Math.max(0, Math.abs(p - 1) - w / 2);
   return Math.max(0, 1 - uzak / (w * ayar.pisirme.puanDusus));
 }
 
 /** Tabağa konacak krep parçası; pişme bölgesi iki yüzün puanından ve kalınlıktan çıkar. */
-export function krepParcasi(p: [number, number], kalinlik: Kalinlik, bolumNo: number, ayar: Ayarlar): TabakParcasi {
-  const k = ((yuzPuani(p[0], bolumNo, ayar) + yuzPuani(p[1], bolumNo, ayar)) / 2) * ayar.pisirme.kalinKalite[kalinlik];
+export function krepParcasi(p: [number, number], kalinlik: Kalinlik, seviye: number, ayar: Ayarlar): TabakParcasi {
+  const k = ((yuzPuani(p[0], seviye, ayar) + yuzPuani(p[1], seviye, ayar)) / 2) * ayar.pisirme.kalinKalite[kalinlik];
   const pisme: PismeBolgesi = k >= 0.8 ? "iyi" : k >= 0.5 ? "orta" : p[0] + p[1] < 2 ? "cig" : "fazla";
   return { malzeme: "krep", pisme, kalinlik };
 }
@@ -98,17 +103,17 @@ export function tavaBirak(t: Tava, c: Baglam): { kalinlik: Kalinlik; mukemmel: b
     t.faz = "bos";
     return null;
   }
-  const s = hamurSonucu(t.hamur.miktar, c.bolumNo, c.ayar);
+  const s = hamurSonucu(t.hamur.miktar, c.seviye);
   t.kalinlik = s.kalinlik;
   t.faz = "yayil";
   t.t = 0;
   return s;
 }
 
-/** Yukarı swipe: 1. yüz pişiyorsa çevirir. Havadayken/boşken/yanıkken null döner. */
+/** Yukarı swipe: 1. yüz pişiyorsa çevirir. Havadayken/boşken/yanıkken ya da çevirme kapalıyken null döner. */
 export function tavaCevir(t: Tava, c: Baglam): CevirKalitesi | null {
-  if (t.faz !== "pisir" || t.yuz !== 0) return null;
-  const k = cevirKalitesi(t.p[0], c.bolumNo, c.ayar);
+  if (t.faz !== "pisir" || t.yuz !== 0 || !c.cevirmeAcik) return null;
+  const k = cevirKalitesi(t.p[0], c.seviye, c.ayar);
   const yon = t.p[0] < 1 ? -1 : 1;
   t.cevirme = k;
   t.egim = k === "mukemmel" ? 0 : k === "iyi" ? 4 * yon : k === "kacti" ? 20 : 11 * yon;
@@ -118,12 +123,17 @@ export function tavaCevir(t: Tava, c: Baglam): CevirKalitesi | null {
   return k;
 }
 
-/** Aşağı swipe: 2. yüz pişiyorsa krepi tabağa kaydırır; tabağa konacak parçayı döner. */
+/** Krep tabağa kaydırılabilir mi? 2. yüz pişiyorsa; çevirme kapalıyken 1. yüz pişiyorsa. */
+export const servisEdilebilir = (t: Tava, c: Baglam): boolean =>
+  t.faz === "pisir" && (t.yuz === 1 || !c.cevirmeAcik);
+
+/** Aşağı swipe: krepi tabağa kaydırır; tabağa konacak parçayı döner. */
 export function tavaServis(t: Tava, c: Baglam): TabakParcasi | null {
-  if (t.faz !== "pisir" || t.yuz !== 1) return null;
+  if (!servisEdilebilir(t, c)) return null;
+  const p: [number, number] = t.yuz === 1 ? t.p : [t.p[0], t.p[0]];
   t.faz = "kayma";
   t.t = 0;
-  return krepParcasi(t.p, t.kalinlik, c.bolumNo, c.ayar);
+  return krepParcasi(p, t.kalinlik, c.seviye, c.ayar);
 }
 
 /** Tavayı dt saniye ilerletir; olan olayları döner (ses, parçacık, tabağa konma için). */
@@ -150,7 +160,7 @@ export function tavaIlerlet(t: Tava, dt: number, c: Baglam): TavaOlay[] {
       }
       break;
     case "pisir": {
-      const hiz = hizCarpani(c.bolumNo, ayar) * pis.kalinHiz[t.kalinlik] * (t.yuz === 1 ? pis.ikinciYuzHiz : 1);
+      const hiz = hizCarpani(c.seviye) * pis.kalinHiz[t.kalinlik] * (t.yuz === 1 ? pis.ikinciYuzHiz : 1);
       t.p[t.yuz] += (dt / pis.yuzSuresi) * hiz;
       if (t.p[t.yuz] > pis.yanikP) {
         t.faz = "yanik";

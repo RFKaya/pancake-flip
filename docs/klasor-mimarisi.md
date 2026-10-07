@@ -28,7 +28,7 @@ pancake-flip/
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Yeniden kullanılabilir UI bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, mock veri, Svelte 5 state store'ları ($state)
-│   │   ├── veri/            # Oyun değerleri (JSON): malzemeler, müşteriler, bölümler, yükseltmeler
+│   │   ├── veri/            # Oyun değerleri (JSON): malzemeler, müşteriler, seviye (sonsuz ilerleme), ayarlar
 │   │   └── oyun/            # Saf TypeScript oyun kuralları (Svelte yok, testlenebilir)
 │   ├── types/               # TypeScript tip tanımları ve arayüzler (.ts)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)

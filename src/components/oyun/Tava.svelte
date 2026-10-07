@@ -5,17 +5,19 @@
   import { AYAR } from "$lib/oyun/veri";
   import { cal } from "$lib/oyun/ses";
   import {
-    cevirKalitesi, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
-    type Baglam, type Tava,
+    baglamOlustur, cevirKalitesi, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaHareket, tavaIlerlet, tavaServis, yeniTava,
+    type Tava,
   } from "$lib/oyun/pisirme";
   import { hamurToleransi } from "$lib/oyun/hamur";
   import type { TabakParcasi } from "../../types/oyun";
 
-  let { bolumNo, olcek = 1, kilit = false, sag = false, tabakHedef, onTabaga, onSalla }: {
-    bolumNo: number;
+  let { seviye, ipucuAcik = false, olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla }: {
+    seviye: number;
+    ipucuAcik?: boolean;
     sag?: boolean;
     olcek?: number;
     kilit?: boolean;
+    duraklat?: boolean;
     tabakHedef: () => { x: number; y: number } | null;
     onTabaga: (p: TabakParcasi) => void;
     onSalla: (siddet: number) => void;
@@ -32,10 +34,9 @@
   ] as const;
   const KABARCIK = [[28, 38], [52, 30], [70, 44], [40, 58], [62, 64], [82, 58], [20, 62]];
 
-  // svelte-ignore state_referenced_locally
-  const baglam: Baglam = { ayar: AYAR, bolumNo };
-  // svelte-ignore state_referenced_locally
-  const tolerans = hamurToleransi(bolumNo, AYAR);
+  // Seviye değişince (seviye atlama ya da geliştirici modu) kurallar anında yenilenir; tavadaki pişen krep etkilenmez
+  const baglam = $derived(baglamOlustur(seviye, AYAR));
+  const tolerans = $derived(hamurToleransi(seviye));
 
   type Fx = { id: number; tur: "yildiz" | "damla" | "yazi" | "puf" | "kor"; x: number; y: number; dx: number; dy: number; txt?: string; sinif?: string; dogdu: number };
 
@@ -58,7 +59,7 @@
 
   // ---- Türetilmiş görünüm ----
   const aktifP = $derived(t.p[t.yuz]);
-  const hazirKalite = $derived(t.faz === "pisir" ? cevirKalitesi(aktifP, bolumNo, AYAR) : null);
+  const hazirKalite = $derived(t.faz === "pisir" ? cevirKalitesi(aktifP, seviye, AYAR) : null);
   const hazir = $derived(hazirKalite === "mukemmel" || hazirKalite === "iyi");
   const mukemmel = $derived(hazirKalite === "mukemmel");
   const hal = $derived(
@@ -135,7 +136,7 @@
     return { x, y, sx, sy, rot, yuz, yuk };
   });
 
-  const yuzP = $derived(t.faz === "ucus" ? (G.yuz === 0 ? t.p[0] : 0) : t.faz === "kayma" ? t.p[1] : t.faz === "pisir" || t.faz === "yanik" ? aktifP : 0);
+  const yuzP = $derived(t.faz === "ucus" ? (G.yuz === 0 ? t.p[0] : 0) : t.faz === "kayma" ? t.p[t.yuz] : t.faz === "pisir" || t.faz === "yanik" ? aktifP : 0);
   const merkez = $derived(renk(t.faz === "yayil" || t.faz === "doku" ? 0 : yuzP));
   const kenar = $derived(renk(t.faz === "yayil" || t.faz === "doku" ? 0 : yuzP * 1.35 + 0.08));
   const yan = $derived(`color-mix(in srgb, var(--krep-yanik) 30%, ${kenar})`);
@@ -155,9 +156,10 @@
   });
 
   const ipucu = $derived.by(() => {
-    if (bolumNo > AYAR.ipucuBolumu) return "";
+    if (!ipucuAcik) return "";
     if (t.faz === "bos") return "👆 Basılı tut: hamur dök";
     if (t.faz === "doku") return "Bırak!";
+    if (t.faz === "pisir" && t.yuz === 0 && !baglam.cevirmeAcik) return hazir ? "⬇️ Aşağı kaydır: tabağa!" : "Pişiyor…";
     if (t.faz === "pisir" && t.yuz === 0) return hazir ? "⬆️ Yukarı kaydır: çevir!" : "Pişiyor…";
     if (t.faz === "pisir" && t.yuz === 1) return hazir ? "⬇️ Aşağı kaydır: tabağa!" : "İkinci yüz…";
     if (t.faz === "yanik") return "Yandı!";
@@ -276,7 +278,7 @@
     const kare = (n: number) => {
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
-      adim(dt);
+      if (!duraklat) adim(dt);
       id = requestAnimationFrame(kare);
     };
     id = requestAnimationFrame(kare);
@@ -313,7 +315,7 @@
   }
 
   function asagiKaydir() {
-    if (t.faz !== "pisir" || t.yuz !== 1) return false;
+    if (!servisEdilebilir(t, baglam)) return false;
     const r = kapEl.getBoundingClientRect();
     const h = tabakHedef();
     kayX = h ? (h.x - (r.left + r.width / 2)) / olcek : 0;

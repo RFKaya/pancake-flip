@@ -13,6 +13,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 |---|---|---|
 | [`docs/proje-fikri.md`](docs/proje-fikri.md) | Proje Konsepti | İş mantığı ve veri modelleri projenin amacına uygun olmalı. |
 | [`docs/oyun-tasarimi.md`](docs/oyun-tasarimi.md) | Oyun kuralları ve sayılar | Tasarımda olmayan özellik eklenmez; sayı değişirse bu belge de güncellenir. |
+| [`docs/sonsuz-seviye.md`](docs/sonsuz-seviye.md) | Sonsuz LEVEL ilerlemesi, zorluk eğrisi, geliştirici modu | Bölüm yoktur; ilerleme LEVEL'dir. Seviye sayıları `seviye.json`'dadır. |
 | [`docs/oyun-mimarisi.md`](docs/oyun-mimarisi.md) | Oyun kod mimarisi | Kurallar saf TypeScript'te, bileşenler yalnızca gösterir. |
 | [`docs/gelistirme-plani.md`](docs/gelistirme-plani.md) | Görevler, dallar, kabul kriterleri | Oturum başına tek görev; bitince kutu `[x]` yapılır. |
 | [`docs/sonnet-talimati.md`](docs/sonnet-talimati.md) | Ajan oturum talimatı | Her oturumun başında okunur ve birebir uygulanır. |

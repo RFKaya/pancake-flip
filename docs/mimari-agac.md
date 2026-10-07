@@ -10,19 +10,13 @@ Dizin yapısı (ana klasörler) için tek kaynak: [`klasor-mimarisi.md`](klasor-
 
 ```
 Pancake Flip!
-├── / (Bölümler)
-│   ├── Filtre: Tümü / Yıldızı eksik / Özel bölümler
-│   └── 50 bölümlük ızgara (bölüm no, yıldız 0–3, kilit, özel işaret)
+├── / (Ana ekran)
+│   └── LEVEL, ilerleme çubuğu, sıradaki yenilik, istatistikler, "Oyna" düğmesi → /oyna
 │
-├── /bolum/[id] (Bölüm Detayı)
-│   ├── Hedefler (⭐ / ⭐⭐ / ⭐⭐⭐ için gereken coin), yeni mekanik
-│   ├── Menü (malzemeler) ve gelecek müşteri tipleri
-│   └── "Servise başla" düğmesi → /servis/[id]
-│
-├── /servis/[id] (Servis: oyun ekranı + sonuç)
-│   ├── Tava, tabak, malzeme rafı, müşteri slotları, sabır halkası
-│   └── Sonuç penceresi: yıldızlar, kazanç dökümü, "Adisyonu kaydet"
-│       └── Rust komutu fis_olustur → KRP-BBB-YXXXXXX kodu
+├── /oyna (Sonsuz oyun ekranı; bölüm yok, bkz. sonsuz-seviye.md)
+│   ├── Tava(lar), tabak, malzeme rafı, müşteri fişleri + sabır çubuğu, LEVEL ve ilerleme çubuğu
+│   ├── LEVEL UP bildirimi (oyunu durdurmaz); geliştirici modu 🛠 (seviye ayarlama)
+│   └── (G5) Fiş/adisyon: Rust fis_olustur → KRP-… kodu; yeni modele uyarlanacak
 │
 ├── /fislerim (Fişlerim)
 │   └── Rust tarafından üretilen adisyon kodları ve geçmişi
@@ -43,7 +37,7 @@ Pancake Flip!
     └── /gizlilik (MDX, veriler yalnızca cihazda)
 ```
 
-Alt menü sekmeleri: Bölümler · Fişlerim · Mutfak · Profil. `/servis/[id]` tam ekran açılır, alt menü gizlenir. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
+Alt menü sekmeleri: Oyna · Fişlerim · Mutfak · Profil. `/oyna` tam ekran açılır, alt menü gizlenir. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
 
 ---
 
