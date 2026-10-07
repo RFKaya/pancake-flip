@@ -1,10 +1,13 @@
 // Sürümlü localStorage kaydı (docs/oyun-tasarimi.md §14). Bozuk ya da eski kayıtla çökmez.
+import type { Fis } from "../types/oyun";
+
 const ANAHTAR = "pancakeflip-kayit";
 
 interface KayitVerisi {
   surum: 1;
   coin: number;
   bolumler: Record<string, { yildiz: number; enIyiNet: number }>;
+  fisler?: Fis[]; // sonradan eklendi; eski kayıtlarda yok
 }
 
 const bos = (): KayitVerisi => ({ surum: 1, coin: 0, bolumler: {} });
@@ -48,6 +51,21 @@ class Kayit {
       enIyiNet: Math.max(onceki?.enIyiNet ?? 0, Math.round(net)),
     };
     this.veri.coin += Math.max(0, Math.round(net));
+    this.yaz();
+  }
+
+  fisler(): Fis[] {
+    return Array.isArray(this.veri.fisler) ? this.veri.fisler : [];
+  }
+
+  /** Yeni adisyonu listenin başına ekler (servisKaydet gibi önce diskteki kaydı okur) */
+  fisEkle(fis: Fis) {
+    this.yukle();
+    this.veri.fisler = [fis, ...this.fisler()];
+    this.yaz();
+  }
+
+  private yaz() {
     try {
       localStorage.setItem(ANAHTAR, JSON.stringify(this.veri));
     } catch {
