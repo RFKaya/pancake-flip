@@ -16,6 +16,8 @@ export interface Oturum {
   toplamCoin: number;
   seri: number; // üst üste başarılı müşteri
   mukemmelSeri: number; // üst üste PERFECT
+  enIyiSeri: number; // bütün oyunlarda ulaşılan en uzun seri (rekor; kayda yazılır)
+  toplamMukemmel: number; // PERFECT servis edilen toplam müşteri
   musteriler: Musteri[]; // şu an bekleyenler (en fazla sv.eszamanli)
   sonrakiId: number;
   gelmeSayac: number; // sn: sıradaki müşteriye kalan
@@ -52,6 +54,8 @@ export interface OturumBaslangic {
   ilerleme?: number;
   toplamMusteri?: number;
   toplamCoin?: number;
+  enIyiSeri?: number;
+  toplamMukemmel?: number;
 }
 
 export function yeniOturum(b: OturumBaslangic = {}): Oturum {
@@ -63,6 +67,8 @@ export function yeniOturum(b: OturumBaslangic = {}): Oturum {
     toplamCoin: Math.max(0, b.toplamCoin ?? 0),
     seri: 0,
     mukemmelSeri: 0,
+    enIyiSeri: Math.max(0, b.enIyiSeri ?? 0),
+    toplamMukemmel: Math.max(0, b.toplamMukemmel ?? 0),
     musteriler: [],
     sonrakiId: 1,
     gelmeSayac: SEVIYE.ilkMusteriGecikmesi,
@@ -189,8 +195,10 @@ export function musteriyeVer(o: Oturum, tabak: TabakParcasi[]): VerSonucu | null
   const sonuc: Sonuc = tabak.every((p) => p.malzeme !== "krep" || p.usta) ? "perfect" : "great";
   let puan = SEVIYE.ilerleme[sonuc];
   o.seri++;
+  o.enIyiSeri = Math.max(o.enIyiSeri, o.seri);
   o.toplamMusteri++;
   if (sonuc === "perfect") {
+    o.toplamMukemmel++;
     o.mukemmelSeri++;
     if (o.mukemmelSeri % SEVIYE.ilerleme.seri.esik === 0) puan += SEVIYE.ilerleme.seri.bonus;
   } else o.mukemmelSeri = 0;

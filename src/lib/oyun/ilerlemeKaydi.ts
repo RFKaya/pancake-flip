@@ -9,9 +9,20 @@ export interface IlerlemeVerisi {
   toplamMusteri: number; // totalCustomersServed
   toplamCoin: number; // totalCoins
   enYuksekSeviye: number;
+  enIyiSeri: number; // en uzun seri rekoru (eski kayıtlarda yok → 0)
+  toplamMukemmel: number; // PERFECT servis sayısı (eski kayıtlarda yok → 0)
 }
 
-export const bosIlerleme = (): IlerlemeVerisi => ({ surum: 1, seviye: 1, ilerleme: 0, toplamMusteri: 0, toplamCoin: 0, enYuksekSeviye: 1 });
+export const bosIlerleme = (): IlerlemeVerisi => ({
+  surum: 1,
+  seviye: 1,
+  ilerleme: 0,
+  toplamMusteri: 0,
+  toplamCoin: 0,
+  enYuksekSeviye: 1,
+  enIyiSeri: 0,
+  toplamMukemmel: 0,
+});
 const sayi = (x: unknown, varsayilan: number) => (typeof x === "number" && Number.isFinite(x) && x >= 0 ? x : varsayilan);
 
 /**
@@ -38,6 +49,8 @@ export function ilerlemeCoz(ham: string | null): IlerlemeVerisi {
       toplamMusteri: sayi(v.toplamMusteri, 0),
       toplamCoin: sayi(v.toplamCoin, 0),
       enYuksekSeviye: Math.max(seviye, seviyeSinirla(sayi(v.enYuksekSeviye, 1))),
+      enIyiSeri: Math.floor(sayi(v.enIyiSeri, 0)),
+      toplamMukemmel: Math.floor(sayi(v.toplamMukemmel, 0)),
     };
   } catch {
     return bosIlerleme();

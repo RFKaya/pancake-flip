@@ -253,3 +253,56 @@ describe("oturum: uzun simülasyon (bot) — saçmalamıyor", () => {
     expect(o.musteriler.every((m) => kategoriOf("krep") === "krep" && m.sabir > 0)).toBe(true);
   });
 });
+
+describe("oturum: oyuncu istatistikleri (en uzun seri, PERFECT sayısı)", () => {
+  /** Bekleyen ilk müşteriye doğru tabak verir; usta=false ise GREAT olur */
+  function servisEt(o: Oturum, usta = true) {
+    musteriBekle(o);
+    const tabak = mukemmelTabak(o.musteriler[0].siparis.parcalar, o.musteriler[0].siparis.tercih).map((p) => (p.malzeme === "krep" ? { ...p, usta } : p));
+    return musteriyeVer(o, tabak)!;
+  }
+
+  test("PERFECT sayısı yalnızca PERFECT serviste artar; seri her doğru serviste artar", () => {
+    const o = yeniOturum({ seviye: 5 });
+    expect(servisEt(o).sonuc).toBe("perfect");
+    expect(servisEt(o, false).sonuc).toBe("great");
+    expect(servisEt(o).sonuc).toBe("perfect");
+    expect(o.toplamMukemmel).toBe(2);
+    expect(o.seri).toBe(3);
+    expect(o.enIyiSeri).toBe(3);
+  });
+
+  test("müşteri kaçınca seri sıfırlanır ama en uzun seri rekoru kalır", () => {
+    const o = yeniOturum({ seviye: 5 });
+    for (let i = 0; i < 4; i++) servisEt(o);
+    musteriBekle(o);
+    const rng = rngOlustur(9);
+    while (o.seri > 0) oturumIlerlet(o, 1, rng);
+    expect(o.seri).toBe(0);
+    expect(o.enIyiSeri).toBe(4);
+    servisEt(o);
+    expect(o.seri).toBe(1);
+    expect(o.enIyiSeri).toBe(4);
+  });
+
+  test("yanlış tabak ve aynı tabakla ikinci deneme istatistikleri değiştirmez", () => {
+    const o = yeniOturum({ seviye: 5 });
+    musteriBekle(o);
+    const siparis = o.musteriler[0].siparis;
+    expect(musteriyeVer(o, mukemmelTabak([...siparis.parcalar, "krep"], siparis.tercih))).toBeNull();
+    expect({ seri: o.seri, enIyiSeri: o.enIyiSeri, toplamMukemmel: o.toplamMukemmel }).toEqual({ seri: 0, enIyiSeri: 0, toplamMukemmel: 0 });
+    const tabak = mukemmelTabak(siparis.parcalar, siparis.tercih);
+    musteriyeVer(o, tabak);
+    musteriyeVer(o, tabak);
+    expect({ seri: o.seri, enIyiSeri: o.enIyiSeri, toplamMukemmel: o.toplamMukemmel }).toEqual({ seri: 1, enIyiSeri: 1, toplamMukemmel: 1 });
+  });
+
+  test("yeni oturum kayıttaki rekoru ve PERFECT sayısını devralır; seri sıfırdan başlar", () => {
+    const o = yeniOturum({ seviye: 5, enIyiSeri: 12, toplamMukemmel: 40 });
+    expect(o.seri).toBe(0);
+    servisEt(o);
+    expect(o.enIyiSeri).toBe(12);
+    expect(o.toplamMukemmel).toBe(41);
+    expect(yeniOturum({ enIyiSeri: -3, toplamMukemmel: -1 })).toMatchObject({ enIyiSeri: 0, toplamMukemmel: 0 });
+  });
+});

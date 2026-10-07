@@ -42,6 +42,8 @@ class Ilerleme {
       toplamMusteri: o.toplamMusteri,
       toplamCoin: o.toplamCoin,
       enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, o.seviye),
+      enIyiSeri: Math.max(this.veri.enIyiSeri, o.enIyiSeri),
+      toplamMukemmel: o.toplamMukemmel,
     };
     this.#yaz();
   }
