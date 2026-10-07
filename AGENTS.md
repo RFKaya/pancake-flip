@@ -16,6 +16,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/oyun-mimarisi.md`](docs/oyun-mimarisi.md) | Oyun kod mimarisi | Kurallar saf TypeScript'te, bileşenler yalnızca gösterir. |
 | [`docs/gelistirme-plani.md`](docs/gelistirme-plani.md) | Görevler, dallar, kabul kriterleri | Oturum başına tek görev; bitince kutu `[x]` yapılır. |
 | [`docs/sonnet-talimati.md`](docs/sonnet-talimati.md) | Ajan oturum talimatı | Her oturumun başında okunur ve birebir uygulanır. |
+| [`docs/ortak-gelistirme.md`](docs/ortak-gelistirme.md) | Birden fazla kişi/ajan ile ortak çalışma | Her oturumun başında oku: fetch/pull, açık PR kontrolü, sıcak dosyalar, "kimde ne var" tablosu. |
 | [`docs/klasor-mimarisi.md`](docs/klasor-mimarisi.md) | Dizin & Dosya Yapısı | Klasör mimarisi yalnızca bu belgede tanımlanır. Yeni dosya eklerken bu hiyerarşiye uy. |
 | [`docs/branding.md`](docs/branding.md) | Marka Kimliği ve Renkler | UI geliştirirken ad-hoc renk uydurma, `branding.md` ve CSS değişkenlerini kullan. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa & Özellik Haritası | Yeni sayfa veya yönlendirme eklerken mimari ağaca sadık kal. |

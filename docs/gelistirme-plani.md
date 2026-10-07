@@ -3,6 +3,8 @@
 > Bu belge **ne zaman, hangi sırayla, hangi dalda** ne yapılacağını tanımlar. Oyun kuralları [`oyun-tasarimi.md`](oyun-tasarimi.md)'de, kod yapısı [`oyun-mimarisi.md`](oyun-mimarisi.md)'de, hocanın haftalık görevleri [`tasks/week-3/`](tasks/week-3/) altında. Hocanın görev dosyasıyla bu plan çelişirse **hocanınki geçerlidir**.
 >
 > Yapay zeka ajanına (Claude Sonnet) verilecek talimat: [`sonnet-talimati.md`](sonnet-talimati.md)
+>
+> Birden fazla kişi/ajan çalışıyorsa: [`ortak-gelistirme.md`](ortak-gelistirme.md)
 
 ---
 
