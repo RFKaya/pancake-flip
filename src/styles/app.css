@@ -1,6 +1,7 @@
 /* Adım 2: Global stil — tüm sayfaların ortak renkleri ve yardımcı sınıfları */
 :root {
   --renk-ana: #B45309;
+  --renk-ana-koyu: #7C3A0A;
   --renk-ana-yazi: #FFFFFF;
   --renk-koyu: #3B2416;
   --renk-logo: #F59E0B;
@@ -29,6 +30,11 @@
   --sahne-tava-koyu: #4E5262;
   --sahne-yuz: #FFFFFF;
   --radius: 14px;
+  --radius-kucuk: 10px;
+  /* Derinlik: kartlar tezgâha konmuş gibi alt kenar + yumuşak gölge; düğmeler basılınca bu kenara iner */
+  --golge-kart: 0 3px 0 var(--kenar), 0 10px 22px -12px color-mix(in srgb, var(--renk-koyu) 35%, transparent);
+  --golge-yuksek: 0 4px 0 var(--kenar), 0 16px 28px -14px color-mix(in srgb, var(--renk-koyu) 45%, transparent);
+  --basma: 4px;
   color-scheme: light;
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -40,6 +46,7 @@
 /* Adım 15: Gece modu — <html data-tema="gece"> olunca değişkenler koyulaşır */
 :root[data-tema="gece"] {
   --renk-ana: #F59E0B;
+  --renk-ana-koyu: #A85F06;
   --renk-ana-yazi: #1E1510;
   --renk-koyu: #120C08;
   --renk-logo: #F59E0B;
@@ -84,30 +91,79 @@ button {
   gap: 16px;
 }
 
+/* Form denetimleri (onay kutusu, kaydırıcı) tarayıcının mavisi yerine marka rengini alır */
+input,
+progress {
+  accent-color: var(--renk-ana);
+}
+
+:focus-visible {
+  outline: 3px solid var(--renk-logo);
+  outline-offset: 2px;
+}
+
 .kart {
   background: var(--kart);
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
+  box-shadow: var(--golge-kart);
 }
 
+/* Dokunsal düğme: koyu karamel alt kenarın üstünde durur, basılınca kenara iner */
 .btn {
+  display: block;
   width: 100%;
   padding: 14px 18px;
   border: 0;
   border-radius: var(--radius);
-  background: var(--renk-ana);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 94%, var(--ust-yazi)), var(--renk-ana) 55%);
+  box-shadow: 0 var(--basma) 0 var(--renk-ana-koyu), 0 10px 18px -10px var(--renk-ana-koyu);
   color: var(--renk-ana-yazi);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: 0.2px;
   text-align: center;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(calc(var(--basma) - 1px));
+  box-shadow: 0 1px 0 var(--renk-ana-koyu);
 }
 
 .btn:disabled {
   opacity: 0.5;
+  box-shadow: none;
   cursor: default;
+}
+
+/* Hap: küçük sayaç / etiket (adisyon sayısı, coin) */
+.hap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--kenar);
+  border-radius: 999px;
+  background: var(--kart);
+  box-shadow: 0 3px 0 var(--kenar);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .bos {
   padding: 48px 16px;
   text-align: center;
   color: var(--yazi-soluk);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
 }

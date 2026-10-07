@@ -1,11 +1,25 @@
 <script lang="ts">
-  // Fişlerim: geçmiş servislerin adisyonları (Rust fis_olustur kodları). Veri yalnızca kayit.fisler()'den okunur.
+  // Fişlerim: seviye adisyonları (Rust fis_olustur kodları). Veri yalnızca kayit.fisler()'den okunur.
   import { onMount } from "svelte";
   import { kayit } from "$lib/kayit.svelte";
+  import { kilometreTasi } from "$lib/oyun/seviye";
 
+  // Görülen en yeni fişin kodu: yalnızca "YENİ" damgası için (bu cihazdaki görüntüleme kolaylığı, oyun verisi değil)
+  const GORULDU = "pancakeflip-fis-goruldu";
   let hazir = $state(false);
+  let yeniSayisi = $state(0);
   onMount(() => {
     kayit.yukle();
+    const liste = kayit.fisler();
+    try {
+      const son = localStorage.getItem(GORULDU);
+      const i = son ? liste.findIndex((f) => f.kod === son) : -1;
+      // İlk ziyarette (kayıt yok) hepsini yeni saymak yerine yalnızca en yenisini işaretle
+      yeniSayisi = son ? (i === -1 ? liste.length : i) : Math.min(1, liste.length);
+      if (liste.length) localStorage.setItem(GORULDU, liste[0].kod);
+    } catch {
+      yeniSayisi = 0;
+    }
     hazir = true;
   });
 
@@ -24,19 +38,26 @@
 <div class="sayfa">
   <header class="baslik">
     <h1>🧾 Fişlerim</h1>
-    {#if hazir && fisler.length}
-      <div class="ozet">
-        <span class="hap">{fisler.length} adisyon</span>
-        <span class="hap">🪙 {toplamNet}</span>
-      </div>
-    {/if}
+    {#if hazir && fisler.length}<span class="hap">{fisler.length} adisyon</span>{/if}
   </header>
+
+  {#if hazir && fisler.length}
+    <section class="kasa" aria-label="Kasa">
+      <span class="kasa-cekmece" aria-hidden="true">🪙</span>
+      <div>
+        <small>Fişlerdeki toplam kazanç</small>
+        <strong>+{toplamNet}</strong>
+      </div>
+    </section>
+  {/if}
 
   {#if hazir}
     {#each fisler as f, i (f.kod + i)}
       {@const y = yildizSayisi(f.yildiz)}
-      <div class="golge" style:animation-delay={`${Math.min(i, 8) * 40}ms`}>
-      <article class="fis">
+      {@const kt = kilometreTasi(f.bolum)}
+      <div class="golge" class:yeni={i < yeniSayisi} style:animation-delay={`${Math.min(i, 8) * 40}ms`}>
+      {#if i < yeniSayisi}<span class="damga">YENİ</span>{/if}
+      <article class="fis" class:kilometre={kt}>
         <div class="rozet" aria-hidden="true">
           <span class="kat"></span><span class="kat"></span><span class="kat"></span>
           <b>{f.bolum}</b>
@@ -52,6 +73,7 @@
             <span class="tarih">{tarihYaz(f.tarih)}</span>
             <span class="net">{(f.net ?? 0) >= 0 ? "+" : ""}{f.net ?? 0} 🪙</span>
           </div>
+          {#if kt}<span class="serit">⭐ {kt.baslik}</span>{/if}
           <code class="kod">{f.kod}</code>
         </div>
       </article>
@@ -60,8 +82,8 @@
       <div class="bos-durum">
         <div class="tabak" aria-hidden="true"><div class="plaka"></div></div>
         <h2>Henüz adisyon yok</h2>
-        <p>Bir servisi bitirince adisyonun burada birikir.</p>
-        <a class="btn" href="/">🥞 Servise başla</a>
+        <p>Her 10 seviyede ve her kilometre taşında bir adisyon kesilir; hepsi burada birikir.</p>
+        <a class="btn" href="/">🥞 Oyna</a>
       </div>
     {/each}
   {/if}
@@ -80,26 +102,85 @@
     font-size: 24px;
   }
 
-  .ozet {
-    display: flex;
-    gap: 6px;
-  }
-
-  .hap {
-    padding: 4px 10px;
-    border: 1px solid var(--kenar);
-    border-radius: 999px;
-    background: var(--kart);
-    box-shadow: 0 3px 0 var(--kenar);
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
   /* Gölge sarmalayıcıda: mask aynı elemandaki drop-shadow'u da keseceği için ayrı tutulur */
   .golge {
-    filter: drop-shadow(0 3px 0 var(--kenar));
+    position: relative;
+    filter: drop-shadow(0 6px 6px color-mix(in srgb, var(--renk-koyu) 16%, transparent));
     animation: gir 0.35s ease-out backwards;
+  }
+
+  /* Kasa: fişlerin toplam kazancı, ekranın en önemli sayısı */
+  .kasa {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--kart), color-mix(in srgb, var(--kart) 85%, var(--renk-ana)));
+    border: 1px solid var(--kenar);
+    box-shadow: var(--golge-yuksek);
+  }
+
+  .kasa-cekmece {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 94%, var(--ust-yazi)), var(--renk-ana) 60%);
+    box-shadow: 0 var(--basma) 0 var(--renk-ana-koyu);
+    font-size: 26px;
+  }
+
+  .kasa small {
+    display: block;
+    color: var(--yazi-soluk);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .kasa strong {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--basari);
+  }
+
+  /* Görülmemiş fiş: köşede çilek rengi damga, bir kez "basılır" */
+  .damga {
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    z-index: 2;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--vurgu);
+    color: var(--renk-ana-yazi);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    transform: rotate(6deg);
+    animation: damga 0.45s 0.25s ease-out backwards;
+  }
+
+  :root[data-tema="gece"] .damga { color: var(--zemin); }
+
+  /* Kilometre taşı fişi: altın şerit ve kenar vurgusu */
+  .fis.kilometre {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--krep-az) 22%, var(--kart)), var(--kart) 60%);
+  }
+
+  :root[data-tema="gece"] .fis.kilometre {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 12%, var(--kart)), var(--kart) 60%);
+  }
+
+  .serit {
+    align-self: flex-start;
+    padding: 2px 8px;
+    border-radius: var(--radius-kucuk);
+    background: color-mix(in srgb, var(--krep-az) 45%, var(--kart));
+    color: var(--yazi);
+    font-size: 12px;
+    font-weight: 900;
   }
 
   .golge:nth-child(odd) { transform: rotate(-0.6deg); }
@@ -239,7 +320,6 @@
 
   .bos-durum .btn {
     max-width: 260px;
-    box-shadow: 0 4px 0 var(--renk-koyu);
   }
 
   /* Boş tabak: oyun sahnesindeki turkuaz tabak, hafif sallanır */
@@ -266,6 +346,11 @@
     from { opacity: 0; translate: 0 10px; }
   }
 
+  @keyframes damga {
+    from { opacity: 0; transform: rotate(6deg) scale(2.2); }
+    70% { opacity: 1; transform: rotate(6deg) scale(0.9); }
+  }
+
   @keyframes salla {
     50% { transform: rotate(-3deg) translateY(-3px); }
   }
@@ -275,6 +360,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .golge, .plaka { animation: none; }
+    .golge, .plaka, .damga { animation: none; }
   }
 </style>

@@ -25,28 +25,30 @@
   });
 </script>
 
-<nav class="alt-menu">
+<nav class="alt-menu" aria-label="Ana menü">
   {#each menu as m}
-    <a
-      href={m.href}
-      class:aktif={yol === m.href || (m.href !== "/" && yol.startsWith(m.href))}
-    >
-      <span class="ikon">{m.ikon}</span>
-      {m.ad}
+    {@const aktif = yol === m.href || (m.href !== "/" && yol.startsWith(m.href))}
+    <a href={m.href} class:aktif aria-current={aktif ? "page" : undefined}>
+      <span class="ikon" aria-hidden="true">{m.ikon}</span>
+      <span class="ad">{m.ad}</span>
     </a>
   {/each}
 </nav>
 
 <style>
+  /* Tezgâh kenarı gibi duran alt menü: seçili sekme karamel bir düğme olarak hafifçe yükselir.
+     Yükseklik ~62 px kalır: lobideki OYNA düğmesi menünün hemen üstüne bu yüksekliğe göre yerleşir (Restoran.svelte). */
   .alt-menu {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     display: flex;
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: 0 8px env(safe-area-inset-bottom);
     background: var(--kart);
-    border-top: 1px solid var(--kenar);
+    border-top: 3px solid var(--kenar);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 24px -14px color-mix(in srgb, var(--renk-koyu) 45%, transparent);
     z-index: 20;
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
@@ -59,24 +61,67 @@
   }
 
   .alt-menu a {
-    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 2px;
-    padding: 10px 0;
-    font-size: 11px;
+    min-height: 59px;
+    padding: 6px 0 5px;
     color: var(--yazi-soluk);
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* İkon, basılabilir küçük bir yuvarlak düğmenin içinde */
+  .ikon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 34px;
+    border-radius: 14px;
+    font-size: 20px;
+    line-height: 1;
+    transition: transform 0.15s ease-out, background 0.2s, box-shadow 0.2s;
+  }
+
+  .ad {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .alt-menu a:active .ikon {
+    transform: scale(0.88);
   }
 
   .alt-menu a.aktif {
     color: var(--renk-ana);
-    font-weight: 600;
   }
 
-  .ikon {
-    font-size: 20px;
+  .alt-menu a.aktif .ad {
+    font-weight: 900;
+  }
+
+  .alt-menu a.aktif .ikon {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 94%, var(--ust-yazi)), var(--renk-ana) 60%);
+    box-shadow: 0 3px 0 var(--renk-ana-koyu), 0 8px 14px -8px var(--renk-ana-koyu);
+    transform: translateY(-6px);
+    animation: sec 0.35s ease-out;
+  }
+
+  .alt-menu a.aktif:active .ikon {
+    transform: translateY(-3px) scale(0.92);
+  }
+
+  @keyframes sec {
+    0% { transform: translateY(0) scale(0.8); }
+    60% { transform: translateY(-9px) scale(1.08); }
+    100% { transform: translateY(-6px) scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ikon { transition: none; }
+    .alt-menu a.aktif .ikon { animation: none; }
   }
 </style>
