@@ -50,6 +50,9 @@
   /** Tavada servise hazır krep olan tava sayısı (tabak "buraya koy" diye parlar) */
   let hazirTava = $state(0);
   let copAt = $state(false);
+  /** Tabak müşteriye giderken true: oyun zamanı durur, tabağa dokunulamaz */
+  let teslimde = $state(false);
+  const bekleyenParcalar: TabakParcasi[] = [];
   let sonucNo = 0;
   let bildirimNo = 0;
 
@@ -135,7 +138,7 @@
     const kare = (n: number) => {
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
-      if (!paneAcik && oyunda) {
+      if (!paneAcik && oyunda && !teslimde) {
         olaylar(oturumIlerlet(oturum, dt, rng));
         ruhSesleri();
       }
@@ -196,6 +199,10 @@
 
   /** Tava krebi tabağa kaydırdı */
   function tabagaGeldi(p: TabakParcasi) {
+    if (teslimde) { // teslim sürerken tavadan gelen krep, teslim bitince tabağa eklenir
+      bekleyenParcalar.push(p);
+      return;
+    }
     if (tabak.length >= AYAR.tabakMax) return;
     tabak.push(p);
     tabakZipla(1.2);
@@ -233,6 +240,7 @@
   }
 
   function koy(id: string) {
+    if (teslimde) return;
     if (tabak.length >= AYAR.tabakMax) return;
     tabak.push({ malzeme: id });
     dusenler.push({ id: ++sayac, ikon: malzeme(id).ikon });
@@ -248,7 +256,7 @@
   }
 
   function bosalt() {
-    if (!tabak.length) return;
+    if (!tabak.length || teslimde) return;
     tabak = [];
     tabakZipla(0.6);
     cal("bonk");
@@ -286,12 +294,54 @@
    */
   function kontrolEt(oyuncuDegistirdi: boolean) {
     const d = tabakDurumu(oturum, tabak);
-    if (d.durum === "dogru") teslim();
+    if (d.durum === "dogru") teslimBaslat();
     else if (d.durum === "yanlis" && oyuncuDegistirdi) {
       sonucGoster("olmadi", nedenYazisi(d.degerlendirme.hatalar[0]), 0);
       cal("boop");
       anim(tabakEl, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], 320);
     }
+  }
+
+  /**
+   * Teslim akışı: son parça kondu → kısa bekleme (krepler tabakta görünür kalır) → tabak, üzerindeki kreplerle birlikte
+   * müşteriye uçar (aynı eleman hareket ettiği için krepler tabaktan ayrılmaz) → müşteri alınca sipariş tamamlanır ve temizlenir.
+   * Teslim sürerken oyun zamanı durur (müşteri giderek siparişi bozmasın) ve tabağa dokunulamaz.
+   */
+  function teslimBaslat() {
+    if (teslimde) return;
+    const d = tabakDurumu(oturum, tabak);
+    if (d.durum !== "dogru") return;
+    const hedefId = d.musteri.id;
+    teslimde = true;
+    setTimeout(() => ucur(hedefId), sahneAyar.teslimBeklemeMs);
+  }
+
+  function ucur(musteriId: number) {
+    const kisi = sahneEl?.querySelector(`[data-m="${musteriId}"]`);
+    if (!kisi || !tabakEl) return teslimBitir(null);
+    const a = tabakEl.getBoundingClientRect();
+    const b = kisi.getBoundingClientRect();
+    const dx = b.left + b.width / 2 - (a.left + a.width / 2);
+    const dy = b.top + b.height * 0.7 - (a.top + a.height * 0.55);
+    cal("whoosh");
+    const an = tabakEl.animate(
+      [
+        { transform: "none", offset: 0 },
+        { transform: "translateY(-12px) scale(1.05)", offset: 0.2, easing: "ease-in-out" },
+        { transform: `translate(${dx}px, ${dy}px) scale(0.42)`, offset: 1 },
+      ],
+      { duration: sahneAyar.teslimUcusMs, easing: "ease-in", fill: "forwards" },
+    );
+    an.onfinish = () => teslimBitir(an);
+  }
+
+  /** Müşteri tabağı aldı: sipariş şimdi tamamlanır, tabak + krepler kaldırılır, boş tabak geri gelir */
+  function teslimBitir(an: Animation | null) {
+    teslim();
+    an?.cancel();
+    teslimde = false;
+    anim(tabakEl, [{ transform: "translateY(26px) scale(0.85)", opacity: 0 }, { transform: "none", opacity: 1 }], 260);
+    for (const p of bekleyenParcalar.splice(0)) tabagaGeldi(p);
   }
 
   function teslim() {
@@ -458,7 +508,7 @@
               </div>
             </aside>
           {/if}
-          <div class="kisi" class:bulut={!ay && ruh(m) === "kotu"}>
+          <div class="kisi" data-m={m.id} class:bulut={!ay && ruh(m) === "kotu"}>
             <Karakter kimlik={m.id} yuz={yuzu(m, ay)} rozet={m.tip !== "normal" ? t.ikon : ""} durum={ay ? ay.durum : "bekle"} sabirsiz={!ay && oran < 0.4} />
             {#if !ay && oran < 0.4}<span class="dusunce" aria-hidden="true">💭</span>{/if}
           </div>
@@ -496,7 +546,7 @@
       </div>
     {/key}
 
-    <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} bind:this={tabakEl}>
+    <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} class:ucuyor={teslimde} bind:this={tabakEl}>
       <!-- Katman sırası: tabak (zemin) → krepler / toppingler (üstte, yüzeyleri açık) -->
       <div class="plaka"></div>
       <div class="kule" bind:this={kuleEl} style:--kw={`${sahneAyar.katman.genislik}px`} style:--kh={`${sahneAyar.katman.yukseklik}px`}>
@@ -751,6 +801,7 @@
   .cop.parla .cop-govde { filter: drop-shadow(0 0 6px var(--vurgu)); }
 
   .tabak { position: relative; z-index: 4; width: 290px; height: 150px; flex: none; animation: tabak-bob 2.8s ease-in-out infinite; }
+  .tabak.ucuyor { z-index: 9; }
   .tabak.hazir .plaka { animation: plaka-parla 0.8s ease-in-out infinite; }
   .tabak.hazir::before { content: "▼"; position: absolute; left: 50%; top: -6px; z-index: 6; margin-left: -10px; color: var(--basari); font-size: 20px; text-shadow: 0 2px 0 var(--kart); animation: zipla-o 0.6s ease-in-out infinite; }
   /* Tabak tava ile aynı eğimde (genişlik/yükseklik ≈ 2,8) bir elips; krep onun üstünde, iç çapına yakın boyutta durur */
