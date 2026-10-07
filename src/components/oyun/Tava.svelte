@@ -513,8 +513,8 @@
   .kv { position: absolute; z-index: 10; color: var(--renk-logo); font-style: normal; font-size: 14px; line-height: 1; text-shadow: 0 1px 0 var(--kart); pointer-events: none; animation: kv 1.1s ease-in-out infinite; }
   .kv.k1 { left: 10px; top: 4px; } .kv.k2 { right: 8px; top: 18px; animation-delay: 0.35s; font-size: 18px; } .kv.k3 { left: 44%; top: -10px; animation-delay: 0.7s; }
   .y.yanikli::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 24% 42%, rgb(0 0 0 / 0.6) 0 6px, transparent 7px), radial-gradient(circle at 60% 28%, rgb(0 0 0 / 0.55) 0 5px, transparent 6px), radial-gradient(circle at 72% 60%, rgb(0 0 0 / 0.6) 0 7px, transparent 8px), radial-gradient(circle at 42% 68%, rgb(0 0 0 / 0.5) 0 4px, transparent 5px); }
-  .sap { position: absolute; left: -62px; top: 38px; width: 92px; height: 17px; border-radius: 9px; background: linear-gradient(var(--sahne-tava), var(--sahne-tava-koyu)); transform: rotate(-14deg); }
-  .sap.sag { left: auto; right: -62px; transform: rotate(14deg); }
+  .sap { position: absolute; left: -62px; top: 38px; width: 92px; height: 17px; border-radius: 9px; background: linear-gradient(var(--sahne-tava), var(--sahne-tava-koyu)); transform: rotate(14deg); }
+  .sap.sag { left: auto; right: -62px; transform: rotate(-14deg); }
   .kasa { position: absolute; inset: 0; border-radius: 50% / 46%; background: radial-gradient(ellipse at 50% 30%, var(--sahne-tava) 0%, var(--sahne-tava-koyu) 100%); box-shadow: 0 10px 0 rgb(0 0 0 / 0.2), inset 0 0 0 5px color-mix(in srgb, var(--sahne-tava) 70%, white); }
   .ic { position: absolute; left: 12px; right: 12px; top: 5px; height: 72px; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, var(--sahne-tava-koyu), color-mix(in srgb, var(--sahne-tava-koyu) 60%, black)); box-shadow: inset 0 3px 0 rgb(0 0 0 / 0.25); }
 
