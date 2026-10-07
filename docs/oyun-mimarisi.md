@@ -4,7 +4,7 @@
 
 > **Sonsuz seviye (7 Ekim 2026):** Bölüm sistemi kaldırıldı; ilerleme artık sonsuz LEVEL'dir. Müşteri, sabır, zorluk eğrisi, açılışlar ve geliştirici modu için tek kaynak: [`sonsuz-seviye.md`](sonsuz-seviye.md). Bu belgedeki bölüm tabloları (§4 `Bolum`, `kuyruk.ts`) tarihsel taslaktır; çelişkide `sonsuz-seviye.md` geçerlidir.
 
-> **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/ServisEkrani.svelte`). Müşteri slotları, sabır halkası ve süre baskısı (bu belgenin §7 ve ilgili kısımları) **henüz uygulanmadı**; eski müşterili ekran kaldırıldı. Karar verilirse G4'te geri getirilir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
+> **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/Restoran.svelte`). Müşteri slotları, sabır halkası ve süre baskısı (bu belgenin §7 ve ilgili kısımları) **henüz uygulanmadı**; eski müşterili ekran kaldırıldı. Karar verilirse G4'te geri getirilir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
 
 ---
 
@@ -62,7 +62,7 @@ src/lib/oyun/                     # saf mantık (+ *.test.ts)
   ses.ts                          # Web Audio ile sentez sesler
 src/lib/kayit.svelte.ts           # sürümlü localStorage kaydı
 src/lib/fisler.svelte.ts          # Rust fis_olustur + Fişlerim listesi
-src/components/oyun/              # ServisEkrani, MusteriSlotu, SiparisKarti, Tava, Tabak,
+src/components/oyun/              # Restoran, MusteriSlotu, SiparisKarti, Tava, Tabak,
                                   # MalzemeRafi, UstCubuk, SonucPenceresi, Geribildirim, Ogretici
 src/components/                   # Bolumler, BolumDetay, Fislerim, Mutfak (Profil güncellenir)
 ```

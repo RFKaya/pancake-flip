@@ -85,7 +85,7 @@ Sipariş, aşağıdan yukarı okunan bir krep kulesidir (ör. *krep · çikolata
 - **Sonsuz seviye:** Seviye başına gereken müşteri sayısı ve zorluk, ayarlanabilir eğrilerden gelir (`src/lib/veri/seviye.json`). Kilometre taşlarında (10, 25, 50, 100, 250, 500, 1000) özel başlıklar çıkar; seviye atlama oyunu durdurmaz.
 - **Kademeli açılışlar:** Çevirme (3), çikolata (5), çilek dilimi (8), çilek sosu ve çocuk müşteri (10), tereyağı (12), aynı anda 2 müşteri + 2. tava (15), kalınlık tercihi (20), eleştirmen (30), VIP ve fındık (50), 3 müşteri (75), yoğun saat (150)… Tam liste: [`docs/sonsuz-seviye.md`](docs/sonsuz-seviye.md#4-açılışlar-milestonelar).
 - **Fişlerim (adisyonlar):** Kilometre taşlarında ve her 10. seviyede bir adisyon kaydedilir. Kod, Tauri uygulamasında **Rust** komutu `fis_olustur` ile `KRP-BBB-YXXXXXX` biçiminde üretilir; tarayıcıda çalışırken `WEB-…` yedek kodu kullanılır.
-- **Canlı lobi:** Ana ekran bir mutfak sahnesidir (tava, krep, tabak, pencerede bekleyen müşteriler); büyük **OYNA** düğmesi oyuna yakınlaşarak geçer. Sahne seviyeyle gelişir (müşteri ve tava sayısı, süsler).
+- **Canlı lobi:** Ana ekran oyunun kendi sahnesidir (aynı tava, tabak, duvar); büyük **OYNA** düğmesi sayfa/kamera değiştirmez, aynı sahne lobi durumundan oyun durumuna geçer.
 - **Kayıt cihazda:** İlerleme, coin ve adisyonlar yalnızca `localStorage`'da, sürümlü JSON olarak tutulur; bozuk veya eski kayıtla oyun çökmez. Kişisel veri toplanmaz.
 - **Geliştirici modu (🛠):** Oyunda seviye seçme, ±1/±10, MAX, ilerlemeyi sıfırlama; test seviyesi gerçek kaydı bozmaz (`bun run dev`'de açık, yayında `?dev=1`).
 - **Ses ve tema:** Web Audio ile üretilen kısa efekt sesleri (ses dosyası yok); gece / gündüz teması.
@@ -97,8 +97,7 @@ Sipariş, aşağıdan yukarı okunan bir krep kulesidir (ör. *krep · çikolata
 
 | Rota | Ekran |
 |---|---|
-| `/` | **Lobi**: mutfak sahnesi, küçük LEVEL rozeti, coin, `?` ve `⚙`, büyük **OYNA** |
-| `/oyna` | **Oyun**: sipariş fişleri, tava(lar), tabak, malzeme ve servis düğmeleri (tam ekran) |
+| `/` | **Restoran sahnesi**: lobi durumu (LEVEL, coin, `?`, `⚙`, büyük **OYNA**) ve oyun durumu (sipariş fişleri, tava(lar), tabak, malzeme düğmeleri) aynı sayfada |
 | `/fislerim` | **Fişlerim**: kaydedilen adisyonlar, en yenisi üstte |
 | `/profil` | **Profil**: yerel ad, adisyon sayısı, bilgi sayfalarına bağlantılar |
 | `/hakkinda`, `/iletisim`, `/kosullar`, `/gizlilik` | Bilgi sayfaları (`/en/…`, `/ar/…`, `/fa/…` sürümleriyle) |
@@ -162,7 +161,7 @@ Ayrıntılı kurulum notları: [`docs/kurulum.md`](docs/kurulum.md).
 
 | Yer | İçerik |
 |---|---|
-| `src/pages/` | Rotalar (`index.astro`, `oyna.astro`, `fislerim.astro`, bilgi sayfaları) |
+| `src/pages/` | Rotalar (`index.astro`, `fislerim.astro`, bilgi sayfaları) |
 | `src/components/` | Svelte ekranları; oyun ekranı bileşenleri `src/components/oyun/` |
 | `src/lib/oyun/` | Saf oyun mantığı ve testleri |
 | `src/lib/veri/` | Oyun verileri (JSON) |

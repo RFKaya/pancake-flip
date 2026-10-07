@@ -1,8 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Ana from '../components/Ana.svelte';
+import Restoran from '../components/oyun/Restoran.svelte';
 ---
 
 <Layout title="Pancake Flip!" sahne>
-  <Ana client:load />
+  <Restoran client:only="svelte" />
 </Layout>

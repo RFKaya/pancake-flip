@@ -6,7 +6,7 @@
 
 > **Sonsuz seviye (7 Ekim 2026):** Bölüm sistemi kaldırıldı; ilerleme artık sonsuz LEVEL'dir. Müşteri, sabır, zorluk eğrisi, açılışlar ve geliştirici modu için tek kaynak: [`sonsuz-seviye.md`](sonsuz-seviye.md). Bu belgedeki bölüm tabloları (§2.2, §11, §12, §15.1) tarihsel taslaktır; çelişkide `sonsuz-seviye.md` geçerlidir.
 
-> **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/ServisEkrani.svelte`). Müşteri fişleri, sabır çubuğu ve gitme davranışı sonsuz seviye sistemiyle (basit biçimde: 1–3 slot) geri geldi; Çevirme, tercihler, VIP gibi ayrıntılar `sonsuz-seviye.md`'dedir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
+> **Güncel durum (7 Ekim 2026):** Oyun şu an **tek arayüzle** çalışır: hedef sipariş kartı, yüzlü tava, büyük tabak ve ilerleme çubuğu (`src/components/oyun/Restoran.svelte`). Müşteri fişleri, sabır çubuğu ve gitme davranışı sonsuz seviye sistemiyle (basit biçimde: 1–3 slot) geri geldi; Çevirme, tercihler, VIP gibi ayrıntılar `sonsuz-seviye.md`'dedir. Kurallar (§3, §4, §6, §8) ve ekonomi (§9) geçerlidir.
 
 ---
 

@@ -73,8 +73,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 | Oyun sayıları (süre, fiyat, seviye eğrileri) | `src/lib/veri/*.json` (`seviye.json` = sonsuz ilerleme) — **kodda sabit sayı yazma** |
 | JSON'a tipli erişim | `src/lib/oyun/veri.ts` |
 | Tipler | `src/types/oyun.ts` |
-| Oyun ekranı | `src/components/oyun/ServisEkrani.svelte` (düzen, sipariş fişi, tabak) + `Tava.svelte` (tava jestleri ve efektler) → rota `/servis/[id]` |
-| Ana ekran (lobi sahnesi + OYNA) | `src/components/Ana.svelte` → rota `/` (süs eşikleri `src/lib/veri/lobi.json`); oyun rotası `/oyna` |
+| Oyun ekranı | `src/components/oyun/Restoran.svelte` (lobi + oyun, tek sahne: düzen, sipariş fişi, tabak) + `Tava.svelte` (tava jestleri ve efektler) → rota `/` |
 | Kayıt (localStorage, sürümlü) | `src/lib/ilerleme.svelte.ts` (seviye); eski bölüm kaydı `kayit.svelte.ts` kullanılmıyor, Fişlerim yeni modele uyarlanınca silinecek |
 | Bilgi sayfaları (4 dil) | `src/pages/{hakkinda,iletisim,kosullar,gizlilik}`, `src/pages/{en,ar,fa}/`, `src/lib/i18n.ts`, `src/components/bilgi/` |
 | Renkler / tema | `src/styles/app.css` ↔ [`branding.md`](branding.md) (aynı değerler) |
@@ -90,7 +89,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 | Dosya | Neden sıcak |
 |---|---|
-| `src/components/oyun/ServisEkrani.svelte` | Oyunun bütün arayüzü tek dosyada. Büyük bir değişiklikten önce açık PR'lara bak. |
+| `src/components/oyun/Restoran.svelte` | Oyunun bütün arayüzü tek dosyada. Büyük bir değişiklikten önce açık PR'lara bak. |
 | `src/lib/kayit.svelte.ts`, `src/types/oyun.ts` | Herkesin eklediği ortak yer. Sadece **ekleme** yap, mevcut alanları yeniden adlandırma. |
 | `src/styles/app.css` + `docs/branding.md` | İkisi birebir aynı kalmalı; renk eklerken ikisini birlikte güncelle. |
 | `src/lib/veri/*.json` | Denge ayarı. Sayıyı değiştirirsen `oyun-tasarimi.md`'deki değeri de aynı PR'da güncelle. |
