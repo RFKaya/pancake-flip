@@ -3,7 +3,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Kalinlik, MusteriTipi } from "../../types/oyun";
 import { sabirHesapla } from "./musteri";
-import { baglamOlustur, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava } from "./pisirme";
+import { baglamOlustur, cevirKalitesi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava } from "./pisirme";
 import { rngOlustur } from "./rng";
 import { seviyeAyari } from "./seviye";
 import { siparisUret } from "./siparis";
@@ -68,6 +68,63 @@ describe("denge: her sipariş müşterinin sabrı içinde yapılabilir", () => {
             throw new Error(`seviye ${s} ${tip.id}: ${siparis.parcalar.join(",")} (${siparis.tercih ?? "normal"}) ${gereken.toFixed(1)} sn ister, sabır ${sabir.toFixed(1)} sn`);
           }
         }
+      }
+    }
+  });
+});
+
+describe("denge: pişme pencereleri her seviyede insan eliyle yakalanabilir", () => {
+  // Pişmiş yüzü yanmadan çevirmek / kaydırmak için en az bu kadar süre kalmalı (tepki + kaydırma jesti)
+  const EN_AZ_PISMIS_SN = 0.4;
+  // MÜKEMMEL çevirme penceresi en az bu kadar kare sürmeli; daha dar bir pencere 60 fps'te kare zamanlamasına kalır
+  const EN_AZ_MUKEMMEL_KARE = 3;
+
+  /** Hamuru hedefte döker ve yayılmayı bitirir: tava 1. yüzü pişirmeye başlar */
+  function pisirmeyeBasla(seviye: number, kalinlik: Kalinlik) {
+    const c = { ...baglamOlustur(seviye, AYAR), tercihAcik: true };
+    const t = yeniTava();
+    tavaDokBasla(t);
+    while (t.hamur.miktar < AYAR.hamur.hedef[kalinlik]) tavaIlerlet(t, DT, c);
+    tavaBirak(t, c);
+    while (t.faz !== "pisir") tavaIlerlet(t, DT, c);
+    return { t, c };
+  }
+
+  /** Aktif yüzün PİŞMİŞ kaldığı süre (sn): pişmiş olduğu ilk kareden yanana kadar */
+  function pismisSuresi(t: ReturnType<typeof yeniTava>, c: ReturnType<typeof baglamOlustur>): number {
+    let sure = 0;
+    while (t.faz === "pisir") {
+      if (pismeDurumu(t.p[t.yuz], AYAR) === "pismis") sure += DT;
+      tavaIlerlet(t, DT, c);
+    }
+    return sure;
+  }
+
+  test("her seviyede ve kalınlıkta iki yüz de en az 0,4 sn PİŞMİŞ kalır (yanmadan çevrilip alınabilir)", () => {
+    for (const s of SEVIYELER) {
+      for (const k of KALINLIKLAR) {
+        const bir = pisirmeyeBasla(s, k);
+        expect(pismisSuresi(bir.t, bir.c)).toBeGreaterThanOrEqual(EN_AZ_PISMIS_SN);
+
+        const iki = pisirmeyeBasla(s, k);
+        while (!tavaCevir(iki.t, iki.c)) tavaIlerlet(iki.t, DT, iki.c);
+        while (iki.t.faz === "ucus") tavaIlerlet(iki.t, DT, iki.c);
+        expect(iki.t.yuz).toBe(1);
+        expect(pismisSuresi(iki.t, iki.c)).toBeGreaterThanOrEqual(EN_AZ_PISMIS_SN);
+      }
+    }
+  });
+
+  test("MÜKEMMEL çevirme penceresi her seviyede ve kalınlıkta en az 3 kare sürer", () => {
+    for (const s of SEVIYELER) {
+      for (const k of KALINLIKLAR) {
+        const { t, c } = pisirmeyeBasla(s, k);
+        let kare = 0;
+        while (t.faz === "pisir") {
+          if (pismeDurumu(t.p[0], AYAR) === "pismis" && cevirKalitesi(t.p[0], s, AYAR) === "mukemmel") kare++;
+          tavaIlerlet(t, DT, c);
+        }
+        if (kare < EN_AZ_MUKEMMEL_KARE) throw new Error(`seviye ${s} ${k}: mükemmel çevirme yalnızca ${kare} kare`);
       }
     }
   });
