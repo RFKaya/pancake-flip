@@ -41,6 +41,7 @@
         {#if bolge === "cig"}<span class="damla">💧</span>{/if}
         <span class="kaydir">{dokunarakCevir ? "dokun" : "↑"}</span>
       {/if}
+      <div class="yuz-ifade"><i></i><i></i><b></b></div>
     </div>
   </div>
 </div>
@@ -98,13 +99,40 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: var(--renk-koyu);
+    background: radial-gradient(circle at 50% 35%, var(--sahne-tava) 0%, var(--sahne-tava-koyu) 100%);
+    box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--sahne-tava) 70%, white);
+  }
+
+  .yuz-ifade {
+    position: absolute;
+    bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .yuz-ifade i {
+    width: 6px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sahne-yuz);
+  }
+
+  .yuz-ifade b {
+    position: absolute;
+    bottom: -4px;
+    width: 10px;
+    height: 5px;
+    border-bottom: 2px solid var(--sahne-yuz);
+    border-radius: 0 0 10px 10px;
   }
 
   .ipucu {
-    color: var(--ust-yazi);
+    color: var(--sahne-yuz);
     font-size: 13px;
-    opacity: 0.8;
+    opacity: 0.9;
   }
 
   .krep {
@@ -114,6 +142,7 @@
     box-shadow: inset 0 -5px 0 #0003;
   }
 
+  .krep { background-image: linear-gradient(180deg, #ffffff40 0 38%, transparent 38%); }
   .krep.cig { background: var(--krep-cig); }
   .krep.az { background: var(--krep-az); }
   .krep.orta { background: var(--krep-orta); }
@@ -138,10 +167,10 @@
   .kaydir {
     position: absolute;
     top: 3px;
-    color: var(--ust-yazi);
+    color: var(--sahne-yuz);
     font-size: 14px;
     font-weight: 700;
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
   @keyframes parla {
