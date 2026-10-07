@@ -9,6 +9,11 @@ import mdx from '@astrojs/mdx';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
+  i18n: {
+    defaultLocale: 'tr',
+    locales: ['tr', 'en', 'ar', 'fa'],
+    routing: { prefixDefaultLocale: false },
+  },
   integrations: [svelte(), react(), mdx()],
   server: {
     port: 1420,

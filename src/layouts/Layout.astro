@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 import AppHeader from '../components/AppHeader.svelte';
 import AppNav from '../components/AppNav.svelte';
 import '../styles/app.css';
+import { dilBul, yon } from '../lib/i18n';
 
 interface Props {
   title?: string;
@@ -10,10 +11,11 @@ interface Props {
 
 const { title = "Pancake Flip!" } = Astro.props;
 const currentPath = Astro.url.pathname;
+const dil = dilBul(currentPath);
 ---
 
 <!doctype html>
-<html lang="tr">
+<html lang={dil} dir={yon(dil)}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />

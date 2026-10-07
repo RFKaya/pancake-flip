@@ -110,4 +110,23 @@
     border: 1px solid var(--kenar);
     margin-top: 8px;
   }
+
+  .bilgi-baslik {
+    margin: 8px 0 0;
+    font-size: 16px;
+  }
+
+  .bilgi-linkler {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bilgi-linkler a {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--kenar);
+  }
+
+  .bilgi-linkler a:last-child {
+    border-bottom: 0;
+  }
 </style>

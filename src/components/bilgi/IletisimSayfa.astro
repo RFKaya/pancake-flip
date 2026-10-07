@@ -1,0 +1,14 @@
+---
+import BilgiLayout from '../../layouts/BilgiLayout.astro';
+import IletisimFormu from './IletisimFormu.svelte';
+import { iletisimMetni, type Dil } from '../../lib/i18n';
+
+const { dil } = Astro.props as { dil: Dil };
+const m = iletisimMetni[dil];
+---
+
+<BilgiLayout title={`${m.baslik} — Pancake Flip!`}>
+  <h1>✉️ {m.baslik}</h1>
+  <p>{m.giris}</p>
+  <IletisimFormu client:load dil={dil} />
+</BilgiLayout>
