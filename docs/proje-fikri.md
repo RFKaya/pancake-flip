@@ -1,7 +1,6 @@
 # Proje Fikri: Pancake Flip!
 
-- **Öğrenci Adı Soyadı:** [Ad Soyad]
-- **Öğrenci Numarası:** [Öğrenci No]
+- **Öğrenciler:** Rauf Fatih Kaya (2520191004), Ada Mert Kızılırmak (2520191019)
 - **İlham Alınan Konsept:** Kendi fikrim. Restoran zaman yönetimi oyunları (ör. "Cooking Fever" türü) ile listedeki 5. fikir "Yemeksepeti / Restoran Menü" birleşimi.
 - **Slogan:** Müşteri bekliyor, krep yanıyor: çevir, diz, yetiştir!
 
