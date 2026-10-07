@@ -235,19 +235,18 @@ describe("tava durum makinesi", () => {
     expect(t.faz).toBe("bos");
   });
 
-  test("çevirme açılmadan (seviye 1–2) krep ilk yüzü pişince doğrudan tabağa kayar", () => {
+  test("seviye 1'de bile krep çevrilmeden tabağa alınamaz: iki yüzü de pişmeli", () => {
     const C1 = baglamOlustur(1, A);
-    expect(C1.cevirmeAcik).toBe(false);
+    expect(C1.cevirmeAcik).toBe(true);
     const t = yeniTava();
     tavaDokBasla(t);
     for (let i = 0; i < 90; i++) tavaIlerlet(t, 0.01, C1);
     tavaBirak(t, C1);
     for (let i = 0; i < 50; i++) tavaIlerlet(t, 0.01, C1);
     for (let i = 0; i < Math.round(A.pisirme.yuzSuresi / 0.01); i++) tavaIlerlet(t, 0.01, C1);
-    expect(tavaCevir(t, C1)).toBeNull(); // çevirme yok
+    expect(tavaServis(t, C1)).toBeNull(); // 1. yüz pişse de ters yüz çiğ: servis yok
     expect(t.faz).toBe("pisir");
-    expect(tavaServis(t, C1)).toEqual({ malzeme: "krep", pisme: "iyi", kalinlik: "normal", usta: true });
-    expect(t.faz).toBe("kayma");
+    expect(tavaCevir(t, C1)).not.toBeNull();
   });
 
   test("kazara dokunuş (az hamur) tavayı boş bırakır", () => {

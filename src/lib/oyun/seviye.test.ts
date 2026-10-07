@@ -93,13 +93,12 @@ describe("seviyeAyari: uç seviyelerde saçmalamaz", () => {
     expect(seviyeAyari(1e9).menu).toEqual(seviyeAyari(1000).menu);
   });
 
-  test("seviye 1: yalnızca sade krep, çevirme yok, tek müşteri; 3'te çevirme; 15'te 2 müşteri + 2 tava", () => {
+  test("seviye 1: yalnızca sade krep, çevirme baştan zorunlu, tek müşteri; 15'te 2 müşteri + 2 tava", () => {
     const s1 = seviyeAyari(1);
     expect(s1.menu).toEqual([]);
     expect(s1.krep).toEqual([1, 1]);
-    expect(s1.cevirmeAcik).toBe(false);
+    expect(s1.cevirmeAcik).toBe(true);
     expect(s1.eszamanli).toBe(1);
-    expect(seviyeAyari(2).cevirmeAcik).toBe(false);
     expect(seviyeAyari(3).cevirmeAcik).toBe(true);
     expect(seviyeAyari(4).menu).toEqual([]);
     expect(seviyeAyari(5).menu).toEqual(["cikolata"]);
@@ -197,7 +196,7 @@ describe("seviye sınırlama ve biçimlendirme", () => {
     expect(acilislar(5).map((a) => a.id)).toEqual(["cikolata"]);
     expect(acilislar(10).map((a) => a.id).sort()).toEqual(["cilek-sosu", "cocuk"]);
     expect(acilislar(6)).toEqual([]);
-    expect(sonrakiAcilis(1).map((a) => a.id)).toEqual(["cevirme"]);
+    expect(sonrakiAcilis(1).map((a) => a.id)).toEqual(["cikolata"]);
     expect(sonrakiAcilis(1e9)).toEqual([]);
     expect([10, 25, 50, 100, 250, 500].map((L) => kilometreTasi(L)?.baslik)).toEqual([
       "YENİ MÜŞTERİLER!", "YENİ SOSLAR!", "VIP MÜŞTERİLER!", "MASTER CHEF!", "PANCAKE LEGEND!", "PANCAKE GOD!",

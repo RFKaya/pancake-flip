@@ -57,8 +57,7 @@ Malzeme ve müşteri açılışları ilgili JSON'daki `acilis` (seviye) alanınd
 
 | Seviye | Yenilik |
 |---|---|
-| 1 | Sade krep, tek müşteri, çevirme **yok** (ilk yüz pişince aşağı kaydır) |
-| 3 | 🔄 Çevirme |
+| 1 | Sade krep, tek müşteri. Çevirme baştan zorunludur: her krebin iki yüzü de pişmeden tabağa alınamaz |
 | 5 | 🍫 Çikolata |
 | 8 | 🍒 Çilek dilimi |
 | 10 | 🍓 Çilek sosu, 🧒 Çocuk müşteri |

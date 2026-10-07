@@ -136,7 +136,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 **Elle test ipuçları**
 - Belirli bir seviyeyi denemek için oyunda 🛠 geliştirici paneli → **Set Level** (gerçek kaydı bozmaz). Kaydı sıfırlamak: `localStorage.removeItem("pancakeflip-ilerleme")`. Yayın derlemesinde panel için adrese `?dev=1` ekle.
-- Seviye 1: yalnızca krep ve çevirme yok. 3'te çevirme, 5'te çikolata, 8'de çilek dilimi, 10'da çilek sosu, 15'te 2 müşteri + 2 tava (tam liste: `sonsuz-seviye.md` §4).
+- Seviye 1: yalnızca krep; çevirme baştan zorunlu (iki yüzü de pişer). 5'te çikolata, 8'de çilek dilimi, 10'da çilek sosu, 15'te 2 müşteri + 2 tava (tam liste: `sonsuz-seviye.md` §4).
 
 ---
 
