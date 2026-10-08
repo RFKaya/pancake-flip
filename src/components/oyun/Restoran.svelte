@@ -889,7 +889,7 @@
   .coin { position: absolute; z-index: 30; width: 22px; height: 22px; margin: -11px 0 0 -11px; font-size: 20px; line-height: 22px; text-align: center; pointer-events: none; animation: para-uc 0.62s cubic-bezier(0.5, 0, 0.75, 0.6) backwards; }
 
   /* Başarı damgası: teslimin yapıldığı tabağın üstünde, kısa ve dokunsal; büyük bir pano değil */
-  .mesaj { position: absolute; left: 50%; top: 18px; z-index: 8; padding: 4px 16px 6px; border-radius: 16px; border: 3px solid var(--renk-ana); background: var(--kart); box-shadow: 0 4px 0 var(--renk-ana); text-align: center; white-space: nowrap; pointer-events: none; transform: translateX(-50%) rotate(-4deg); animation: damga 1.5s ease-out forwards; }
+  .mesaj { position: absolute; left: 50%; top: 18px; z-index: 80; padding: 4px 16px 6px; border-radius: 16px; border: 3px solid var(--renk-ana); background: var(--kart); box-shadow: 0 4px 0 var(--renk-ana); text-align: center; white-space: nowrap; pointer-events: none; transform: translateX(-50%) rotate(-4deg); animation: damga 1.5s ease-out forwards; }
   .mesaj .ana { font-size: 28px; font-weight: 900; line-height: 1.1; color: var(--renk-ana); letter-spacing: 0.5px; }
   .mesaj.perfect { border-color: var(--basari); box-shadow: 0 4px 0 var(--basari); } .mesaj.perfect .ana { color: var(--basari); font-size: 32px; }
   .mesaj.olmadi { border-color: var(--vurgu); box-shadow: 0 4px 0 var(--vurgu); transform: translateX(-50%) rotate(2deg); } .mesaj.olmadi .ana { color: var(--vurgu); font-size: 24px; }
