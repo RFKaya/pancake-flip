@@ -605,12 +605,15 @@
           </div>
         {/key}
       {/if}
-      <div class="kule" bind:this={kuleEl} style:--kw={`${sahneAyar.katman.genislik}px`} style:--kh={`${sahneAyar.katman.yukseklik}px`}>
+      <div class="kule" class:dolu={katmanlar.length > 0} bind:this={kuleEl} style:--kw={`${sahneAyar.katman.genislik}px`} style:--kh={`${sahneAyar.katman.yukseklik}px`}>
         {#each katmanlar as k, i (i)}
           {#if k.p.malzeme === "krep"}
-            <div class="t-krep {k.p.pisme} {k.p.kalinlik ?? 'normal'}" class:yeni={i === katmanlar.length - 1} style:bottom={`${k.y}px`} style:z-index={i + 1} style:--d={`${k.d}px`}><span class="parlak"></span></div>
+            <div class="t-krep {k.p.pisme} {k.p.kalinlik ?? 'normal'}" class:yeni={i === katmanlar.length - 1} style:bottom={`${k.y}px`} style:z-index={i + 1} style:--d={`${k.d}px`} style:--kay={`${i % 2 ? 2 : -2}px`}><span class="parlak"></span></div>
           {:else}
-            <div class="t-ek" class:yeni={i === katmanlar.length - 1} style:bottom={`${k.y}px`} style:z-index={i + 1}>{malzeme(k.p.malzeme).ikon}</div>
+            <!-- Ara dolgu (üstünde krep var): yığının kenarından taşar, yoksa üstteki krebin altında kalıp görünmezdi -->
+            {@const ara = katmanlar.slice(i + 1).some((x) => x.p.malzeme === "krep")}
+            {@const sira = katmanlar.slice(0, i).filter((x) => x.p.malzeme !== "krep").length}
+            <div class="t-ek" class:yeni={i === katmanlar.length - 1} class:ara class:sol={ara && sira % 2 === 1} style:bottom={`${k.y}px`} style:z-index={ara ? 60 : i + 1}>{malzeme(k.p.malzeme).ikon}</div>
           {/if}
         {/each}
       </div>
@@ -861,22 +864,32 @@
   .tabak.hazir::before { content: "▼"; position: absolute; left: 50%; top: -6px; z-index: 6; margin-left: -10px; color: var(--basari); font-size: 20px; text-shadow: 0 2px 0 var(--kart); animation: zipla-o 0.6s ease-in-out infinite; }
   /* Tabak tava ile aynı eğimde (genişlik/yükseklik ≈ 2,8) bir elips; krep onun üstünde, iç çapına yakın boyutta durur */
   .kule { position: absolute; left: 0; right: 0; bottom: 20px; height: 0; }
-  .t-krep { --m: var(--krep-orta); --k: var(--krep-iyi); position: absolute; left: 50%; width: var(--kw); height: var(--kh); margin-left: calc(var(--kw) / -2); border-radius: 50%; background: radial-gradient(ellipse at 50% 42%, var(--m) 0 50%, var(--k) 100%); box-shadow: 0 var(--d) 0 color-mix(in srgb, var(--krep-yanik) 30%, var(--k)); }
+  /* Temas gölgesi: yığının hemen altında, ortada en koyu; filtre yok, yalnızca radyal degrade (kule konumu aynı) */
+  .kule.dolu::before { content: ""; position: absolute; left: 50%; bottom: calc(var(--kh) * -0.12); z-index: 0; width: calc(var(--kw) * 1.04); height: calc(var(--kh) * 0.62); margin-left: calc(var(--kw) * -0.52); border-radius: 50%; background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--renk-koyu) 34%, transparent) 0 40%, color-mix(in srgb, var(--renk-koyu) 12%, transparent) 62%, transparent 72%); pointer-events: none; }
+  /* Tabaktaki krep, tavadaki krebin (Faz 4B) devamı: kızarmış kenar, altında --d (sahne.json kalınlığı) kadar gölgeli yan,
+     üstte ince ışık dudağı. Kutu boyutu ve konumu (iniş noktası) aynı; katmanlar 2 px sağa / sola kayarak yığın gibi durur. */
+  .t-krep { --m: var(--krep-orta); --k: var(--krep-iyi); --kiz: color-mix(in srgb, var(--krep-iyi) 70%, var(--krep-fazla)); --yr: color-mix(in srgb, var(--krep-yanik) 30%, var(--k)); position: absolute; left: 50%; width: var(--kw); height: var(--kh); margin-left: calc(var(--kw) / -2); border-radius: 50%; translate: var(--kay, 0) 0; background: radial-gradient(ellipse at 50% 42%, var(--m) 0 46%, var(--k) 80%, var(--kiz) 100%); box-shadow: inset 0 2px 1px color-mix(in srgb, var(--ust-yazi) 35%, transparent), inset 0 -2px 3px color-mix(in srgb, var(--kiz) 70%, transparent); }
+  /* Yan bant: yalnızca alttaki --d kadarı görünür; degrade alttan başlar: ince kızarmış dikiş, üstünde açık altın kenar */
+  .t-krep::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 50%; transform: translateY(var(--d)); background: linear-gradient(0deg, color-mix(in srgb, var(--kiz) 80%, var(--krep-yanik)) 0, var(--kiz) 2px, var(--k) 4px, color-mix(in srgb, var(--m) 60%, var(--k)) calc(var(--d) + 2px), var(--m) calc(var(--d) + 6px)); }
   .t-krep.yeni, .t-ek.yeni { animation: plop 0.34s cubic-bezier(0.3, 0, 0.4, 1); }
   .t-krep .parlak { position: absolute; left: 14%; right: 14%; top: 8%; height: 30%; border-radius: 50%; background: linear-gradient(180deg, rgb(255 255 255 / 0.4), transparent); }
-  .t-krep.cig { --m: var(--krep-cig); --k: color-mix(in srgb, var(--krep-az) 45%, var(--krep-cig)); }
+  .t-krep.cig { --m: var(--krep-cig); --k: color-mix(in srgb, var(--krep-az) 45%, var(--krep-cig)); --kiz: color-mix(in srgb, var(--krep-az) 35%, var(--krep-cig)); }
   .t-krep.az { --m: var(--krep-az); --k: var(--krep-orta); }
   .t-krep.orta, .t-krep.iyi { --m: var(--krep-orta); --k: var(--krep-iyi); }
-  .t-krep.fazla { --m: var(--krep-fazla); --k: var(--krep-yanik); }
-  .t-krep.yanik { --m: var(--krep-yanik); --k: color-mix(in srgb, var(--krep-yanik) 80%, black); }
-  .t-ek { position: absolute; left: 50%; width: 24px; margin-left: -12px; font-size: 20px; line-height: 1; text-align: center; }
-  .plaka { position: absolute; left: 20px; bottom: 9px; width: 250px; height: 88px; border-radius: 50%; background: radial-gradient(ellipse at 50% 38%, var(--sahne-tabak) 62%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 63%); box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu); }
+  .t-krep.fazla { --m: var(--krep-fazla); --k: var(--krep-yanik); --kiz: color-mix(in srgb, var(--krep-fazla) 75%, var(--krep-yanik)); }
+  .t-krep.yanik { --m: var(--krep-yanik); --k: color-mix(in srgb, var(--krep-yanik) 80%, black); --kiz: color-mix(in srgb, var(--krep-fazla) 75%, var(--krep-yanik)); }
+  .t-ek { position: absolute; left: 50%; width: 24px; margin-left: -12px; font-size: 20px; line-height: 1; text-align: center; text-shadow: 0 2px 0 color-mix(in srgb, var(--renk-koyu) 22%, transparent); }
+  /* Ara dolgu: krepler arasından sağ / sol kenarda dışarı taşar (yalnızca konum; sıra ve sayı aynı) */
+  .t-ek.ara { margin-left: calc(var(--kw) * 0.36 - 9px); font-size: 17px; }
+  .t-ek.ara.sol { margin-left: calc(var(--kw) * -0.36 - 15px); }
+  /* Tabak: yalnızca görünüm (ölçülmez). Kenar turkuaz, iç çukur kremle yumuşatılmış ve sığ; ince kenar ışığı. Krep odak noktası */
+  .plaka { position: absolute; left: 20px; bottom: 9px; width: 250px; height: 88px; border-radius: 50%; background: radial-gradient(ellipse at 50% 46%, color-mix(in srgb, var(--sahne-tabak) 55%, var(--ust-yazi)) 0 52%, color-mix(in srgb, var(--sahne-tabak) 80%, var(--ust-yazi)) 66%, var(--sahne-tabak) 70%, color-mix(in srgb, var(--sahne-tabak) 70%, var(--ust-yazi)) 74%, var(--sahne-tabak) 80%); box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--sahne-tabak-koyu) 55%, transparent), inset 0 3px 2px color-mix(in srgb, var(--ust-yazi) 60%, transparent), 0 7px 0 var(--sahne-tabak-koyu); }
   .dusen { position: absolute; left: 50%; bottom: 60px; z-index: 3; margin-left: -12px; font-size: 24px; pointer-events: none; animation: dus 0.4s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
   /* Ödül parası: müşterinin önündeki tabaktan üst bardaki kasaya kısa bir yay çizerek uçar (yalnızca transform / opacity) */
   .coin { position: absolute; z-index: 30; width: 22px; height: 22px; margin: -11px 0 0 -11px; font-size: 20px; line-height: 22px; text-align: center; pointer-events: none; animation: para-uc 0.62s cubic-bezier(0.5, 0, 0.75, 0.6) backwards; }
 
   /* Başarı damgası: teslimin yapıldığı tabağın üstünde, kısa ve dokunsal; büyük bir pano değil */
-  .mesaj { position: absolute; left: 50%; top: 18px; z-index: 8; padding: 4px 16px 6px; border-radius: 16px; border: 3px solid var(--renk-ana); background: var(--kart); box-shadow: 0 4px 0 var(--renk-ana); text-align: center; white-space: nowrap; pointer-events: none; transform: translateX(-50%) rotate(-4deg); animation: damga 1.5s ease-out forwards; }
+  .mesaj { position: absolute; left: 50%; top: 18px; z-index: 80; padding: 4px 16px 6px; border-radius: 16px; border: 3px solid var(--renk-ana); background: var(--kart); box-shadow: 0 4px 0 var(--renk-ana); text-align: center; white-space: nowrap; pointer-events: none; transform: translateX(-50%) rotate(-4deg); animation: damga 1.5s ease-out forwards; }
   .mesaj .ana { font-size: 28px; font-weight: 900; line-height: 1.1; color: var(--renk-ana); letter-spacing: 0.5px; }
   .mesaj.perfect { border-color: var(--basari); box-shadow: 0 4px 0 var(--basari); } .mesaj.perfect .ana { color: var(--basari); font-size: 32px; }
   .mesaj.olmadi { border-color: var(--vurgu); box-shadow: 0 4px 0 var(--vurgu); transform: translateX(-50%) rotate(2deg); } .mesaj.olmadi .ana { color: var(--vurgu); font-size: 24px; }
@@ -924,7 +937,7 @@
   @keyframes balon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
   @keyframes kap-sal { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-4px) rotate(-3deg); } 60% { transform: translateY(0) rotate(2deg); } }
   @keyframes tabak-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
-  @keyframes plaka-parla { 50% { box-shadow: inset 0 -8px 0 rgb(0 0 0 / 0.13), 0 9px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
+  @keyframes plaka-parla { 50% { box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--sahne-tabak-koyu) 55%, transparent), inset 0 3px 2px color-mix(in srgb, var(--ust-yazi) 60%, transparent), 0 7px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
   @keyframes plop { 0% { transform: translateY(-20px) scale(1.04, 1.1); opacity: 0.6; } 55% { transform: translateY(1px) scale(1.08, 0.86); opacity: 1; } 80% { transform: scale(0.98, 1.05); } 100% { transform: none; } }
   @keyframes zipla-o { 50% { transform: translateY(6px); } }
   @keyframes tedirgin { 25% { translate: -1px 0; } 75% { translate: 1px 0; } }
