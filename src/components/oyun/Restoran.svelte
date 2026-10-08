@@ -14,7 +14,7 @@
   import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type OturumOlayi, type SeviyeAtlama } from "$lib/oyun/oturum";
   import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
-  import { sayiKisalt, type Acilis } from "$lib/oyun/seviye";
+  import { sayiKisalt, sonrakiAcilis, type Acilis } from "$lib/oyun/seviye";
   import { cal, coinYagmuru, sesYukle } from "$lib/oyun/ses";
   import { AYAR, malzeme, tip as tipBul } from "$lib/oyun/veri";
   import sahneAyar from "$lib/veri/sahne.json";
@@ -89,6 +89,15 @@
   const olcek = $derived(tavaSayisi > 1 ? 0.62 : 1);
   const doluOran = $derived(barDolu ? 1 : Math.min(1, oturum.ilerleme / sv.gerekenMusteri));
   const ilerlemeYazi = $derived(`${Math.floor(oturum.ilerleme)} / ${sayiKisalt(sv.gerekenMusteri)}`);
+  /** Lobideki şef karatahtası: profilde girilen ad (Profil.svelte, "kullanici") ve sıradaki gerçek yenilik */
+  const sefAdi = (() => {
+    try {
+      return (localStorage.getItem("kullanici") ?? "").trim();
+    } catch {
+      return "";
+    }
+  })();
+  const sonraki = $derived(sonrakiAcilis(oturum.seviye));
 
   /** Tabaktaki parçaların, siparişin başından kaçı yerli yerinde (fişte ✓ olarak gösterilir) */
   const onek = (parcalar: string[]) => {
@@ -477,7 +486,7 @@
     {/if}
   </header>
 
-  <div class="ilerleme" aria-label={`Sonraki seviyeye ${ilerlemeYazi} müşteri`}>
+  <div class="ilerleme" class:gizli={!oyunda} aria-label={`Sonraki seviyeye ${ilerlemeYazi} müşteri`}>
     <div class="cubuk"><div class="dolu" class:dolu-tam={barDolu} style:transform={`scaleX(${doluOran})`}></div></div>
     <span class="ilerleme-yazi">{ilerlemeYazi} müşteri</span>
   </div>
@@ -501,6 +510,18 @@
     <div class="tabela" class:gizli={oyunda} aria-hidden="true">
       <span class="ip sol"></span><span class="ip sag"></span>
       <b>pancake<em>flip</em></b>
+    </div>
+
+    <!-- Lobi: şef tezgâhın başında, yanında kendi karatahtası (gerçek kayıt: ad, seviye ilerlemesi, sıradaki yenilik) -->
+    <div class="sef" class:gizli={oyunda} aria-hidden={oyunda}>
+      <div class="kisi sef-kisi"><Karakter kimlik={0} yuz="👨‍🍳" /></div>
+      <div class="karatahta">
+        <b class="sef-ad">Şef{sefAdi ? ` ${sefAdi}` : ""}</b>
+        <span class="sef-seviye">Seviye {sayiKisalt(oturum.seviye)} <i>→ {sayiKisalt(oturum.seviye + 1)} · {ilerlemeYazi}</i></span>
+        <span class="sef-cubuk"><i style:transform={`scaleX(${doluOran})`}></i></span>
+        {#if oturum.toplamMusteri === 0}<small>İlk müşterin kapıda!</small>
+        {:else if sonraki.length}<small class="sef-yeni">Sıradaki: {sonraki[0].ikon} {sonraki[0].ad}</small>{/if}
+      </div>
     </div>
 
     <div class="musteriler" class:gizli={!oyunda}>
@@ -623,8 +644,8 @@
       {/each}
     </div>
 
-    <span class="tabak-yigini" aria-hidden="true"><i></i><i></i><i></i></span>
-    <button class="cop" class:parla={tabakYanlis} class:acik={copAt || tabak.length > 0} onpointerdown={bosalt} aria-label="Tabağı çöpe at">
+    <span class="tabak-yigini" class:gizli={!oyunda} aria-hidden="true"><i></i><i></i><i></i></span>
+    <button class="cop" class:gizli={!oyunda} tabindex={oyunda ? 0 : -1} class:parla={tabakYanlis} class:acik={copAt || tabak.length > 0} onpointerdown={bosalt} aria-label="Tabağı çöpe at">
       <i class="cop-kapak"></i><i class="cop-govde"></i>
     </button>
   </main>
@@ -648,7 +669,7 @@
 
 
   <button class="oyna" class:gizli={oyunda} onclick={oyna} tabindex={oyunda ? -1 : 0}>
-    <span class="ok">▶</span> OYNA
+    <span class="ok" aria-hidden="true">▶</span> OYNA
   </button>
 
   <footer class="alt-bar" class:cift-sira={menu.length > 4} class:gizli={!oyunda} inert={!oyunda}>
@@ -696,8 +717,10 @@
 
   /* Lobi ↔ oyun: yalnızca opacity/transform, kısa; sahne (kamera, tava, tabak) yerinde kalır */
   .gizli { opacity: 0; pointer-events: none; }
-  .musteriler, .tabela, .lobi-ust, .geri, .oyna, .alt-bar { transition: opacity 0.3s ease, transform 0.3s ease; }
+  .musteriler, .tabela, .lobi-ust, .geri, .oyna, .alt-bar, .sef, .ilerleme, .tabak-yigini, .cop { transition: opacity 0.3s ease, transform 0.3s ease; }
   .musteriler.gizli { transform: translateY(12px); }
+  /* OYNA'ya basınca şef kenara çekilir, yerini müşteriler alır (yalnızca opacity / transform, gecikme yok) */
+  .sef.gizli { transform: translateX(-18px); }
   .alt-bar.gizli { transform: translateY(24px); }
   .lobi-ust { display: flex; gap: 6px; }
   .lobi-ust.gizli { position: absolute; right: 0; }
@@ -706,7 +729,10 @@
   .yuvarlak:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--kenar); }
 
   .tabela { position: absolute; left: 50%; top: 40px; z-index: 3; padding: 8px 18px 10px; border-radius: 14px; background: linear-gradient(180deg, var(--krep-iyi), color-mix(in srgb, var(--krep-iyi) 70%, black)); box-shadow: 0 5px 0 rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.18); transform-origin: 50% -26px; translate: -50% 0; animation: salin 4.5s ease-in-out infinite; }
-  .tabela b { display: block; color: var(--ust-yazi); font-size: 24px; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
+  .tabela b { display: block; color: var(--ust-yazi); font-size: 24px; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; text-shadow: 0 2px 0 color-mix(in srgb, var(--renk-koyu) 45%, transparent); }
+  /* Tabela tahtası: iç çerçeve ve ahşap damarı; ipler çivilere bağlı */
+  .tabela::before { content: ""; position: absolute; inset: 4px; border-radius: 10px; border: 1.5px solid color-mix(in srgb, var(--ust-yazi) 28%, transparent); background: repeating-linear-gradient(180deg, transparent 0 7px, color-mix(in srgb, var(--renk-koyu) 10%, transparent) 7px 8px); pointer-events: none; }
+  .ip::before { content: ""; position: absolute; left: -3px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--sahne-tava-koyu); box-shadow: 0 1px 0 color-mix(in srgb, var(--ust-yazi) 50%, transparent); }
   .tabela em { font-style: normal; color: var(--renk-logo); }
   .ip { position: absolute; top: -26px; width: 2px; height: 28px; background: var(--sahne-tezgah-koyu); }
   .ip.sol { left: 22px; transform: rotate(14deg); }
@@ -715,12 +741,17 @@
   /* OYNA: alt menünün hemen üstünde; basınca kaybolur, yerini (alt menüyle birlikte) malzeme çubuğu alır */
   .oyna { position: absolute; left: 50%; bottom: calc(62px + 14px + env(safe-area-inset-bottom)); z-index: 12; display: flex; align-items: center; justify-content: center; gap: 10px; width: min(calc(100% - 48px), 300px); padding: 14px 24px; border: 0; border-radius: 999px; background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 80%, white) 0%, var(--renk-ana) 55%); color: var(--renk-ana-yazi); box-shadow: 0 7px 0 color-mix(in srgb, var(--renk-ana) 55%, black), 0 12px 20px rgb(0 0 0 / 0.18), inset 0 2px 0 rgb(255 255 255 / 0.35); font-size: 28px; font-weight: 900; letter-spacing: 2px; translate: -50% 0; -webkit-tap-highlight-color: transparent; animation: cagir 2.4s ease-in-out infinite; }
   .oyna.gizli { animation: none; transform: translateY(12px); }
-  .oyna .ok { font-size: 22px; }
-  .oyna:active { animation: none; transform: translateY(6px) scale(0.96); box-shadow: 0 1px 0 color-mix(in srgb, var(--renk-ana) 55%, black), 0 4px 10px rgb(0 0 0 / 0.15); }
+  /* ▶ krem bir yuvarlak içinde çilek renginde; üstte parlak cila, ara sıra üstünden ışık geçer */
+  .oyna .ok { display: grid; place-items: center; width: 34px; height: 34px; padding-left: 3px; border-radius: 50%; background: var(--ust-yazi); color: var(--vurgu); font-size: 17px; box-shadow: 0 3px 0 color-mix(in srgb, var(--renk-ana) 55%, black); }
+  .oyna { overflow: hidden; text-shadow: 0 2px 0 color-mix(in srgb, var(--renk-ana) 55%, black); }
+  .oyna::before { content: ""; position: absolute; left: 14px; right: 14px; top: 4px; height: 38%; border-radius: 999px; background: linear-gradient(180deg, rgb(255 255 255 / 0.32), transparent); pointer-events: none; }
+  .oyna::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.35), transparent); transform: translateX(0) skewX(-18deg); pointer-events: none; animation: isilti 4.8s ease-in-out 1.2s infinite; }
+  .oyna:active { animation: none; transform: translateY(6px) scale(0.96); background: linear-gradient(180deg, var(--renk-ana) 0%, color-mix(in srgb, var(--renk-ana) 85%, black) 100%); box-shadow: 0 1px 0 color-mix(in srgb, var(--renk-ana) 55%, black), 0 4px 10px rgb(0 0 0 / 0.15), inset 0 3px 6px rgb(0 0 0 / 0.18); }
   .oyna:focus-visible { outline: 3px solid var(--renk-logo); outline-offset: 4px; }
   @keyframes cagir { 0%, 70%, 100% { transform: translateY(0) scale(1); } 80% { transform: translateY(-5px) scale(1.03); } 90% { transform: translateY(0) scale(0.99); } }
   @keyframes salin { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-  @media (prefers-reduced-motion: reduce) { .oyna, .tabela { animation: none; } }
+  @keyframes isilti { 0%, 70% { transform: translateX(0) skewX(-18deg); } 100% { transform: translateX(560%) skewX(-18deg); } }
+  @media (prefers-reduced-motion: reduce) { .oyna, .tabela, .oyna::after { animation: none; } .oyna::after { display: none; } }
 
   .ust { position: relative; z-index: 10; display: flex; flex: none; height: 40px; align-items: center; gap: 8px; width: 100%; }
   .bosluk { flex: 1; }
@@ -772,6 +803,18 @@
   .r-kavanoz i { position: absolute; left: 1px; right: 1px; bottom: 1px; height: 55%; border-radius: 2px 2px 5px 5px; background: var(--vurgu); }
   .r-kavanoz::before { content: ""; position: absolute; left: 1px; right: 1px; top: -6px; height: 5px; border-radius: 3px; background: var(--renk-ana); }
   .r-sus { position: absolute; right: 2px; bottom: 7px; font-size: 22px; line-height: 1; }
+
+  /* Lobi şefi ve karatahtası: müşterilerin duracağı yerde; yazılar karatahtada krem tebeşir */
+  .sef { position: absolute; left: 14px; bottom: 6px; z-index: 5; display: flex; align-items: flex-end; gap: 10px; }
+  .sef-kisi { flex: none; }
+  .karatahta { display: flex; flex-direction: column; gap: 2px; width: 150px; margin-bottom: 12px; padding: 5px 9px 6px; border-radius: 8px; border: 4px solid var(--sahne-tezgah-koyu); background: radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--ust-yazi) 8%, var(--renk-koyu)), var(--renk-koyu)); box-shadow: 0 4px 0 color-mix(in srgb, var(--sahne-tezgah-koyu) 70%, black), inset 0 0 0 1px color-mix(in srgb, var(--ust-yazi) 10%, transparent); color: var(--ust-yazi); line-height: 1.2; transform: rotate(-1deg); }
+  .sef-ad { overflow: hidden; font-size: 14px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+  .sef-seviye { overflow: hidden; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; color: var(--renk-logo); }
+  .sef-seviye i { font-style: normal; opacity: 0.75; }
+  .sef-cubuk { display: block; height: 5px; margin: 1px 0; overflow: hidden; border-radius: 3px; background: color-mix(in srgb, var(--ust-yazi) 18%, transparent); }
+  .sef-cubuk i { display: block; height: 100%; border-radius: 3px; background: var(--renk-logo); transform-origin: left center; }
+  .karatahta small { overflow: hidden; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; opacity: 0.9; }
+  .karatahta .sef-yeni { color: color-mix(in srgb, var(--ust-yazi) 80%, var(--renk-logo)); }
 
   /* Müşteriler + fişleri: fiş kişinin başının üstünde asılı, fişteki portre aynı kişi */
   .musteriler { position: absolute; left: 8px; right: 8px; bottom: 6px; z-index: 5; display: flex; align-items: flex-end; gap: 6px; }
