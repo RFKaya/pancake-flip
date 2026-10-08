@@ -595,6 +595,7 @@
 
     <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} class:ucuyor={teslimde} bind:this={tabakEl}>
       <!-- Katman sırası: tabak (zemin) → krepler / toppingler (üstte, yüzeyleri açık) -->
+      <i class="plaka-golge" aria-hidden="true"></i>
       <div class="plaka"></div>
       {#if sonuc}
         {#key sonuc}
@@ -740,8 +741,10 @@
 
   /* Duvar */
   .duvar { position: relative; flex: none; width: calc(100% + 24px); height: 204px; margin: 6px -12px 0; overflow: hidden; }
-  .kagit { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 22px, rgb(255 255 255 / 0.22) 22px 44px), linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--sahne-tezgah-koyu) 30%, transparent) 62% 100%); }
-  .kagit::after { content: ""; position: absolute; left: 0; right: 0; top: 62%; height: 4px; background: rgb(255 255 255 / 0.5); }
+  /* Duvar kâğıdı: üstte iki sıcak lamba ışığı, çizgili kâğıt; alt bantta seramik karo, aralarında tahta pervaz */
+  .kagit { position: absolute; inset: 0; background: radial-gradient(ellipse 44% 52% at 22% 0, color-mix(in srgb, var(--ust-yazi) 60%, transparent), transparent), radial-gradient(ellipse 44% 52% at 78% 0, color-mix(in srgb, var(--ust-yazi) 48%, transparent), transparent), repeating-linear-gradient(90deg, transparent 0 22px, rgb(255 255 255 / 0.22) 22px 44px) 0 0 / 100% 62% no-repeat; }
+  .kagit::before { content: ""; position: absolute; left: 0; right: 0; top: 62%; bottom: 0; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--ust-yazi) 45%, transparent) 0 1.5px, transparent 1.5px 26px), repeating-linear-gradient(180deg, color-mix(in srgb, var(--ust-yazi) 45%, transparent) 0 1.5px, transparent 1.5px 19px), linear-gradient(180deg, color-mix(in srgb, var(--sahne-tezgah-koyu) 26%, transparent), color-mix(in srgb, var(--sahne-tezgah-koyu) 40%, transparent)); }
+  .kagit::after { content: ""; position: absolute; left: 0; right: 0; top: calc(62% - 4px); height: 7px; background: linear-gradient(180deg, color-mix(in srgb, var(--ust-yazi) 70%, var(--sahne-tezgah)) 0 2px, var(--sahne-tezgah) 2px); box-shadow: 0 2px 0 color-mix(in srgb, var(--sahne-tezgah-koyu) 70%, transparent); }
 
   /* Arka plan: uzakta oturan, sönük konuklar (oyunun önüne geçmesin) */
   .arka-masalar { position: absolute; inset: 0; opacity: 0.55; filter: blur(0.6px); }
@@ -777,6 +780,8 @@
   .kolon.hedef .kisi { transform: scale(1.08); transform-origin: 50% 100%; }
   .kisi { position: relative; height: 62px; margin-bottom: -2px; transition: transform 0.25s; }
   .kisi :global(.kr) { margin: 0 auto; }
+  /* Müşteri duvardan ayrılsın: başın arkasında yumuşak ışık, tezgâha yaslandığı yerde gölge (yalnızca görünüm, kutu aynı) */
+  .kisi::before { content: ""; position: absolute; left: 50%; top: -10px; bottom: -6px; z-index: -1; width: 104px; margin-left: -52px; background: radial-gradient(ellipse 34% 36% at 60% 50%, color-mix(in srgb, var(--renk-koyu) 13%, transparent), transparent), radial-gradient(ellipse 48% 42% at 46% 30%, color-mix(in srgb, var(--ust-yazi) 80%, transparent), transparent), radial-gradient(ellipse 42% 16% at 50% 94%, color-mix(in srgb, var(--renk-koyu) 26%, transparent), transparent); pointer-events: none; }
   .dusunce { position: absolute; right: -6px; top: -2px; font-size: 16px; animation: balon 1.1s ease-in-out infinite; }
   .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 96px; max-width: 120px; padding: 11px 6px 6px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
   .fis::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; margin-left: -6px; background: var(--kart); border-right: 1px solid var(--kenar); border-bottom: 1px solid var(--kenar); transform: rotate(45deg); z-index: -1; }
@@ -815,15 +820,24 @@
   .m-ek { font-size: 14px; line-height: 16px; }
 
   /* Tezgâhın ön kenarı: müşterilerin belden aşağısını örter */
-  .tezgah-kenar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; height: 14px; background: var(--sahne-tezgah-koyu); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
+  .tezgah-kenar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; height: 14px; background: linear-gradient(180deg, color-mix(in srgb, var(--ust-yazi) 55%, var(--sahne-tezgah)) 0 3px, var(--sahne-tezgah) 3px 5px, var(--sahne-tezgah-koyu) 5px); box-shadow: 0 5px 0 rgb(0 0 0 / 0.12); }
   .yogun { position: absolute; right: 50px; top: 10px; z-index: 6; padding: 3px 10px; border-radius: 999px; background: var(--vurgu); color: var(--renk-ana-yazi); font-size: 12px; font-weight: 900; animation: parla-s 0.8s ease-in-out infinite; }
 
   /* Tezgâh */
   .tezgah { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: calc(100% + 24px); margin: 0 -12px; padding-bottom: 80px; background: linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
   .tezgah.cift-sira { padding-bottom: 146px; }
-  .tezgah { --alt: 80px; background-image: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 38px), linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
+  /* Tezgâh yüzeyi: servis kenarının altında gölge, kapların durduğu arka pervaz, ahşap derzler; boyut ve konumlar aynı */
+  .tezgah { --alt: 80px; background-image: linear-gradient(180deg, color-mix(in srgb, var(--renk-koyu) 16%, transparent) 0, transparent 24px), radial-gradient(ellipse 62% 40% at 50% 42%, color-mix(in srgb, var(--ust-yazi) 24%, transparent), transparent), linear-gradient(90deg, color-mix(in srgb, var(--renk-koyu) 8%, transparent), transparent 18% 82%, color-mix(in srgb, var(--renk-koyu) 8%, transparent)), linear-gradient(180deg, transparent 48px, color-mix(in srgb, var(--ust-yazi) 22%, transparent) 48px 62px, color-mix(in srgb, var(--sahne-tezgah-koyu) 70%, transparent) 62px 65px, color-mix(in srgb, var(--renk-koyu) 10%, transparent) 65px, transparent 76px), repeating-linear-gradient(90deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 38px), linear-gradient(180deg, var(--sahne-tezgah) 0%, var(--sahne-tezgah-koyu) 100%); }
   .tezgah.cift-sira { --alt: 146px; }
+  /* Tezgâhın ön yüzü: malzeme çubuğu / OYNA bunun önünde durur; üstte ışık alan dudak, panel derzleri */
+  .tezgah::before { content: ""; position: absolute; left: 0; right: 0; bottom: calc(-8px - env(safe-area-inset-bottom)); z-index: 0; height: calc(80px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, color-mix(in srgb, var(--ust-yazi) 50%, var(--sahne-tezgah)) 0 3px, var(--sahne-tezgah-koyu) 3px 6px, transparent 6px), repeating-linear-gradient(90deg, transparent 0 64px, color-mix(in srgb, var(--renk-koyu) 10%, transparent) 64px 66px), linear-gradient(180deg, color-mix(in srgb, var(--sahne-tezgah-koyu) 88%, var(--renk-koyu)), color-mix(in srgb, var(--sahne-tezgah-koyu) 72%, var(--renk-koyu))); box-shadow: 0 -5px 10px -6px color-mix(in srgb, var(--renk-koyu) 30%, transparent); pointer-events: none; }
   .tavalar { position: relative; z-index: 6; display: flex; justify-content: center; gap: 6px; margin-top: 40px; }
+  /* Ocak: tavaların arkasında sıcak ışık (oyunda biraz güçlenir, yavaşça nefes alır) ve tezgâha düşen yumuşak gölge */
+  .tavalar::before { content: ""; position: absolute; inset: 0 -12px; z-index: -1; background: radial-gradient(ellipse 50% 40% at 50% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent); opacity: 0.5; transition: opacity 0.4s; pointer-events: none; }
+  .tavalar.cift::before { background: radial-gradient(ellipse 27% 42% at 25% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent), radial-gradient(ellipse 27% 42% at 75% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent); }
+  :global(body[data-oyunda]) .tavalar::before { opacity: 0.9; animation: ocak 3.6s ease-in-out infinite; }
+  .tavalar::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse 54% 10% at 50% 91%, color-mix(in srgb, var(--renk-koyu) 24%, transparent), transparent); pointer-events: none; }
+  .tavalar.cift::after { background: radial-gradient(ellipse 27% 11% at 24.5% 91%, color-mix(in srgb, var(--renk-koyu) 24%, transparent), transparent), radial-gradient(ellipse 27% 11% at 75.5% 91%, color-mix(in srgb, var(--renk-koyu) 24%, transparent), transparent); }
 
   /* Tezgâhın arka sırası: malzeme kapları, kaşıklık, peçete */
   .arka-sira { position: absolute; left: 10px; right: 10px; top: 14px; z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 46px; pointer-events: none; }
@@ -884,6 +898,8 @@
   .t-ek.ara.sol { margin-left: calc(var(--kw) * -0.36 - 15px); }
   /* Tabak: yalnızca görünüm (ölçülmez). Kenar turkuaz, iç çukur kremle yumuşatılmış ve sığ; ince kenar ışığı. Krep odak noktası */
   .plaka { position: absolute; left: 20px; bottom: 9px; width: 250px; height: 88px; border-radius: 50%; background: radial-gradient(ellipse at 50% 46%, color-mix(in srgb, var(--sahne-tabak) 55%, var(--ust-yazi)) 0 52%, color-mix(in srgb, var(--sahne-tabak) 80%, var(--ust-yazi)) 66%, var(--sahne-tabak) 70%, color-mix(in srgb, var(--sahne-tabak) 70%, var(--ust-yazi)) 74%, var(--sahne-tabak) 80%); box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--sahne-tabak-koyu) 55%, transparent), inset 0 3px 2px color-mix(in srgb, var(--ust-yazi) 60%, transparent), 0 7px 0 var(--sahne-tabak-koyu); }
+  /* Tabağın tezgâha düşen yumuşak gölgesi (plakanın altında; ölçülmez, tıklanmaz) */
+  .plaka-golge { position: absolute; left: 6px; bottom: -6px; width: 278px; height: 58px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--renk-koyu) 22%, transparent), transparent); pointer-events: none; }
   .dusen { position: absolute; left: 50%; bottom: 60px; z-index: 3; margin-left: -12px; font-size: 24px; pointer-events: none; animation: dus 0.4s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
   /* Ödül parası: müşterinin önündeki tabaktan üst bardaki kasaya kısa bir yay çizerek uçar (yalnızca transform / opacity) */
   .coin { position: absolute; z-index: 30; width: 22px; height: 22px; margin: -11px 0 0 -11px; font-size: 20px; line-height: 22px; text-align: center; pointer-events: none; animation: para-uc 0.62s cubic-bezier(0.5, 0, 0.75, 0.6) backwards; }
@@ -936,6 +952,7 @@
   @keyframes sallan { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
   @keyframes balon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
   @keyframes kap-sal { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-4px) rotate(-3deg); } 60% { transform: translateY(0) rotate(2deg); } }
+  @keyframes ocak { 50% { opacity: 0.6; } }
   @keyframes tabak-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
   @keyframes plaka-parla { 50% { box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--sahne-tabak-koyu) 55%, transparent), inset 0 3px 2px color-mix(in srgb, var(--ust-yazi) 60%, transparent), 0 7px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
   @keyframes plop { 0% { transform: translateY(-20px) scale(1.04, 1.1); opacity: 0.6; } 55% { transform: translateY(1px) scale(1.08, 0.86); opacity: 1; } 80% { transform: scale(0.98, 1.05); } 100% { transform: none; } }
@@ -952,5 +969,6 @@
     .lvl { animation: solma 1.8s linear 0.5s both; }
     .lvl.kilometre { animation-duration: 2.8s; }
     .kazanc-etiket { animation: solma 1.1s linear forwards; }
+    :global(body[data-oyunda]) .tavalar::before { animation: none; }
   }
 </style>
