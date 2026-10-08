@@ -672,7 +672,7 @@
     <span class="ok" aria-hidden="true">▶</span> OYNA
   </button>
 
-  <footer class="alt-bar" class:cift-sira={menu.length > 4} class:gizli={!oyunda} inert={!oyunda}>
+  <footer class="alt-bar" class:cift-sira={menu.length > 4} class:tepsi={menu.length > 0} class:gizli={!oyunda} inert={!oyunda}>
     <div class="malzemeler">
       {#each menu as m (m.id)}
         <button class="dugme" class:parlak={siradaki === m.id} onpointerdown={() => koy(m.id)}>
@@ -972,23 +972,31 @@
   .alt-bar.cift-sira .malzemeler, .alt-bar.cift-sira .eylemler { display: flex; gap: 6px; }
   .alt-bar.cift-sira .malzemeler .dugme { min-height: 54px; min-width: 0; }
   .alt-bar.cift-sira .malzemeler .dugme span { font-size: 22px; }
-  .alt-bar.cift-sira .malzemeler .dugme small { max-width: 100%; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-  .dugme { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 64px; padding: 4px 2px; border: 2px solid var(--kenar); border-radius: 16px; background: var(--kart); box-shadow: 0 4px 0 var(--kenar); touch-action: none; -webkit-tap-highlight-color: transparent; }
-  .dugme:active { transform: translateY(4px) scale(0.97); box-shadow: none; }
-  .dugme span { font-size: 26px; line-height: 1; }
-  .dugme small { font-size: 11px; }
+  .alt-bar.cift-sira .malzemeler .dugme small { max-width: 100%; overflow: hidden; font-size: 10px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+  /* Malzeme tepsisi: tezgâhın ön yüzüne gömülü, içi gölgeli sığ çekmece; yalnızca görünüm (düğme kutuları aynı) */
+  .alt-bar.tepsi::before { content: ""; position: absolute; inset: -6px; z-index: -1; border-radius: 22px; background: linear-gradient(180deg, color-mix(in srgb, var(--sahne-tezgah-koyu) 62%, var(--renk-koyu)), color-mix(in srgb, var(--sahne-tezgah-koyu) 80%, var(--renk-koyu))); box-shadow: inset 0 3px 5px color-mix(in srgb, var(--renk-koyu) 40%, transparent), 0 1px 0 color-mix(in srgb, var(--ust-yazi) 35%, transparent); pointer-events: none; }
+  /* Malzeme düğmesi: tuş kapağı gibi; üstte ince ışık, altta kalın kenar ve kısa gölge. Basınca kenarına iner */
+  .dugme { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 64px; padding: 4px 2px; border: 2px solid var(--kenar); border-radius: 16px; background: linear-gradient(180deg, color-mix(in srgb, var(--kart) 88%, var(--ust-yazi)), var(--kart) 60%); box-shadow: inset 0 2px 0 color-mix(in srgb, var(--ust-yazi) 30%, transparent), 0 4px 0 color-mix(in srgb, var(--kenar) 55%, var(--sahne-tezgah-koyu)), 0 7px 8px -5px color-mix(in srgb, var(--renk-koyu) 45%, transparent); touch-action: none; -webkit-tap-highlight-color: transparent; }
+  .dugme:focus-visible { outline: 3px solid var(--renk-logo); outline-offset: 2px; }
+  .dugme span { font-size: 26px; line-height: 1; text-shadow: 0 2px 0 color-mix(in srgb, var(--renk-koyu) 16%, transparent); transition: transform 0.15s; }
+  .dugme small { max-width: 100%; margin-top: 1px; overflow: hidden; color: var(--yazi-soluk); font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
   .dugme.uyari { border-color: var(--vurgu); }
   .tabak.yanlis .plaka { filter: saturate(0.4); }
   .tabak.yanlis::after { content: "✖"; position: absolute; right: 24px; top: 6px; z-index: 6; color: var(--vurgu); font-size: 26px; font-weight: 900; }
   .dugme.kucuk { flex: 0.8; min-height: 56px; align-self: center; }
-  .dugme.parlak { animation: parla 0.9s ease-in-out infinite; }
+  /* Sıradaki malzeme (siparişin istediği): karamel kenar ve ılık zemin, ikon biraz büyür; çevresinde sakin bir halka nefes alır */
+  .dugme.parlak { border-color: var(--renk-ana); background: linear-gradient(180deg, color-mix(in srgb, var(--renk-ana) 18%, var(--kart)), color-mix(in srgb, var(--renk-ana) 8%, var(--kart)) 60%); box-shadow: inset 0 2px 0 color-mix(in srgb, var(--ust-yazi) 30%, transparent), 0 4px 0 var(--renk-ana-koyu), 0 7px 10px -5px color-mix(in srgb, var(--renk-ana) 55%, transparent); }
+  .dugme.parlak span { transform: scale(1.12); }
+  .dugme.parlak small { color: var(--renk-ana); }
+  .dugme.parlak::after { content: ""; position: absolute; inset: -5px; border-radius: 20px; border: 2px solid color-mix(in srgb, var(--renk-ana) 55%, transparent); opacity: 0.25; pointer-events: none; animation: secili 1.2s ease-in-out infinite; }
+  .dugme:active { transform: translateY(4px) scale(0.97); box-shadow: inset 0 2px 4px color-mix(in srgb, var(--renk-koyu) 22%, transparent); }
 
   @keyframes patla { 0% { transform: translateX(-50%) scale(0.5); opacity: 0; } 60% { transform: translateX(-50%) scale(1.12); opacity: 1; } 100% { transform: translateX(-50%) scale(1); } }
   @keyframes serit { 0% { transform: translateX(-50%) translateY(-10px) scale(0.85); opacity: 0; } 12% { transform: translateX(-50%) scale(1.06); opacity: 1; } 20% { transform: translateX(-50%) scale(1); } 85% { transform: translateX(-50%) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-6px) scale(1); opacity: 0; } }
   @keyframes damga { 0% { transform: translateX(-50%) rotate(-4deg) scale(1.7); opacity: 0; } 14% { transform: translateX(-50%) rotate(-4deg) scale(0.92); opacity: 1; } 22% { transform: translateX(-50%) rotate(-4deg) scale(1.05); } 30% { transform: translateX(-50%) rotate(-4deg) scale(1); } 80% { transform: translateX(-50%) rotate(-4deg) scale(1); opacity: 1; } 100% { transform: translateX(-50%) rotate(-4deg) translateY(-10px); opacity: 0; } }
   @keyframes kazanc { 0% { transform: translateX(10px) scale(0.6); opacity: 0; } 20% { transform: translateX(0) scale(1.15); opacity: 1; } 32% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-8px); opacity: 0; } }
   @keyframes solma { 0% { opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes parla { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--renk-ana) 45%, transparent); } }
+  @keyframes secili { 50% { opacity: 1; } }
   @keyframes parla-s { 50% { transform: scale(1.12); } }
   @keyframes konuk { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(2px) rotate(3deg); } }
   @keyframes don { to { transform: rotate(360deg); } }
@@ -1013,5 +1021,6 @@
     .lvl.kilometre { animation-duration: 2.8s; }
     .kazanc-etiket { animation: solma 1.1s linear forwards; }
     :global(body[data-oyunda]) .tavalar::before { animation: none; }
+    .dugme.parlak::after { animation: none; opacity: 1; }
   }
 </style>
