@@ -34,7 +34,7 @@
   let oyunda = $state(baslangic === "oyun");
   let oturum = $state(yeniOturum({ ...ilerleme.veri }));
   let tabak = $state<TabakParcasi[]>([]);
-  let sonuc = $state<{ s: Sonuc; neden: string; kazanc: number } | null>(null);
+  let sonuc = $state<{ s: Sonuc; neden: string; kazanc: number; musteri?: number } | null>(null);
   let testModu = $state(false);
   let paneAcik = $state(false);
   let tekrar = $state(0);
@@ -48,7 +48,7 @@
   let kazancEtiket = $state<{ id: number; deger: number } | null>(null);
   let sayac = 0;
   /** Servis edilmiş / öfkeyle gitmiş müşteriler: tepkilerini göstermek için kısa süre sahnede kalır */
-  type Ayrilan = { m: Musteri; durum: "mutlu" | "kizgin"; yemek: boolean };
+  type Ayrilan = { m: Musteri; durum: "mutlu" | "kizgin"; yemek: boolean; derece?: Sonuc };
   let ayrilanlar = $state<Ayrilan[]>([]);
   /** Tavada servise hazır krep olan tava sayısı (tabak "buraya koy" diye parlar) */
   let hazirTava = $state(0);
@@ -76,9 +76,10 @@
   const yuzu = (m: Musteri, ay: Ayrilan | null) =>
     ay ? (ay.durum === "kizgin" ? "🤬" : ay.yemek ? "😋" : "🤩") : ruhHali(sabirOrani(m), AYAR).yuz;
 
-  function ayrilanEkle(m: Musteri, durum: Ayrilan["durum"]) {
+  /** derece: yalnızca görünüm (servis edilen müşterinin tepkisinin gücü; ödül ve kurallar musteriyeVer'de) */
+  function ayrilanEkle(m: Musteri, durum: Ayrilan["durum"], derece?: Sonuc) {
     if (ayrilanlar.some((x) => x.m.id === m.id)) return;
-    ayrilanlar.push({ m, durum, yemek: false });
+    ayrilanlar.push({ m, durum, yemek: false, derece });
     const a = ayrilanlar[ayrilanlar.length - 1];
     if (durum === "mutlu") setTimeout(() => (a.yemek = true), sahneAyar.mutluYemekMs);
     setTimeout(() => (ayrilanlar = ayrilanlar.filter((x) => x.m.id !== m.id)), durum === "mutlu" ? sahneAyar.mutluMs : sahneAyar.kizginMs);
@@ -291,9 +292,10 @@
     }
   }
 
-  function sonucGoster(s: Sonuc, neden: string, kazanc: number) {
+  /** musteri: tabağın gittiği müşteri (yalnızca görünüm: yanlış tabakta o müşteri kısaca duraksar) */
+  function sonucGoster(s: Sonuc, neden: string, kazanc: number, musteri?: number) {
     const no = ++sonucNo;
-    sonuc = { s, neden, kazanc };
+    sonuc = { s, neden, kazanc, musteri };
     setTimeout(() => {
       if (sonucNo === no) sonuc = null;
     }, 1500);
@@ -308,7 +310,7 @@
     const d = tabakDurumu(oturum, tabak);
     if (d.durum === "dogru") teslimBaslat();
     else if (d.durum === "yanlis" && oyuncuDegistirdi) {
-      sonucGoster("olmadi", nedenYazisi(d.degerlendirme.hatalar[0]), 0);
+      sonucGoster("olmadi", nedenYazisi(d.degerlendirme.hatalar[0]), 0, hedef?.id);
       cal("boop");
       anim(tabakEl, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(7px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], 320);
     }
@@ -361,7 +363,7 @@
     const servis = d.durum === "dogru" ? d.musteri : null;
     const r = musteriyeVer(oturum, tabak);
     if (!r) return;
-    if (servis) ayrilanEkle(servis, "mutlu");
+    if (servis) ayrilanEkle(servis, "mutlu", r.sonuc);
     sonucGoster(r.sonuc, "", r.kazanc);
 
     // Ödül: paralar müşterinin önündeki tabaktan üst bardaki kasaya uçar; vardıklarında kasa zıplar ve kazanç yazar.
@@ -564,7 +566,15 @@
               <div class="sabir"><i style:transform={`scaleX(${oran})`}></i></div>
             </aside>
           {/if}
-          <div class="kisi" data-m={m.id} class:bulut={!ay && ruh(m) === "kotu"}>
+          <div
+            class="kisi"
+            data-m={m.id}
+            class:bulut={!ay && ruh(m) === "kotu"}
+            class:memnun={ay?.durum === "mutlu"}
+            class:muk={ay?.derece === "perfect"}
+            class:harika={ay?.derece === "great"}
+            class:itiraz={!ay && sonuc?.s === "olmadi" && sonuc.musteri === m.id}
+          >
             <Karakter kimlik={m.id} yuz={yuzu(m, ay)} rozet={m.tip !== "normal" ? t.ikon : ""} durum={ay ? ay.durum : "bekle"} sabirsiz={!ay && oran < 0.4} />
             {#if !ay && oran < 0.4}<span class="dusunce" aria-hidden="true">💭</span>{/if}
           </div>
@@ -825,6 +835,14 @@
   .kisi :global(.kr) { margin: 0 auto; }
   /* Müşteri duvardan ayrılsın: başın arkasında yumuşak ışık, tezgâha yaslandığı yerde gölge (yalnızca görünüm, kutu aynı) */
   .kisi::before { content: ""; position: absolute; left: 50%; top: -10px; bottom: -6px; z-index: -1; width: 104px; margin-left: -52px; background: radial-gradient(ellipse 34% 36% at 60% 50%, color-mix(in srgb, var(--renk-koyu) 13%, transparent), transparent), radial-gradient(ellipse 48% 42% at 46% 30%, color-mix(in srgb, var(--ust-yazi) 80%, transparent), transparent), radial-gradient(ellipse 42% 16% at 50% 94%, color-mix(in srgb, var(--renk-koyu) 26%, transparent), transparent); pointer-events: none; }
+  /* Servis tepkisi (tek seferlik, yalnızca görünüm): tabağı alan müşteri hafifçe öne esner ve yaylanır; PERFECT nane, HARİKA
+     karamel bir halka yayar. Karakterin kendi sevinç / kalp / Yummy tepkisi aynen kalır. Yanlış tabakta tabağın gittiği müşteri
+     kısaca geri çekilir (mutlu görünmez). scale / translate / rotate ayrı özellikler: hedefin transform'u (1.08) bozulmaz */
+  .kisi.memnun { transform-origin: 50% 100%; animation: memnun 0.55s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+  .kisi.memnun.muk { animation-name: memnun-guclu; animation-duration: 0.65s; }
+  .kisi.harika::after, .kisi.muk::after { content: ""; position: absolute; left: 50%; top: 20px; z-index: -1; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; border: 3px solid var(--renk-logo); opacity: 0; pointer-events: none; animation: tepki-halka 0.6s ease-out both; }
+  .kisi.muk::after { border-color: var(--basari); animation-duration: 0.7s; animation-name: tepki-halka-buyuk; }
+  .kisi.itiraz { transform-origin: 50% 100%; animation: itiraz 0.42s ease-in-out; }
   .dusunce { position: absolute; right: -6px; top: -2px; font-size: 16px; animation: balon 1.1s ease-in-out infinite; }
   .fis { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 96px; max-width: 120px; padding: 11px 6px 6px; border-radius: 6px 6px 14px 14px; background: var(--kart); border: 1px solid var(--kenar); box-shadow: 0 4px 0 var(--kenar); font-size: 12px; text-align: center; }
   .fis::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; margin-left: -6px; background: var(--kart); border-right: 1px solid var(--kenar); border-bottom: 1px solid var(--kenar); transform: rotate(45deg); z-index: -1; }
@@ -1004,6 +1022,11 @@
   @keyframes balon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
   @keyframes kap-sal { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-4px) rotate(-3deg); } 60% { transform: translateY(0) rotate(2deg); } }
   @keyframes ocak { 50% { opacity: 0.6; } }
+  @keyframes memnun { 0% { scale: 1; translate: 0 0; } 35% { scale: 1.08 0.95; translate: 0 2px; } 65% { scale: 0.97 1.05; translate: 0 -3px; } 100% { scale: 1; translate: 0 0; } }
+  @keyframes memnun-guclu { 0% { scale: 1; translate: 0 0; } 30% { scale: 1.12 0.92; translate: 0 3px; } 60% { scale: 0.95 1.08; translate: 0 -6px; } 82% { scale: 1.02 0.98; translate: 0 0; } 100% { scale: 1; translate: 0 0; } }
+  @keyframes tepki-halka { 0% { transform: scale(0.45); opacity: 0.9; } 100% { transform: scale(1.25); opacity: 0; } }
+  @keyframes tepki-halka-buyuk { 0% { transform: scale(0.45); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+  @keyframes itiraz { 0%, 100% { translate: 0 0; rotate: 0deg; } 25% { translate: 3px 0; rotate: 4deg; } 55% { translate: -2px 0; rotate: -2deg; } 80% { rotate: 1deg; } }
   @keyframes tabak-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
   @keyframes plaka-parla { 50% { box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--sahne-tabak-koyu) 55%, transparent), inset 0 3px 2px color-mix(in srgb, var(--ust-yazi) 60%, transparent), 0 7px 0 var(--sahne-tabak-koyu), 0 0 0 6px color-mix(in srgb, var(--basari) 45%, transparent); } }
   @keyframes plop { 0% { transform: translateY(-20px) scale(1.04, 1.1); opacity: 0.6; } 55% { transform: translateY(1px) scale(1.08, 0.86); opacity: 1; } 80% { transform: scale(0.98, 1.05); } 100% { transform: none; } }
@@ -1022,5 +1045,7 @@
     .kazanc-etiket { animation: solma 1.1s linear forwards; }
     :global(body[data-oyunda]) .tavalar::before { animation: none; }
     .dugme.parlak::after { animation: none; opacity: 1; }
+    .kisi.memnun, .kisi.memnun.muk, .kisi.itiraz { animation: none; }
+    .kisi.harika::after, .kisi.muk::after { display: none; }
   }
 </style>
