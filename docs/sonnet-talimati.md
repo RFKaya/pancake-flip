@@ -26,6 +26,8 @@ PROJE
 ÇALIŞMA ŞEKLİ
 - Oturum başına TEK görev. Bitirmeden başka göreve geçme.
 - `git status` temiz mi bak. `git checkout master && git pull` sonra planda yazan dalı aç.
+- Döngü AGENTS.md §4'tedir: önce şartnameyi (docs/gorev-sartnamesi.md) doldur, planı sun ve ONAY BEKLE;
+  onay gelmeden dosya değiştirme. Bitince docs/istemler/NN-kisa-ad.md kaydını yaz.
   ASLA master'a commit atma, ASLA force-push yapma, geçmişi yeniden yazma.
 - Görevi küçük adımlara böl. Her adımdan sonra:
     bun run build   (0 hata şart)

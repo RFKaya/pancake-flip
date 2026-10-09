@@ -24,6 +24,8 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum | Ortam kurulumu bu belgeye göre yapılır. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Git akışı ve kod kuralları | Ayrıntılı kurallar burada tutulur. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim süreci | Teslim adımları bu belgeye göre izlenir. |
+| [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) | Görev şartnamesi şablonu | Her görev bu şablonla başlar (Amaç, Kapsam dışı, Kabul ölçütleri, Dokunulacak dosyalar, Doğrulama adımları). |
+| [`docs/istemler/README.md`](docs/istemler/README.md) | İstem günlüğü | Her görev için `docs/istemler/NN-kisa-ad.md` kaydı tutulur: araç/model, istem, plan, düzeltmeler, doğrulama. |
 | [`docs/ajan-uyum-testi.md`](docs/ajan-uyum-testi.md) | Ajan uyum testi kaydı | Kurallara uyum bu belgedeki komutlarla doğrulanır ve sonuç kayda geçirilir. |
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Kaynaklar | Dış kaynaklar burada toplanır. |
 | [`docs/tasks/`](docs/tasks/) | Hocanın görev dosyaları | **Hocanındır, düzenlenmez.** Çelişkide hocanınki geçerlidir. |
@@ -52,7 +54,17 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 4. **Commit mesajları** `feat:`, `fix:` veya `docs:` ile başlar.
 5. **PR güvenliği:** `master` korumalıdır; dışarıdan gelen PR'ların nasıl inceleneceği [`docs/kurallar.md` → PR güvenliği](docs/kurallar.md#pr-güvenliği) bölümündedir.
 
-## 4. Kod Yazım Kuralları
+## 4. Çalışma Döngüsü
+
+Her görev şu sırayla yapılır; adım atlanmaz:
+
+1. **Şartname:** görev [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) şablonuyla doldurulur.
+2. **Plan önce:** ajan değişiklik yapmadan önce planını (değişecek dosyalar, yaklaşım, riskler) sunar ve **onay bekler**. Onay gelmeden dosya değiştirilmez.
+3. **Değişiklik:** onaydan sonra yalnız şartnamedeki dosyalar değiştirilir; her görev kendi dalında (`feature/NN-kisa-ad`) ve tek PR ile yapılır.
+4. **Doğrulama:** `bun run build` 0 hata vermeden ve `bun test` geçmeden iş "bitti" denmez. Elle deneme adımları yapılır.
+5. **Günlük:** istem, plan, düzeltmeler ve doğrulama sonucu `docs/istemler/NN-kisa-ad.md` dosyasına yazılır.
+
+## 5. Kod Yazım Kuralları
 
 - Svelte kodlarında Svelte 5 Runes (`$state`, `$derived`, `$props`, `$effect`) kullanılır. Eski Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - Sayfa bileşenlerinde SSR güvenliği gözetilmeli; `window`, `localStorage` ve `requestAnimationFrame` erişimleri yalnızca istemcide veya korumalı (`typeof window !== 'undefined'`) yapılmalıdır. Oyun ekranı `client:only="svelte"` ile yüklenir.
@@ -60,7 +72,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 - **Kurallar saf TypeScript'te** (`src/lib/oyun/*.ts`); Svelte bileşenleri yalnızca gösterir ve dokunmayı iletir.
 - Renkler yalnızca CSS değişkenleriyle kullanılır ([`docs/branding.md`](docs/branding.md)); ad-hoc hex yazılmaz.
 
-## 5. Kırmızı Çizgiler
+## 6. Kırmızı Çizgiler
 
 - **Yeni bağımlılık (npm / cargo) eklenmez.** Gerekli görülürse dur ve öğrenciye sor.
 - `docs/tasks/` klasörü düzenlenmez.
