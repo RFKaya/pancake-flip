@@ -111,7 +111,7 @@ Denenmeyen yerleri **dürüstçe yaz**: bir sonraki kişi onu bilmeli.
 
 ---
 
-## 5. Kodlama kuralları (özet; ayrıntı AGENTS.md §4–5)
+## 5. Kodlama kuralları (özet; ayrıntı AGENTS.md §5–6)
 
 - **Svelte 5 Runes:** `$state`, `$derived`, `$props`, `$effect`. `export let` ve `$:` yok.
 - **Kurallar saf TS'te, bileşenler yalnızca gösterir.** Yeni oyun kuralı = `src/lib/oyun/*.ts` + test.
