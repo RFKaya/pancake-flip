@@ -1,8 +1,9 @@
 ---
-import { diller, dilAdi, dilEtiketi, dilBul, sayfaBul, sayfaYolu } from '../../lib/i18n';
+import { diller, dilAdi, dilEtiketi, dilBul, dilsizYol, sayfaYolu } from '../../lib/i18n';
 
 const dil = dilBul(Astro.url.pathname);
-const sayfa = sayfaBul(Astro.url.pathname);
+// Yolun tamamı korunur: /en/rehber/cikolata -> /ar/rehber/cikolata (bilgi sayfalarında tek parça olduğu için aynı sonuç)
+const sayfa = dilsizYol(Astro.url.pathname);
 ---
 
 <nav class="dil-secici" aria-label={dilEtiketi[dil]}>

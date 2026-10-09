@@ -23,3 +23,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | 11 | Veri sözleşmesi | [11-veri-sozlesmesi.md](11-veri-sozlesmesi.md) |
 | 12 | Kart bileşeni | [12-kart-bileseni.md](12-kart-bileseni.md) |
 | 13 | Liste ekranı ve üç durum | [13-liste-ve-uc-durum.md](13-liste-ve-uc-durum.md) |
+| 14 | Detay ekranı ve gezinme | [14-detay-ekrani.md](14-detay-ekrani.md) |

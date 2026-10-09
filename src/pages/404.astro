@@ -1,0 +1,11 @@
+---
+// Olmayan her adres (örn. /rehber/olmayan): boş sayfa yerine HataDurumu ile "bulunamadı"
+import Layout from '../layouts/Layout.astro';
+import Bulunamadi from '../components/rehber/Bulunamadi.svelte';
+---
+
+<Layout title="Bulunamadı — Pancake Flip!">
+  <div class="sayfa">
+    <Bulunamadi client:load />
+  </div>
+</Layout>

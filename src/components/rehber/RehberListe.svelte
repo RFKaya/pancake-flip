@@ -11,6 +11,7 @@
   import { durumMetni, kategoriAdlari, malzemeAdlari, rehberMetni, sayfaYolu, type Dil } from "$lib/i18n";
   import type { KartGirdileri, ListeDurumu, Malzeme } from "$lib/types";
   import { malzemeleriYukle } from "$lib/yukleyici";
+  import { LISTE_ANAHTARI } from "./rehber";
 
   let { dil }: { dil: Dil } = $props();
 
@@ -34,6 +35,7 @@
     ilerleme.yukle();
     seviye = ilerleme.veri.seviye;
     arama = new URLSearchParams(window.location.search).get("q") ?? "";
+    listeyiHatirla();
     yukle();
   });
 
@@ -44,6 +46,16 @@
     if (q) adres.searchParams.set("q", q);
     else adres.searchParams.delete("q");
     history.replaceState(history.state, "", adres);
+    listeyiHatirla();
+  }
+
+  /** Detay ekranının "geri" bağlantısı bu adrese döner (arama dahil) */
+  function listeyiHatirla() {
+    try {
+      sessionStorage.setItem(LISTE_ANAHTARI, window.location.pathname + window.location.search);
+    } catch {
+      // depolama kapalıysa geri bağlantısı düz listeye gider
+    }
   }
 
   const metin = $derived(rehberMetni[dil]);
