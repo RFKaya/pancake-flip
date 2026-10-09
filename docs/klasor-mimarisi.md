@@ -28,9 +28,9 @@ pancake-flip/
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Yeniden kullanılabilir UI bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, mock veri, Svelte 5 state store'ları ($state)
-│   │   ├── veri/            # Oyun değerleri (JSON): malzemeler, müşteriler, seviye (sonsuz ilerleme), ayarlar
+│   │   ├── types/           # Veri sözleşmesi: tip tanımları (index.ts hepsini dışa aktarır)
+│   │   ├── veri/            # Oyun değerleri (JSON) ve tipli örnek veri (ornek.ts)
 │   │   └── oyun/            # Saf TypeScript oyun kuralları (Svelte yok, testlenebilir)
-│   ├── types/               # TypeScript tip tanımları ve arayüzler (.ts)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
 │
 └── docs/                    # Proje dokümantasyonu, görevler ve mimari rehberler
@@ -68,8 +68,9 @@ pancake-flip/
 - **Ne konur?** Svelte 5 `$state` store'ları (kayıt, fişler, tema) ve Rust invoke çağrıları. Oyun mantığı `src/lib/oyun/`, oyun verileri `src/lib/veri/` altındadır.
 - **Nasıl import edilir?** `$lib/kayit.svelte` veya `$lib/oyun/veri` şeklinde doğrudan alias ile çağrılır.
 
-### 8. `src/types/` (Tip Tanımları)
-- **Ne konur?** Projede kullanılan TypeScript arayüzleri (`interface`) ve tipleri (`type`). Veri modelleri karmaşıklaştıkça tipler bu klasörde toplanır.
+### 8. `src/lib/types/` (Veri Sözleşmesi)
+- **Ne konur?** Uygulamanın bütün veri tipleri; her tip ailesi ayrı dosyada, `index.ts` hepsini dışa aktarır. Alanlar ve ilişkiler [`veri-modeli.md`](veri-modeli.md)'dedir.
+- **Kural:** Yeni veri alanı önce burada tanımlanır; bileşen ya da store içinde tip tanımlanmaz. İçe aktarma: `import type { Fis } from "$lib/types"`.
 
 ### 9. `src/styles/` (Tasarım ve Stiller)
 - **Ne konur?** `app.css` ve tema tanımları.

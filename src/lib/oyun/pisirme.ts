@@ -1,6 +1,6 @@
 // Tava durum makinesi: hamur dök → yayıl → 1. yüz → çevir (uçuş) → 2. yüz → tabağa kay (docs/oyun-tasarimi.md §4)
 // Temel kurallar (docs/sonsuz-seviye.md §1.1): her yüz ÇİĞ → PİŞMİŞ → YANIK; yalnızca pişmiş yüz çevrilir / tabağa alınır.
-import type { Ayarlar, CevirKalitesi, Kalinlik, PismeBolgesi, PismeDurumu, TabakParcasi } from "../../types/oyun";
+import type { Ayarlar, CevirKalitesi, Kalinlik, PismeBolgesi, PismeDurumu, TabakParcasi } from "../types";
 import { hamurDok, hamurSonucu, hamurYay, yeniHamur, type Hamur, type HamurSonuc } from "./hamur";
 import { cevirPencereDegeri, mekanikAcik, pisirmeHiziDegeri } from "./seviye";
 

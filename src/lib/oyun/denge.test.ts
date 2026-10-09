@@ -1,7 +1,7 @@
 // Denge güvenceleri: seviye.json / ayarlar.json ayarlanırken oyunun "oynanabilir" kalmasını sınar.
 // Süreler formülle değil, gerçek tava durum makinesi (pisirme.ts) adım adım çalıştırılarak ölçülür.
 import { describe, expect, test } from "bun:test";
-import type { Kalinlik, MusteriTipi } from "../../types/oyun";
+import type { Kalinlik, MusteriTipi } from "../types";
 import { sabirHesapla } from "./musteri";
 import { baglamOlustur, cevirKalitesi, pismeDurumu, servisEdilebilir, tavaBirak, tavaCevir, tavaDokBasla, tavaIlerlet, tavaServis, yeniTava } from "./pisirme";
 import { rngOlustur } from "./rng";

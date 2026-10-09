@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { Fis } from "../../types/oyun";
+import type { Fis } from "../types";
 import { fislerCoz, fisNeti } from "./fis";
 
 const fis = (bolum: number, kasa?: number): Fis => ({ kod: `WEB-${bolum}`, bolum, yildiz: 3, net: 0, kasa, tarih: "2026-10-07T12:00:00.000Z" });

@@ -14,14 +14,14 @@
   import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type OturumOlayi, type SeviyeAtlama } from "$lib/oyun/oturum";
   import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
-  import { sayiKisalt, sonrakiAcilis, type Acilis } from "$lib/oyun/seviye";
+  import { sayiKisalt, sonrakiAcilis } from "$lib/oyun/seviye";
   import { cal, coinYagmuru, sesYukle } from "$lib/oyun/ses";
   import { AYAR, malzeme, tip as tipBul } from "$lib/oyun/veri";
   import sahneAyar from "$lib/veri/sahne.json";
   import GelistiriciPaneli from "./GelistiriciPaneli.svelte";
   import Karakter from "./Karakter.svelte";
   import Tava from "./Tava.svelte";
-  import type { Musteri, Sonuc, TabakParcasi } from "../../types/oyun";
+  import type { Ayrilan, DusenParca, KazancEtiketi, Musteri, SeviyeBildirimi, Sonuc, SonucMesaji, TabakParcasi, UcanPara } from "$lib/types";
 
   let { baslangic = "lobi" }: { baslangic?: "lobi" | "oyun" } = $props();
 
@@ -34,21 +34,20 @@
   let oyunda = $state(baslangic === "oyun");
   let oturum = $state(yeniOturum({ ...ilerleme.veri }));
   let tabak = $state<TabakParcasi[]>([]);
-  let sonuc = $state<{ s: Sonuc; neden: string; kazanc: number; musteri?: number } | null>(null);
+  let sonuc = $state<SonucMesaji | null>(null);
   let testModu = $state(false);
   let paneAcik = $state(false);
   let tekrar = $state(0);
   let barDolu = $state(false);
-  let bildirim = $state<{ id: number; seviye: number; baslik: string; alt: string; acilanlar: Acilis[] } | null>(null);
+  let bildirim = $state<SeviyeBildirimi | null>(null);
   let gittiNo = $state(0);
-  let dusenler = $state<{ id: number; ikon: string }[]>([]);
+  let dusenler = $state<DusenParca[]>([]);
   /** Ödül paraları: teslim anında tabağın (müşterinin önündeki) yerinden üst bardaki gerçek kasaya uçar (sahne koordinatları) */
-  let coinler = $state<{ id: number; x: number; y: number; tx: number; ty: number; gec: number }[]>([]);
+  let coinler = $state<UcanPara[]>([]);
   /** Kasaya varınca kasanın yanında kısa süre görünen kazanç (+12) */
-  let kazancEtiket = $state<{ id: number; deger: number } | null>(null);
+  let kazancEtiket = $state<KazancEtiketi | null>(null);
   let sayac = 0;
   /** Servis edilmiş / öfkeyle gitmiş müşteriler: tepkilerini göstermek için kısa süre sahnede kalır */
-  type Ayrilan = { m: Musteri; durum: "mutlu" | "kizgin"; yemek: boolean; derece?: Sonuc };
   let ayrilanlar = $state<Ayrilan[]>([]);
   /** Tavada servise hazır krep olan tava sayısı (tabak "buraya koy" diye parlar) */
   let hazirTava = $state(0);

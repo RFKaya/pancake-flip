@@ -1,5 +1,5 @@
 // Müşteri sabrı ve ruh hali (docs/oyun-tasarimi.md §7, docs/sonsuz-seviye.md)
-import type { Ayarlar, MusteriTipi } from "../../types/oyun";
+import type { Ayarlar, MusteriTipi } from "../types";
 import { SEVIYE } from "./veri";
 import { sabirCarpaniDegeri } from "./seviye";
 

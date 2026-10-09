@@ -1,5 +1,5 @@
 // Fiyat, ödeme, bahşiş ve combo (docs/oyun-tasarimi.md §9)
-import type { Ayarlar, Malzeme, MusteriTipi, Siparis, Sonuc } from "../../types/oyun";
+import type { Ayarlar, Malzeme, MusteriTipi, Siparis, Sonuc } from "../types";
 import { ruhHali } from "./musteri";
 
 const bul = (malzemeler: Malzeme[], id: string) => malzemeler.find((m) => m.id === id) as Malzeme;

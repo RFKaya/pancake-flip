@@ -1,11 +1,11 @@
 // Sonsuz oyun oturumu: müşteri slotları, sabır, ilerleme, seviye atlama (docs/sonsuz-seviye.md)
 // Saf mantık: zamanı dışarıdan dt ile alır, rastgeleliği dışarıdan Rng ile alır. Bölüm / "oyun bitti" kavramı yoktur.
-import type { Musteri, MusteriTipi, SeviyeAyari, Sonuc, TabakParcasi } from "../../types/oyun";
+import type { Acilis, Musteri, MusteriTipi, SeviyeAyari, Sonuc, TabakParcasi } from "../types";
 import { degerlendir, type Degerlendirme } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
 import { sabirHesapla } from "./musteri";
 import type { Rng } from "./rng";
-import { acilislar, ilerlemeEkle, kilometreTasi, seviyeAyari, seviyeSinirla, type Acilis } from "./seviye";
+import { acilislar, ilerlemeEkle, kilometreTasi, seviyeAyari, seviyeSinirla } from "./seviye";
 import { siparisUret } from "./siparis";
 import { AYAR, MALZEMELER, SEVIYE, TIPLER } from "./veri";
 

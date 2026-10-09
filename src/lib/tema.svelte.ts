@@ -1,5 +1,6 @@
 // Adım 15: Tema (gece / gündüz) — seçim localStorage'da saklanır
-export type Tema = "gunduz" | "gece";
+import type { Tema } from "./types";
+export type { Tema };
 
 const ANAHTAR = "tema";
 

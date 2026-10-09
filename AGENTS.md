@@ -14,6 +14,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/proje-fikri.md`](docs/proje-fikri.md) | Proje Konsepti | İş mantığı ve veri modelleri projenin amacına uygun olmalı. |
 | [`docs/oyun-tasarimi.md`](docs/oyun-tasarimi.md) | Oyun kuralları ve sayılar | Tasarımda olmayan özellik eklenmez; sayı değişirse bu belge de güncellenir. |
 | [`docs/sonsuz-seviye.md`](docs/sonsuz-seviye.md) | Sonsuz LEVEL ilerlemesi, zorluk eğrisi, geliştirici modu | Bölüm yoktur; ilerleme LEVEL'dir. Seviye sayıları `seviye.json`'dadır. |
+| [`docs/veri-modeli.md`](docs/veri-modeli.md) | Veri sözleşmesi (tipler, alanlar, ilişkiler) | Yeni veri alanı önce `src/lib/types/` içinde tanımlanır. |
 | [`docs/oyun-mimarisi.md`](docs/oyun-mimarisi.md) | Oyun kod mimarisi | Kurallar saf TypeScript'te, bileşenler yalnızca gösterir. |
 | [`docs/gelistirme-plani.md`](docs/gelistirme-plani.md) | Görevler, dallar, kabul kriterleri | Oturum başına tek görev; bitince kutu `[x]` yapılır. |
 | [`docs/sonnet-talimati.md`](docs/sonnet-talimati.md) | Ajan oturum talimatı | Her oturumun başında okunur ve birebir uygulanır. |
@@ -69,6 +70,7 @@ Her görev şu sırayla yapılır; adım atlanmaz:
 - Svelte kodlarında Svelte 5 Runes (`$state`, `$derived`, `$props`, `$effect`) kullanılır. Eski Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - Sayfa bileşenlerinde SSR güvenliği gözetilmeli; `window`, `localStorage` ve `requestAnimationFrame` erişimleri yalnızca istemcide veya korumalı (`typeof window !== 'undefined'`) yapılmalıdır. Oyun ekranı `client:only="svelte"` ile yüklenir.
 - **Oyun değerleri JSON'da:** Süre, fiyat, olasılık gibi sayılar kodda sabit yazılmaz; `src/lib/veri/*.json` içinde durur.
+- **Veri tipleri tek yerde:** Yeni veri alanı önce `src/lib/types/` içinde tanımlanır ([`docs/veri-modeli.md`](docs/veri-modeli.md)); bileşen ya da store içinde tip tanımlanmaz, `any` kullanılmaz.
 - **Kurallar saf TypeScript'te** (`src/lib/oyun/*.ts`); Svelte bileşenleri yalnızca gösterir ve dokunmayı iletir.
 - Renkler yalnızca CSS değişkenleriyle kullanılır ([`docs/branding.md`](docs/branding.md)); ad-hoc hex yazılmaz.
 

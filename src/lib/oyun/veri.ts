@@ -3,7 +3,7 @@ import ayarJson from "../veri/ayarlar.json";
 import malzemelerJson from "../veri/malzemeler.json";
 import tiplerJson from "../veri/musteriler.json";
 import seviyeJson from "../veri/seviye.json";
-import type { Ayarlar, Malzeme, MusteriTipi, SeviyeYapilandirmasi } from "../../types/oyun";
+import type { Ayarlar, Malzeme, MusteriTipi, SeviyeYapilandirmasi } from "../types";
 
 export const AYAR = ayarJson as Ayarlar;
 export const MALZEMELER = malzemelerJson as Malzeme[];

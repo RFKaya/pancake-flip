@@ -1,17 +1,9 @@
 // Sonsuz seviye kaydının çözümü (saf mantık; localStorage okuma / yazma ilerleme.svelte.ts'te). Bozuk ya da eski kayıtla çökmez.
 import { gerekenMusteri, seviyeSinirla } from "./seviye";
 import { SEVIYE } from "./veri";
+import type { IlerlemeVerisi } from "../types";
 
-export interface IlerlemeVerisi {
-  surum: 1;
-  seviye: number; // playerLevel
-  ilerleme: number; // progressToNextLevel
-  toplamMusteri: number; // totalCustomersServed
-  toplamCoin: number; // totalCoins
-  enYuksekSeviye: number;
-  enIyiSeri: number; // en uzun seri rekoru (eski kayıtlarda yok → 0)
-  toplamMukemmel: number; // PERFECT servis sayısı (eski kayıtlarda yok → 0)
-}
+export type { IlerlemeVerisi };
 
 export const bosIlerleme = (): IlerlemeVerisi => ({
   surum: 1,

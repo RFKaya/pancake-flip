@@ -1,7 +1,8 @@
 // Sonsuz seviye kaydı (sürümlü localStorage). Eski bölüm kaydı (kayit.svelte.ts) bununla ilgilenmez.
 // Açılan malzeme ve mekanikler kayda yazılmaz: seviyeden hesaplanır (seviye.ts), böylece bayatlayamaz.
 import type { Oturum } from "./oyun/oturum";
-import { bosIlerleme as bos, ilerlemeCoz, type IlerlemeVerisi } from "./oyun/ilerlemeKaydi";
+import { bosIlerleme as bos, ilerlemeCoz } from "./oyun/ilerlemeKaydi";
+import type { IlerlemeVerisi } from "./types";
 import { seviyeSinirla } from "./oyun/seviye";
 
 export type { IlerlemeVerisi };
