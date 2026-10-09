@@ -50,6 +50,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 3. **Kapsam Koruma (Scope Guard):**
    - Yalnızca görevin gerektirdiği dosyalar düzenlenmelidir. İstenmeyen dosyalarda "temizlik" veya izinsiz büyük refactoring yapılmaz.
 4. **Commit mesajları** `feat:`, `fix:` veya `docs:` ile başlar.
+5. **PR güvenliği:** `master` korumalıdır; dışarıdan gelen PR'ların nasıl inceleneceği [`docs/kurallar.md` → PR güvenliği](docs/kurallar.md#pr-güvenliği) bölümündedir.
 
 ## 4. Kod Yazım Kuralları
 
