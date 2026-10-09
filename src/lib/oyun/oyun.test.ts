@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import ayar from "../veri/ayarlar.json";
 import malzemeler from "../veri/malzemeler.json";
 import tipler from "../veri/musteriler.json";
-import type { Ayarlar, Malzeme, MusteriTipi, TabakParcasi } from "../../types/oyun";
+import type { Ayarlar, Malzeme, MusteriTipi, TabakParcasi } from "../types";
 import { degerlendir } from "./degerlendirme";
 import { gelirHesapla, siparisFiyati, siparisMaliyeti } from "./ekonomi";
 import { hamurDurumu, hamurIcinde, hamurPayi, hamurSonucu, hamurToleransi } from "./hamur";

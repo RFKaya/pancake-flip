@@ -1,6 +1,6 @@
 // Sipariş grameri ve üretici (docs/oyun-tasarimi.md §3 ve §6)
 // Sipariş := Krep (Ara Krep)* Üst ; Ara := boş | Dolgu | Sos ; Üst := boş | Sos | Topping | Sos Topping
-import type { Ayarlar, Malzeme, MusteriTipi, Siparis, SeviyeAyari } from "../../types/oyun";
+import type { Ayarlar, Malzeme, MusteriTipi, Siparis, SeviyeAyari } from "../types";
 import type { Rng } from "./rng";
 
 export function zorlukHesapla(parcalar: string[], malzemeler: Malzeme[], ayar: Ayarlar): number {

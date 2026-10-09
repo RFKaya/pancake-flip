@@ -1,6 +1,6 @@
 // Adisyon (fiş) kaydı: sürümlü localStorage. Bozuk ya da eski kayıtla çökmez; çözümü oyun/fis.ts → fislerCoz.
 // Seviye ilerlemesi ayrı bir anahtardadır (ilerleme.svelte.ts).
-import type { Fis } from "../types/oyun";
+import type { Fis } from "./types";
 import { fislerCoz } from "./oyun/fis";
 
 const ANAHTAR = "pancakeflip-kayit";

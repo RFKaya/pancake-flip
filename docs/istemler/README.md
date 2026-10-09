@@ -20,3 +20,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | No | Görev | Kayıt |
 |---|---|---|
 | 10 | Çalışma yöntemi | [10-calisma-yontemi.md](10-calisma-yontemi.md) |
+| 11 | Veri sözleşmesi | [11-veri-sozlesmesi.md](11-veri-sozlesmesi.md) |

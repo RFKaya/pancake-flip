@@ -1,5 +1,5 @@
 // Tabak değerlendirmesi: sıralı düzenleme mesafesi (Damerau–Levenshtein) + pişme cezaları (docs/oyun-tasarimi.md §8)
-import type { Ayarlar, Kalinlik, Sonuc, TabakParcasi } from "../../types/oyun";
+import type { Ayarlar, Kalinlik, Sonuc, TabakParcasi } from "../types";
 
 export type Hata =
   | { tur: "eksik"; malzeme: string }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { Kalinlik, TabakParcasi } from "../../types/oyun";
+import type { Kalinlik, TabakParcasi } from "../types";
 import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type Oturum } from "./oturum";
 import { rngOlustur } from "./rng";
 import { gerekenMusteri } from "./seviye";

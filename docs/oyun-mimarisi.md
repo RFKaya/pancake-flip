@@ -25,7 +25,7 @@ Repo, hocanın `hello-mobil` şablonunun ("PassoKlon") birebir kopyası.
 | `src/lib/data.ts`, `sepet.svelte.ts`, `Sepet/Biletlerim/EtkinlikDetay.svelte` | Passo'ya özgü | Yeni ekranlar çalıştıktan sonra silinir (aynı PR'da değil, yerine geçen ekranın PR'ında). |
 | `src/components/react/CanliRozet.tsx` | React örnek bileşen | Görev 06'daki etkileşimli bileşen için örnek olarak kalabilir. |
 | Test altyapısı | Yok | `bun test` (Bun'a gömülü, bağımlılık gerekmez) |
-| `src/types/` | Belgede var, klasör yok | Oyun tipleri için oluşturulur. |
+| `src/lib/types/` | Belgede var, klasör yok | Veri sözleşmesi burada ([`veri-modeli.md`](veri-modeli.md)). |
 
 ---
 
@@ -44,7 +44,7 @@ Repo, hocanın `hello-mobil` şablonunun ("PassoKlon") birebir kopyası.
 Yalnızca yeni eklenen yerler (genel klasör ağacı [`klasor-mimarisi.md`](klasor-mimarisi.md)'de; `src/lib/veri/` ve `src/lib/oyun/` alt klasörleri orada da bir satırla belirtilecek):
 
 ```
-src/types/oyun.ts                 # Malzeme, MusteriTipi, Bolum, Siparis, Tava, Tabak, Musteri, Fis, Kayit
+src/lib/types/                    # veri sözleşmesi: Malzeme, Siparis, Musteri, Tabak, Fis, Seviye, Ayarlar (docs/veri-modeli.md)
 src/lib/veri/                     # JSON: malzemeler, musteriler, bolumler, yukseltmeler, dekor
 src/lib/oyun/                     # saf mantık (+ *.test.ts)
   rng.ts                          # tohumlu üreteç (mulberry32)
@@ -71,7 +71,7 @@ src/components/                   # Bolumler, BolumDetay, Fislerim, Mutfak (Prof
 ## 4. Veri dosyaları (şema)
 
 ```ts
-// src/types/oyun.ts (özet)
+// src/lib/types/ (özet; tam hali docs/veri-modeli.md)
 type Kategori = "krep" | "dolgu" | "sos" | "topping";
 type PismeDerecesi = "az" | "orta" | "iyi";
 

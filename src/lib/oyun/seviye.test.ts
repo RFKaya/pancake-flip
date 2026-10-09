@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import malzemeler from "../veri/malzemeler.json";
 import seviyeJson from "../veri/seviye.json";
-import type { Malzeme } from "../../types/oyun";
+import type { Malzeme } from "../types";
 import {
   acilislar, gerekenMusteri, ilerlemeEkle, kilometreTasi, sayiKisalt, seviyeAyari, seviyeSinirla, sonrakiAcilis, zorluk,
 } from "./seviye";

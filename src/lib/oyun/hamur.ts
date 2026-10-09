@@ -1,6 +1,6 @@
 // Hamur dökme: basılı tutma süresi = miktar. Her kalınlığın bir hedef miktarı vardır; hedefin ± payı içindeki döküm krep olur:
 // İDEAL (orta) ya da BİRAZ AZ / BİRAZ FAZLA (kenarlar). Yalnızca belirgin sapma krep yapmaz (docs/sonsuz-seviye.md §1.1).
-import type { Ayarlar, Kalinlik } from "../../types/oyun";
+import type { Ayarlar, Kalinlik } from "../types";
 import { hamurToleransDegeri } from "./seviye";
 import { AYAR } from "./veri";
 

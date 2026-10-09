@@ -1,5 +1,5 @@
 // Adisyon (fiş) kuralları: seviye fişinin kazancı (docs/oyun-mimarisi.md §5). Saf mantık; kayıt kayit.svelte.ts'te.
-import type { Fis } from "../../types/oyun";
+import type { Fis } from "../types";
 
 /**
  * Yeni fişin kazancı: bir önceki fişten bu yana kasaya giren coin. Fiş, o anki kasayı da saklar ki sonraki fiş farkı

@@ -9,7 +9,7 @@
     type Tava,
   } from "$lib/oyun/pisirme";
   import { hamurDurumu } from "$lib/oyun/hamur";
-  import type { Kalinlik, PismeDurumu, TabakParcasi } from "../../types/oyun";
+  import type { Fx, Kalinlik, PismeDurumu, TabakParcasi } from "$lib/types";
 
   let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir }: {
     seviye: number;
@@ -51,8 +51,6 @@
   const baglam = $derived(baglamOlustur(seviye, AYAR));
   /** Dökme hedefi: ince/kalın yalnızca tercihler açıkken; yoksa her zaman normal */
   const hedefMiktar = $derived(AYAR.hamur.hedef[baglam.tercihAcik ? hedefKalinlik : "normal"]);
-
-  type Fx = { id: number; tur: "yildiz" | "damla" | "yazi" | "puf" | "kor"; x: number; y: number; dx: number; dy: number; txt?: string; sinif?: string; dogdu: number };
 
   let t = $state<Tava>(yeniTava());
   let fx = $state<Fx[]>([]);

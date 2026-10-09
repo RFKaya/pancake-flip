@@ -8,7 +8,7 @@ const kayit = (v: Record<string, unknown>) => JSON.stringify({ surum: 1, seviye:
 
 describe("ilerleme kaydı (ilerlemeCoz)", () => {
   test("geçerli kayıt aynen geri gelir", () => {
-    const v = { surum: 1, seviye: 20, ilerleme: 3, toplamMusteri: 140, toplamCoin: 5043, enYuksekSeviye: 25, enIyiSeri: 17, toplamMukemmel: 88 };
+    const v = { surum: 1 as const, seviye: 20, ilerleme: 3, toplamMusteri: 140, toplamCoin: 5043, enYuksekSeviye: 25, enIyiSeri: 17, toplamMukemmel: 88 };
     expect(ilerlemeCoz(JSON.stringify(v))).toEqual(v);
   });
 
@@ -24,7 +24,7 @@ describe("ilerleme kaydı (ilerlemeCoz)", () => {
   });
 
   test("istatistik alanları olmayan eski kayıt: rekor ve PERFECT sayısı 0 başlar, diğer alanlar korunur", () => {
-    const eski = { surum: 1, seviye: 30, ilerleme: 2, toplamMusteri: 250, toplamCoin: 4000, enYuksekSeviye: 30 };
+    const eski = { surum: 1 as const, seviye: 30, ilerleme: 2, toplamMusteri: 250, toplamCoin: 4000, enYuksekSeviye: 30 };
     expect(ilerlemeCoz(JSON.stringify(eski))).toEqual({ ...eski, enIyiSeri: 0, toplamMukemmel: 0 });
   });
 

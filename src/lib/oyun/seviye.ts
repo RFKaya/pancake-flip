@@ -1,6 +1,6 @@
 // Sonsuz seviye sistemi: seviye numarasından her şey hesaplanır; seviye dosyası yoktur (docs/sonsuz-seviye.md).
 // Zorluk sonsuza kadar büyümez: 0..1 arasında bir doyum eğrisidir ve her parametre kolay uç ↔ zor uç arasında gezinir.
-import type { SeviyeAyari } from "../../types/oyun";
+import type { Acilis, SeviyeAyari } from "../types";
 import { MALZEMELER, SEVIYE, TIPLER } from "./veri";
 
 const log2 = Math.log2;
@@ -80,14 +80,6 @@ export function seviyeAyari(seviye: number): SeviyeAyari {
     tercihOlasiligi: dogrusal(SEVIYE.egriler.tercihOlasiligi, d),
     musteriAgirlik,
   };
-}
-
-export interface Acilis {
-  tur: "malzeme" | "musteri" | "mekanik";
-  id: string;
-  ad: string;
-  ikon: string;
-  seviye: number;
 }
 
 function tumAcilislar(): Acilis[] {
