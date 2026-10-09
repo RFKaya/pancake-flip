@@ -21,7 +21,7 @@ Repo, hocanın `hello-mobil` şablonunun ("PassoKlon") birebir kopyası.
 | `src/pages/etkinlik/[id].astro` | `getStaticPaths` ile dinamik detay | **bolum/[id].astro** ve **servis/[id].astro** için aynı desen |
 | `src/lib/biletler.svelte.ts` | Rust `invoke` + `isTauri()` yedeği + `localStorage` | **fisler.svelte.ts** için birebir desen |
 | `src/lib/tema.svelte.ts` | Gece/gündüz teması | Aynen kullanılır. |
-| `src-tauri/src/lib.rs` | `bilet_olustur(etkinlik_id)` → `PSK-…` | `fis_olustur(bolum_id, yildiz)` → `KRP-…` ([proje-fikri.md](proje-fikri.md#3-veri-modeli-ve-rust-kod-formatı)) |
+| `src-tauri/src/lib.rs` | `bilet_olustur(etkinlik_id)` → `PSK-…` | `fis_olustur(seviye, yildiz)` → `KRP-…` ve `fis_coz(kod)`, tipli sonuç ve hata ([komutlar.md](komutlar.md)) |
 | `src/lib/data.ts`, `sepet.svelte.ts`, `Sepet/Biletlerim/EtkinlikDetay.svelte` | Passo'ya özgü | Yeni ekranlar çalıştıktan sonra silinir (aynı PR'da değil, yerine geçen ekranın PR'ında). |
 | `src/components/react/CanliRozet.tsx` | React örnek bileşen | Görev 06'daki etkileşimli bileşen için örnek olarak kalabilir. |
 | Test altyapısı | Yok | `bun test` (Bun'a gömülü, bağımlılık gerekmez) |
@@ -60,7 +60,8 @@ src/lib/oyun/                     # saf mantık (+ *.test.ts)
   motor.ts                        # rAF döngüsü, duraklatma, görünürlük olayı
   ses.ts                          # Web Audio sentez sesler + mikser (sfx/ortam/arayüz/müzik yolları, sıkıştırıcı, cooldown, hafif perde farkı), sürekli döngüler (dökme, cızırtı), ayar: Profil → Ses
 src/lib/kayit.svelte.ts           # sürümlü localStorage kaydı
-src/lib/fisler.svelte.ts          # Rust fis_olustur + Fişlerim listesi
+src/lib/fisler.svelte.ts          # fiş kesme (kod native.ts → Rust fis_olustur)
+src/lib/native.ts                 # Rust'a giden tek kapı + platform bilgisi
 src/components/oyun/              # Restoran, MusteriSlotu, SiparisKarti, Tava, Tabak,
                                   # MalzemeRafi, UstCubuk, SonucPenceresi, Geribildirim, Ogretici
 src/components/                   # Bolumler, BolumDetay, Fislerim, Mutfak (Profil güncellenir)
@@ -135,17 +136,10 @@ Her kare: motor → servis.ilerle(dt) → pisirme.ilerle / musteri.sabirAzalt / 
 
 ## 7. Rust tarafı
 
-```rust
-#[tauri::command]
-fn fis_olustur(bolum_id: u32, yildiz: u8) -> String {
-    let zaman = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
-    format!("KRP-{:03}-{}{:06X}", bolum_id, yildiz.min(3), zaman % 0xFF_FFFF)
-}
-```
-- `invoke_handler` içinde `bilet_olustur` yerine `fis_olustur` kaydedilir.
-- Format, `lib.rs` içinde küçük bir `#[cfg(test)]` testiyle doğrulanır (`cargo test`, öğrencinin bilgisayarında).
-- JS tarafı: `invoke<string>("fis_olustur", { bolumId, yildiz })` (Rust'taki `bolum_id`, JS'te `bolumId` yazılır).
+İki komut vardır: `fis_olustur(seviye, yildiz) -> Result<Adisyon, FisHatasi>` ve `fis_coz(kod) -> Result<FisBilgisi, FisHatasi>`. Girdiler, çıktılar ve hata türleri [`komutlar.md`](komutlar.md)'dedir.
 
+- Ön yüz Rust'ı yalnız [`src/lib/native.ts`](../src/lib/native.ts) üzerinden çağırır (`fisOlustur`, `fisCoz`); tarayıcıda yedek sonuç ya da `YalnizUygulamada` hatası döner. Platform kuralı: [`platform-destegi.md`](platform-destegi.md).
+- Biçim ve hata durumları `lib.rs` içindeki `#[cfg(test)]` testleriyle doğrulanır (`cargo test`).
 ---
 
 ## 8. Test stratejisi

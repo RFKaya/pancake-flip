@@ -23,6 +23,8 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/branding.md`](docs/branding.md) | Marka Kimliği ve Renkler | UI geliştirirken ad-hoc renk uydurma, `branding.md` ve CSS değişkenlerini kullan. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa & Özellik Haritası | Yeni sayfa veya yönlendirme eklerken mimari ağaca sadık kal. |
 | [`docs/gelistirme-notlari.md`](docs/gelistirme-notlari.md) | Geliştirme notları | Liste hâlleri `?durum=` ile elle denenir; yeni liste ekranı veriyi `src/lib/yukleyici.ts` üzerinden alır. |
+| [`docs/komutlar.md`](docs/komutlar.md) | Rust komutları (girdi, çıktı, hata türleri) | Rust yalnız `src/lib/native.ts` üzerinden çağrılır; komut tipli sonuç ve tipli hata döner. |
+| [`docs/platform-destegi.md`](docs/platform-destegi.md) | Özellik × platform tablosu | Yeni özellik eklenirken bu tablo ve `native.ts` içindeki `DESTEK` birlikte güncellenir; desteklenmeyen özellik o platformda arayüzde görünmez. |
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum | Ortam kurulumu bu belgeye göre yapılır. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Git akışı ve kod kuralları | Ayrıntılı kurallar burada tutulur. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim süreci | Teslim adımları bu belgeye göre izlenir. |
@@ -72,6 +74,7 @@ Her görev şu sırayla yapılır; adım atlanmaz:
 - Sayfa bileşenlerinde SSR güvenliği gözetilmeli; `window`, `localStorage` ve `requestAnimationFrame` erişimleri yalnızca istemcide veya korumalı (`typeof window !== 'undefined'`) yapılmalıdır. Oyun ekranı `client:only="svelte"` ile yüklenir.
 - **Oyun değerleri JSON'da:** Süre, fiyat, olasılık gibi sayılar kodda sabit yazılmaz; `src/lib/veri/*.json` içinde durur.
 - **Veri tipleri tek yerde:** Yeni veri alanı önce `src/lib/types/` içinde tanımlanır ([`docs/veri-modeli.md`](docs/veri-modeli.md)); bileşen ya da store içinde tip tanımlanmaz, `any` kullanılmaz.
+- **Rust ve platform tek kapıdan:** Tauri (`invoke`, `isTauri`) yalnız `src/lib/native.ts` içinde kullanılır; bileşenler platform adını sorgulamaz, `destekleniyorMu(...)` kullanır ([`docs/platform-destegi.md`](docs/platform-destegi.md)).
 - **Kurallar saf TypeScript'te** (`src/lib/oyun/*.ts`); Svelte bileşenleri yalnızca gösterir ve dokunmayı iletir.
 - Renkler yalnızca CSS değişkenleriyle kullanılır ([`docs/branding.md`](docs/branding.md)); ad-hoc hex yazılmaz.
 

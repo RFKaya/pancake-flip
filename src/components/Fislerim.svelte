@@ -6,8 +6,9 @@
   import HataDurumu from "$lib/components/ui/HataDurumu.svelte";
   import Yukleniyor from "$lib/components/ui/Yukleniyor.svelte";
   import { durumMetni } from "$lib/i18n";
+  import { destekleniyorMu, fisCoz } from "$lib/native";
   import { kilometreTasi } from "$lib/oyun/seviye";
-  import type { Fis, ListeDurumu } from "$lib/types";
+  import type { Fis, FisBilgisi, ListeDurumu, NativeHata } from "$lib/types";
   import { fisleriYukle } from "$lib/yukleyici";
 
   // Görülen en yeni fişin kodu: yalnızca "YENİ" damgası için (bu cihazdaki görüntüleme kolaylığı, oyun verisi değil)
@@ -42,7 +43,41 @@
     }
   }
 
-  onMount(yukle);
+  // Adisyon kodu çözme (Rust fis_coz): yalnız destekleyen platformda görünür (docs/platform-destegi.md)
+  let cozucuVar = $state(false);
+  let kodGirdi = $state("");
+  let cozum = $state<FisBilgisi | null>(null);
+  let cozumHatasi = $state<NativeHata | null>(null);
+  let cozucuEl = $state<HTMLElement>();
+
+  async function kodCoz() {
+    const s = await fisCoz(kodGirdi);
+    cozum = s.ok ? s.veri : null;
+    cozumHatasi = s.ok ? null : s.hata;
+  }
+
+  function hataMetni(h: NativeHata): string {
+    switch (h.tur) {
+      case "BosKod": return "Kod boş. Bir adisyon kodu yaz (ör. KRP-010-3A9F1C2).";
+      case "GecersizKod": return `"${h.kod}" bir adisyon kodu değil. Biçim: KRP-SSS-YXXXXXX.`;
+      case "GecersizSeviye": return `Koddaki seviye (${h.seviye}) geçersiz.`;
+      case "GecersizYildiz": return `Koddaki yıldız (${h.yildiz}) geçersiz.`;
+      case "YalnizUygulamada": return "Kod çözme yalnız uygulamada çalışır.";
+      case "Bilinmeyen": return `Beklenmeyen hata: ${h.mesaj}`;
+    }
+  }
+
+  onMount(() => {
+    yukle();
+    cozucuVar = destekleniyorMu("fisCoz");
+    // Paylaşılan bağlantı: /fislerim?kod=KRP-… kodu doldurup hemen çözer
+    const k = new URLSearchParams(window.location.search).get("kod");
+    if (cozucuVar && k !== null) {
+      kodGirdi = k;
+      // Bağlantı kod çözümü için açıldı: sonuç görünsün diye bölüme kaydır
+      kodCoz().then(() => requestAnimationFrame(() => cozucuEl?.scrollIntoView({ block: "start" })));
+    }
+  });
   const toplamNet = $derived(fisler.reduce((t, f) => t + Math.max(0, f.net ?? 0), 0));
 
   function tarihYaz(iso: string) {
@@ -108,6 +143,25 @@
       </article>
       </div>
     {/each}
+  {/if}
+
+  {#if cozucuVar}
+    <section class="cozucu" aria-labelledby="cozucu-baslik" bind:this={cozucuEl}>
+      <h2 id="cozucu-baslik">🔎 Adisyon kodu çöz</h2>
+      <form onsubmit={(e) => { e.preventDefault(); kodCoz(); }}>
+        <input bind:value={kodGirdi} placeholder="KRP-010-3A9F1C2" aria-label="Adisyon kodu" autocomplete="off" spellcheck="false" />
+        <button type="submit" class="btn">Çöz</button>
+      </form>
+      {#if cozumHatasi}
+        <HataDurumu baslik="Kod çözülemedi" mesaj={hataMetni(cozumHatasi)} />
+      {:else if cozum}
+        <dl class="cozum">
+          <div><dt>Seviye</dt><dd>{cozum.seviye}</dd></div>
+          <div><dt>Yıldız</dt><dd>{"⭐".repeat(cozum.yildiz) || "—"}</dd></div>
+          <div><dt>Zaman damgası</dt><dd><code>{cozum.damga}</code></dd></div>
+        </dl>
+      {/if}
+    </section>
   {/if}
 </div>
 
@@ -319,6 +373,61 @@
     font-weight: 800;
     letter-spacing: 1px;
     overflow-wrap: anywhere;
+  }
+
+  .cozucu {
+    display: grid;
+    gap: var(--bosluk-3);
+    margin-top: var(--bosluk-4);
+    padding: var(--bosluk-4);
+    border: 1px solid var(--kenar);
+    border-radius: var(--radius);
+    background: var(--kart);
+  }
+
+  .cozucu h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .cozucu form {
+    display: flex;
+    gap: var(--bosluk-2);
+  }
+
+  .cozucu input {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: var(--bosluk-2) var(--bosluk-3);
+    border: 1px solid var(--kenar);
+    border-radius: var(--radius-kucuk);
+    background: var(--zemin);
+    color: var(--yazi);
+    font: inherit;
+    font-family: ui-monospace, monospace;
+  }
+
+  .cozucu .btn {
+    width: auto;
+  }
+
+  .cozum {
+    display: grid;
+    gap: var(--bosluk-2);
+    margin: 0;
+  }
+
+  .cozum div {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--bosluk-2);
+    border-top: 1px solid var(--kenar);
+  }
+
+  .cozum dd {
+    margin: 0;
+    font-weight: 800;
   }
 
   @keyframes gir {
