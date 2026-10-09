@@ -24,6 +24,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum | Ortam kurulumu bu belgeye göre yapılır. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Git akışı ve kod kuralları | Ayrıntılı kurallar burada tutulur. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim süreci | Teslim adımları bu belgeye göre izlenir. |
+| [`docs/ajan-uyum-testi.md`](docs/ajan-uyum-testi.md) | Ajan uyum testi kaydı | Kurallara uyum bu belgedeki komutlarla doğrulanır ve sonuç kayda geçirilir. |
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Kaynaklar | Dış kaynaklar burada toplanır. |
 | [`docs/tasks/`](docs/tasks/) | Hocanın görev dosyaları | **Hocanındır, düzenlenmez.** Çelişkide hocanınki geçerlidir. |
 

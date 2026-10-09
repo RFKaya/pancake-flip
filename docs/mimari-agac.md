@@ -2,7 +2,7 @@
 
 Dizin yapısı (ana klasörler) için tek kaynak: [`klasor-mimarisi.md`](klasor-mimarisi.md). Oyun kod mimarisi: [`oyun-mimarisi.md`](oyun-mimarisi.md). Ekranların işlevi: [`proje-fikri.md`](proje-fikri.md).
 
-> Bu ağaç **hedef** yapıdır. Rotalar [`gelistirme-plani.md`](gelistirme-plani.md)'ndaki görevlerle hayata geçer (liste ve detay G2, servis G3–G5, mutfak ve profil G6, bilgi sayfaları Görev 06). Şablondan kalan eski rotalar (`/etkinlik/[id]`, `/biletlerim`, `/sepet`) bu görevlerde silinir ya da yerini alır.
+> Bu ağaç projenin **bugünkü** rotalarını gösterir; kaynak `src/pages/` klasörüdür. Ağaçta olmayan bir rota projede yoktur; yeni sayfa eklenirse önce bu ağaç güncellenir.
 
 ---
 
@@ -16,18 +16,14 @@ Pancake Flip!
 │   └── (aynı sayfada) OYUN durumu: sonsuz oyun, bölüm yok, bkz. sonsuz-seviye.md
 │   ├── Tava(lar), tabak, malzeme rafı, müşteri fişleri + sabır çubuğu, LEVEL ve ilerleme çubuğu
 │   ├── LEVEL UP bildirimi (oyunu durdurmaz); geliştirici modu 🛠 (seviye ayarlama)
-│   └── (G5) Fiş/adisyon: Rust fis_olustur → KRP-… kodu; yeni modele uyarlanacak
+│   └── Fiş/adisyon: kilometre taşlarında ve her 10. seviyede Rust `fis_olustur` → KRP-… kodu
 │
 ├── /fislerim (Fişlerim)
 │   └── Rust tarafından üretilen adisyon kodları ve geçmişi
 │
-├── /mutfak (Mutfak)
-│   ├── Yükseltmeler (tava, sos şişesi)
-│   └── Malzeme rehberi ve dekor
-│
 ├── /profil (Profil ve Ayarlar)
-│   ├── İstatistikler (servis, PERFECT sayısı, en iyi combo)
-│   ├── Gece/gündüz teması, ses, titreşim, ipucu, kaydı sıfırlama
+│   ├── Şef karnesi: seviye ve ilerleme, en yüksek seviye, servis edilen müşteri, en iyi seri, PERFECT sayısı, fiş sayısı, kasa
+│   ├── Hesap (ad, yalnızca cihazda) ve ses ayarları
 │   └── Bilgi sayfalarına linkler
 │
 └── Bilgi ve Yasal Sayfalar (4 dil: tr varsayılan, en, ar, fa)
@@ -37,7 +33,7 @@ Pancake Flip!
     └── /gizlilik (MDX, veriler yalnızca cihazda)
 ```
 
-Alt menü sekmeleri: Oyna · Fişlerim · Mutfak · Profil. Ayrı bir `/oyna` rotası yoktur: OYNA'ya basınca alt menü aşağı kayıp aynı yerdeki malzeme çubuğuna yer açar. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
+Alt menü sekmeleri: Oyna · Fişlerim · Profil. Ayrı bir `/oyna` rotası yoktur: OYNA'ya basınca alt menü aşağı kayıp aynı yerdeki malzeme çubuğuna yer açar. Diğer dillerde rotalar `/en/hakkinda` gibi öne ek alır.
 
 ---
 
