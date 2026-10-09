@@ -35,6 +35,11 @@
   --golge-kart: 0 3px 0 var(--kenar), 0 10px 22px -12px color-mix(in srgb, var(--renk-koyu) 35%, transparent);
   --golge-yuksek: 0 4px 0 var(--kenar), 0 16px 28px -14px color-mix(in srgb, var(--renk-koyu) 45%, transparent);
   --basma: 4px;
+  /* Boşluk ölçeği (bileşenlerde sabit px yerine) */
+  --bosluk-1: 4px;
+  --bosluk-2: 8px;
+  --bosluk-3: 12px;
+  --bosluk-4: 16px;
   color-scheme: light;
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;

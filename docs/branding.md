@@ -63,6 +63,7 @@ Ekranlar "dokunulabilir küçük bir krep dükkânı" gibi durur: yüzeyler tezg
 | `--golge-kart` | `--kenar` alt kenar + `--renk-koyu` %35 yumuşak gölge | `.kart` |
 | `--golge-yuksek` | daha belirgin alt kenar ve gölge | öne çıkan yüzey (seçili sekme, kasa) |
 | `--basma` | `4px` | `.btn` alt kenar yüksekliği; `:active` iken düğme bu kadar iner |
+| `--bosluk-1` … `--bosluk-4` | `4px`, `8px`, `12px`, `16px` | Bileşen içi boşluk ölçeği (ör. `ui/Kart.svelte`); bileşende sabit boşluk yazılmaz |
 | `.btn` | karamel degrade (üstte %6 açık; beyaz yazı en açık yerde 4,55:1) + `--renk-ana-koyu` kenar | ana eylem düğmesi |
 | `.hap` | kart zeminli, `--kenar` kenarlı hap | küçük sayaç ve etiketler |
 

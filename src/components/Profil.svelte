@@ -160,6 +160,7 @@
 
   <h2 class="bilgi-baslik">Bilgi</h2>
   <nav class="kart bilgi-linkler">
+    <a href="/rehber">🥞 Malzeme rehberi</a>
     <a href="/hakkinda">📖 Hakkında</a>
     <a href="/iletisim">✉️ İletişim</a>
     <a href="/kosullar">📜 Kullanım Koşulları</a>

@@ -86,3 +86,30 @@ export const krepMetni: Record<Dil, { ipucu: string; sayac: (n: number) => strin
 };
 
 export const dilEtiketi: Record<Dil, string> = { tr: "Dil", en: "Language", ar: "اللغة", fa: "زبان" };
+
+/** Malzeme rehberi metinleri (/rehber ve /rehber/<id>, dört dilde) */
+export const rehberMetni: Record<
+  Dil,
+  { baslik: string; giris: string; acik: string; seviye: (n: number) => string; liste: string }
+> = {
+  tr: { baslik: "Malzeme rehberi", giris: "Oyundaki bütün malzemeler ve açıldıkları seviye.", acik: "Açık", seviye: (n) => `Seviye ${n}`, liste: "Malzemeler" },
+  en: { baslik: "Ingredient guide", giris: "Every ingredient in the game and the level it unlocks at.", acik: "Unlocked", seviye: (n) => `Level ${n}`, liste: "Ingredients" },
+  ar: { baslik: "دليل المكونات", giris: "جميع مكونات اللعبة والمستوى الذي تُفتح فيه.", acik: "مفتوح", seviye: (n) => `المستوى ${n}`, liste: "المكونات" },
+  fa: { baslik: "راهنمای مواد", giris: "همه مواد بازی و سطحی که در آن باز می‌شوند.", acik: "باز", seviye: (n) => `سطح ${n}`, liste: "مواد" },
+};
+
+/** Malzeme adları (kimlik → ad); Türkçe adlar malzemeler.json ile aynıdır */
+export const malzemeAdlari: Record<Dil, Record<string, string>> = {
+  tr: { krep: "Krep", cikolata: "Çikolata", "cilek-dilimi": "Çilek dilimi", "cilek-sosu": "Çilek sosu", tereyagi: "Tereyağı", muz: "Muz", bal: "Bal", findik: "Fındık" },
+  en: { krep: "Crepe", cikolata: "Chocolate", "cilek-dilimi": "Strawberry slices", "cilek-sosu": "Strawberry sauce", tereyagi: "Butter", muz: "Banana", bal: "Honey", findik: "Hazelnut" },
+  ar: { krep: "كريب", cikolata: "شوكولاتة", "cilek-dilimi": "شرائح الفراولة", "cilek-sosu": "صلصة الفراولة", tereyagi: "زبدة", muz: "موز", bal: "عسل", findik: "بندق" },
+  fa: { krep: "کرپ", cikolata: "شکلات", "cilek-dilimi": "برش توت‌فرنگی", "cilek-sosu": "سس توت‌فرنگی", tereyagi: "کره", muz: "موز", bal: "عسل", findik: "فندق" },
+};
+
+/** Malzeme kategorisi adları */
+export const kategoriAdlari: Record<Dil, Record<"krep" | "dolgu" | "sos" | "topping", string>> = {
+  tr: { krep: "Krep", dolgu: "Dolgu", sos: "Sos", topping: "Süsleme" },
+  en: { krep: "Crepe", dolgu: "Filling", sos: "Sauce", topping: "Topping" },
+  ar: { krep: "كريب", dolgu: "حشوة", sos: "صلصة", topping: "إضافة" },
+  fa: { krep: "کرپ", dolgu: "مغزی", sos: "سس", topping: "رویه" },
+};
