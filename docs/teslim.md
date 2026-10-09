@@ -22,13 +22,13 @@ Her madde depoda tek tek denetlendi (09.10.2026).
 
 ## 2. Derleme Kanıtı (Build Proof)
 
-`fix/batch-01-final-compliance` dalında, gerçek bir PowerShell penceresinde `bun run build` çalıştırıldı; pencerenin ekran görüntüsü alındı. Çıktıda 19 sayfanın tamamı, `19 page(s) built`, `Complete!` ve `exit code: 0` görünür.
+Build kanıtı, güncel master'ın `C:\Temp\pancake-flip` altındaki temiz bir klonunda alınmıştır: gerçek bir PowerShell penceresinde `bun install` ve `bun run build` çalıştırıldı, pencerenin ekran görüntüsü alındı. Çıktıda 19 sayfanın tamamı, `19 page(s) built`, `Complete!` ve `exit code: 0` görünür.
 
 ![bun run build çıktısı](kanit/batch-01-build.png)
 
 ## 3. Tauri Uygulaması (`bun run tauri dev`)
 
-`bun run tauri dev` ile Rust tarafı derlendi (23,4 sn) ve masaüstü uygulaması açıldı. Görüntü, çalışan "Pancake Flip!" penceresinden alındı: lobi, tabela, şef ve karatahta, OYNA düğmesi ve alt menü. Alttaki küçük koyu araç çubuğu Astro'nun yalnızca geliştirme modunda görünen araç çubuğudur.
+Tauri uygulaması aynı temiz klondan (`C:\Temp\pancake-flip`, güncel master) `bun run tauri dev` ile açıldı. Görüntü, çalışan uygulamanın kendi "Pancake Flip!" penceresinden alındı: lobi, tabela, şef ve karatahta, OYNA düğmesi ve alt menü. Alttaki küçük koyu araç çubuğu Astro'nun yalnızca geliştirme modunda görünen araç çubuğudur.
 
 ![Tauri dev penceresi](kanit/tauri-dev-batch-01.png)
 
