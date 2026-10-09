@@ -32,11 +32,31 @@ Etiketler: Hafta 3 sonu `v0.1.0-batch-01` (Görev 09), MVP sonu `v0.2.0-mvp`, ta
 | [x] | 05 Markalama, renk, ikon | `feature/branding` | [05](tasks/week-3/05-branding.task.md) |
 | [x] | 07 Mimari ağaç, responsive | `feature/mimari-agac` | [07](tasks/week-3/07-hedefler-agac-yapisi.task.md) |
 | [x] | 06 Bilgi sayfaları (4 dil) | `feature/bilgi-sayfalari` | [06](tasks/week-3/06-info-pages.task.md) |
-| [ ] | 03 README | `feature/readme` | [03](tasks/week-3/03-readme.task.md) |
-| [ ] | 08 İleri AGENTS.md | `feature/agents-pro` | [08](tasks/week-3/08-agents-pro.task.md) |
-| [ ] | 09 Denetim + `v0.1.0-batch-01` etiketi | `feature/batch-01-denetim` | [09](tasks/week-3/09-progress-batch-01.task.md) |
+| [x] | 03 README | `feature/readme` | [03](tasks/week-3/03-readme.task.md) |
+| [x] | 08 İleri AGENTS.md | `feature/agents-pro` | [08](tasks/week-3/08-agents-pro.task.md) |
+| [x] | 09 Denetim + `v0.1.0-batch-01` etiketi | `fix/batch-01-final-compliance` | [09](tasks/week-3/09-progress-batch-01.task.md) |
 
 Görev 01 ve 01.2 öğrencinin işidir (fork, collaborator daveti, form, ZIP); 01.2'nin PR şartı yukarıdaki PR'larla karşılanır.
+
+Batch 01 teslim kaydı: [`teslim.md`](teslim.md). Eğitmen ön değerlendirmesi: [`k1/01.review.md`](k1/01.review.md).
+
+---
+
+## Faz 0.5 — Hafta 4 (Batch 02, ön yayın)
+
+Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → plan → değişiklik → doğrulama döngüsüyle yapılır ([`AGENTS.md`](../AGENTS.md) §4); her birinin istem günlüğü [`istemler/`](istemler/README.md) altındadır. Son tarih ve Görev 16 (Batch 02 denetimi) 14.10.2026 dersinde duyurulacak.
+
+| Durum | Görev | Dal / PR | Günlük |
+|---|---|---|---|
+| [ ] | 09.1 Master koruması (ön koşul) | `feature/09-1-master-korumasi` (#61): yalnız belge kısmı | — |
+| [x] | 10 Çalışma yöntemi | `feature/10-calisma-yontemi` (#62) | [10](istemler/10-calisma-yontemi.md) |
+| [x] | 11 Veri sözleşmesi | `feature/11-veri-sozlesmesi` (#63) | [11](istemler/11-veri-sozlesmesi.md) |
+| [x] | 12 Kart bileşeni | `feature/12-kart-bileseni` (#64) | [12](istemler/12-kart-bileseni.md) |
+| [x] | 13 Liste ekranı ve üç durum | `feature/13-liste-ve-uc-durum` (#65) | [13](istemler/13-liste-ve-uc-durum.md) |
+| [x] | 14 Detay ekranı ve gezinme | `feature/14-detay-ekrani` (#66) | [14](istemler/14-detay-ekrani.md) |
+| [x] | 15 Rust komutu: tipli sonuç ve hata | `feature/15-rust-komutu` (#67) | [15](istemler/15-rust-komutu.md) |
+
+**09.1 açık kalan kısım (depo sahibi `RFKaya` yapar; yönetici yetkisi gerekir):** Settings → Rules → Rulesets'te "master koruması" kural seti (Active; varsayılan dal; Restrict deletions, Block force pushes, Require a pull request), Settings → General'da merge commit ve otomatik dal silme, Settings → Actions'ta dış katkıcı onayı; ardından `master`'a doğrudan push denemesinin reddedildiğini görmek ve kural seti ekran görüntüsünü `docs/kanit/master-korumasi.png` olarak bir PR ile eklemek. Belge kısmı ("PR güvenliği", [`kurallar.md`](kurallar.md)) tamam.
 
 ### Faz 0 için projeye özgü kararlar
 Puan kriterleri hocanın dosyalarında; burada yalnızca **bizim projeye ait** kararlar var.
@@ -162,9 +182,10 @@ Her F görevi aynı kalıpla yazılır (amaç, yapılacaklar, bitti sayılır, t
 
 ## Öğrencinin kendi yapması gerekenler
 
-- [ ] Blackboard formu (7 Ekim 23:59, **tek deneme**)
-- [ ] Hocayı (`keyvanarasteh`) collaborator olarak davet etmek
-- [ ] Her PR'ı inceleyip merge etmek
-- [ ] `bun run tauri dev` ekran görüntüleri
-- [ ] 9 Ekim 23:59 öncesi GitHub → Code → Download ZIP → Blackboard'a yükleme
-- [ ] Hocaya sorulacaklar (Telegram, Soru-Cevap başlığı): (1) Blackboard'a PR linki de eklenecek mi, yalnızca ZIP mi? (2) Repo adı `hello-mobil` dışında olabilir mi (Görev 01 puan tablosu `hello-mobil` diyor)?
+- [x] Blackboard formu (7 Ekim 23:59, **tek deneme**): eğitmen değerlendirmesi 01.1'de "iki üye de formu süresinde doldurdu"
+- [x] Hocayı (`keyvanarasteh`) collaborator olarak davet etmek: collaborator listesinde
+- [ ] Her PR'ı inceleyip merge etmek (sürekli)
+- [x] `bun run tauri dev` ekran görüntüleri: [`kanit/tauri-dev-batch-01.png`](kanit/tauri-dev-batch-01.png)
+- [ ] 9 Ekim 23:59 öncesi GitHub → `master` → Code → Download ZIP → Blackboard'a yükleme (etiketten değil, güncel `master`'dan)
+- [x] Hocaya sorulacaklar: (1) PR linki gönderilmez, yalnız ZIP ([Görev 09](tasks/week-3/09-progress-batch-01.task.md) §4); (2) repo adı `pancake-flip` kabul edildi (eğitmen değerlendirmesi 01.1: 10/10)
+- [ ] Görev 09.1 GitHub ayarları (depo sahibi `RFKaya`; yukarıdaki Faz 0.5 notu)

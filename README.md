@@ -41,7 +41,7 @@
 - [Teknoloji Yığını](#️-teknoloji-yığını)
 - [Kurulum ve Çalıştırma](docs/kurulum.md)
 - [Dokümantasyon](#-dokümantasyon)
-- [Haftalık Görevler](docs/tasks/week-3/)
+- Haftalık Görevler: [Hafta 3](docs/tasks/week-3/) · [Hafta 4](docs/tasks/week-4/)
 - [Lisans](#-lisans)
 
 ---
@@ -127,12 +127,13 @@ Bu proje salt bir web sayfası değil; tek bir kod tabanından masaüstü ve mob
 
 1. **Rust Çekirdeği (Tauri v2):**
    - İşletim sisteminin yerel WebView'ını kullanan hafif uygulama kabuğu (dikey 420×820 pencere).
-   - IPC (Inter-Process Communication) ile JavaScript arayüzünden Rust fonksiyonlarını doğrudan çağırma (`fis_olustur` → `KRP-BBB-YXXXXXX` adisyon kodu; tarayıcıda `WEB-` yedeği).
+   - IPC (Inter-Process Communication) ile Rust komutları: `fis_olustur` (`KRP-SSS-YXXXXXX` adisyon kodu) ve `fis_coz` (kodu çözme); tipli sonuç ve tipli hata döner. Arayüz Rust'ı yalnız `src/lib/native.ts` üzerinden çağırır; tarayıcıda yedek sonuç verir ([`docs/komutlar.md`](docs/komutlar.md), [`docs/platform-destegi.md`](docs/platform-destegi.md)).
 2. **Astro Statik Altyapısı (`output: 'static'`):**
    - Hızlı statik sayfa derlemesi ve dosya tabanlı yönlendirme (`src/pages/`), TR / EN / AR / FA dil desteği.
    - Dahili `<ClientRouter />` (View Transitions) ile sayfa geçişlerinde SPA akıcılığı.
 3. **Çoklu Çatı Özgürlüğü:**
-   - **Svelte 5:** Lobi, oyun ekranı, Fişlerim ve Profil (`$state`, `$derived`, `$props` Runes).
+   - **Svelte 5:** Lobi, oyun ekranı, Malzeme rehberi, Fişlerim ve Profil (`$state`, `$derived`, `$props` Runes); ortak arayüz bileşenleri `src/lib/components/ui/` (Kart, Yükleniyor, Boş durum, Hata durumu).
+   - **Veri sözleşmesi:** Bütün tipler `src/lib/types/` altında ([`docs/veri-modeli.md`](docs/veri-modeli.md)); `bun run check` ile denetlenir.
    - **Saf TypeScript oyun mantığı:** Kurallar `src/lib/oyun/` altında, `bun test` ile test edilir; oyun sayıları `src/lib/veri/*.json` dosyalarındadır.
    - **MDX:** Çok dilli bilgi sayfaları (Hakkında, İletişim, Koşullar, Gizlilik).
    - **React 19:** Astro entegrasyonu olarak projede hazır durur.
@@ -144,7 +145,8 @@ Bu proje salt bir web sayfası değil; tek bir kod tabanından masaüstü ve mob
 - 🍳 **Lobi (Ana Sayfa):** Oyunun kendi restoran sahnesi; büyük **OYNA** düğmesi sayfa değiştirmeden aynı sahneyi oyun durumuna geçirir.
 - 🥞 **Oyun:** Basılı tutarak hamur dökme (yeşil hedef halka), pişince yukarı kaydırarak çevirme, aşağı kaydırarak tabağa alma, malzemeleri sırayla koyma; doğru tabak kendiliğinden servis edilir, yanlış tabak kabul edilmez.
 - ♾️ **Sonsuz Seviye:** Seviye atladıkça yeni malzemeler, müşteri tipleri, ikinci tava, kalınlık tercihleri ve yoğun saat açılır; kilometre taşlarında özel başlıklar çıkar.
-- 🧾 **Fişlerim:** Rust backend'i tarafından üretilen adisyon kodları (`KRP-BBB-YXXXXXX`) ve yerel depolama.
+- 🧾 **Fişlerim:** Rust backend'i tarafından üretilen adisyon kodları (`KRP-SSS-YXXXXXX`) ve yerel depolama; uygulamada **adisyon kodu çözme** (Rust `fis_coz`).
+- 📚 **Malzeme Rehberi:** Oyundaki malzemeler kart listesi olarak, 4 dilde (`/rehber`); arama, yükleniyor / boş / hata hâlleri ve her malzeme için kendi adresi olan detay ekranı (`/rehber/cikolata`).
 - 👤 **Profil & Tema:** Adisyon sayısı, bilgi sayfalarına bağlantılar ve açılışta parlamayı önleyen (blocking script) **Gece / Gündüz** modu.
 - 📖 **Bilgi Sayfaları (MDX):** Hakkında, İletişim, Kullanım Koşulları ve Gizlilik; 4 dilde (Arapça ve Farsça sağdan sola).
 
@@ -174,11 +176,20 @@ Bu proje salt bir web sayfası değil; tek bir kod tabanından masaüstü ve mob
 - [Sonsuz seviye sistemi](docs/sonsuz-seviye.md)
 - [Oyun mimarisi](docs/oyun-mimarisi.md)
 - [Ortak geliştirme](docs/ortak-gelistirme.md)
+- [Geliştirme planı](docs/gelistirme-plani.md)
+- [Ajan oturum talimatı](docs/sonnet-talimati.md)
 - [Kurulum](docs/kurulum.md)
 - [Kurallar](docs/kurallar.md)
 - [Kaynaklar](docs/kaynaklar.md)
 - [Teslim](docs/teslim.md)
-- [Haftalık görevler](docs/tasks/week-3/)
+- [Veri modeli](docs/veri-modeli.md)
+- [Rust komutları](docs/komutlar.md)
+- [Platform desteği](docs/platform-destegi.md)
+- [Geliştirme notları](docs/gelistirme-notlari.md)
+- [Görev şartnamesi şablonu](docs/gorev-sartnamesi.md)
+- [İstem günlüğü](docs/istemler/README.md)
+- [Ajan uyum testi](docs/ajan-uyum-testi.md)
+- Haftalık görevler: [Hafta 3](docs/tasks/week-3/) · [Hafta 4](docs/tasks/week-4/)
 
 ---
 
