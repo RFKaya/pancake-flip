@@ -22,12 +22,16 @@ Pancake Flip!
 │   └── Rust tarafından üretilen adisyon kodları ve geçmişi
 │
 ├── /rehber (Malzeme rehberi, 4 dil: /en/rehber, /ar/rehber, /fa/rehber)
-│   └── Malzeme kartları (ortak `ui/Kart.svelte`): ad, kategori, değer, açık / kilitli etiketi
+│   ├── Malzeme kartları (ortak `ui/Kart.svelte`): ad, kategori, değer, açık / kilitli etiketi
+│   ├── Arama (`?q=`); yükleniyor / hata / boş / dolu hâlleri (`ui/Yukleniyor`, `ui/HataDurumu`, `ui/BosDurum`)
+│   └── /rehber/[id] (Malzeme detayı, ör. /rehber/cikolata; 4 dil): kategori, açıldığı seviye, değer, maliyet; geri dönüşte arama korunur
 │
 ├── /profil (Profil ve Ayarlar)
 │   ├── Şef karnesi: seviye ve ilerleme, en yüksek seviye, servis edilen müşteri, en iyi seri, PERFECT sayısı, fiş sayısı, kasa
 │   ├── Hesap (ad, yalnızca cihazda) ve ses ayarları
 │   └── Malzeme rehberi ve bilgi sayfalarına linkler
+│
+├── 404 (olmayan her adres): `ui/HataDurumu` ile "bulunamadı" + rehbere dönüş
 │
 └── Bilgi ve Yasal Sayfalar (4 dil: tr varsayılan, en, ar, fa)
     ├── /hakkinda (MDX + etkileşimli bileşen)

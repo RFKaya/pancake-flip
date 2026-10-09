@@ -1,0 +1,22 @@
+---
+// Malzeme detay sayfası: dört dilde aynı iskelet; dil adresten, kimlik sayfa parametresinden gelir (/rehber/<id>)
+import Layout from '../../layouts/Layout.astro';
+import DilSecici from '../bilgi/DilSecici.astro';
+import RehberDetay from './RehberDetay.svelte';
+import { dilBul, malzemeAdlari, rehberMetni } from '../../lib/i18n';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const dil = dilBul(Astro.url.pathname);
+const ad = malzemeAdlari[dil][id] ?? id;
+---
+
+<Layout title={`${ad} — ${rehberMetni[dil].baslik} — Pancake Flip!`}>
+  <div class="sayfa">
+    <DilSecici />
+    <RehberDetay client:load {id} {dil} />
+  </div>
+</Layout>

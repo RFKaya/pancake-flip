@@ -1,0 +1,13 @@
+---
+import RehberDetaySayfa from '../../../components/rehber/RehberDetaySayfa.astro';
+import { MALZEMELER } from '../../../lib/oyun/veri';
+
+// Her malzeme için derlemede bir sayfa (/rehber/cikolata …); olmayan kimlik 404 sayfasına düşer
+export function getStaticPaths() {
+  return MALZEMELER.map((m) => ({ params: { id: m.id } }));
+}
+
+const { id } = Astro.params;
+---
+
+<RehberDetaySayfa id={id} />

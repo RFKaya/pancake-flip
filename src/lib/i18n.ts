@@ -184,3 +184,34 @@ export const durumMetni: Record<
     oyna: "🥞 بازی کن",
   },
 };
+
+/** Dil önekinden arındırılmış yol: /en/rehber/cikolata -> rehber/cikolata (dil seçici aynı sayfanın diğer dillerine gider) */
+export function dilsizYol(yol: string): string {
+  const parcalar = yol.split("/").filter(Boolean);
+  if (dilMi(parcalar[0])) parcalar.shift();
+  return parcalar.join("/");
+}
+
+/** Malzeme detay ekranı ve "bulunamadı" ekranı metinleri (dört dilde) */
+export const detayMetni: Record<
+  Dil,
+  {
+    geri: string;
+    kategori: string;
+    acilis: string;
+    deger: string;
+    maliyet: string;
+    tatli: string;
+    evet: string;
+    hayir: string;
+    durum: string;
+    bulunamadiBaslik: string;
+    bulunamadiMesaj: string;
+    rehbereDon: string;
+  }
+> = {
+  tr: { geri: "Rehbere dön", kategori: "Kategori", acilis: "Açıldığı seviye", deger: "Siparişte kazandırdığı", maliyet: "Tabağa koyma maliyeti", tatli: "Tatlı", evet: "Evet", hayir: "Hayır", durum: "Durum", bulunamadiBaslik: "Bulunamadı", bulunamadiMesaj: "Aradığın sayfa ya da malzeme yok. Adresi kontrol et ya da rehbere dön.", rehbereDon: "Rehbere dön" },
+  en: { geri: "Back to guide", kategori: "Category", acilis: "Unlocks at", deger: "Earns per order", maliyet: "Cost to place", tatli: "Sweet", evet: "Yes", hayir: "No", durum: "Status", bulunamadiBaslik: "Not found", bulunamadiMesaj: "The page or ingredient you are looking for does not exist. Check the address or go back to the guide.", rehbereDon: "Back to guide" },
+  ar: { geri: "العودة إلى الدليل", kategori: "الفئة", acilis: "يُفتح في", deger: "يربح في كل طلب", maliyet: "تكلفة الإضافة", tatli: "حلو", evet: "نعم", hayir: "لا", durum: "الحالة", bulunamadiBaslik: "غير موجود", bulunamadiMesaj: "الصفحة أو المكوّن الذي تبحث عنه غير موجود. تحقّق من العنوان أو عُد إلى الدليل.", rehbereDon: "العودة إلى الدليل" },
+  fa: { geri: "بازگشت به راهنما", kategori: "دسته", acilis: "باز می‌شود در", deger: "درآمد در هر سفارش", maliyet: "هزینه گذاشتن", tatli: "شیرین", evet: "بله", hayir: "خیر", durum: "وضعیت", bulunamadiBaslik: "پیدا نشد", bulunamadiMesaj: "صفحه یا ماده‌ای که دنبالش هستید وجود ندارد. نشانی را بررسی کنید یا به راهنما برگردید.", rehbereDon: "بازگشت به راهنما" },
+};
