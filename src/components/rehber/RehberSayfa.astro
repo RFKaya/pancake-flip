@@ -1,0 +1,31 @@
+---
+// Malzeme rehberi sayfası: dört dilde aynı iskelet; dil adresten gelir (/rehber, /en/rehber, /ar/rehber, /fa/rehber)
+import Layout from '../../layouts/Layout.astro';
+import DilSecici from '../bilgi/DilSecici.astro';
+import RehberListe from './RehberListe.svelte';
+import { dilBul, rehberMetni } from '../../lib/i18n';
+
+const dil = dilBul(Astro.url.pathname);
+const metin = rehberMetni[dil];
+---
+
+<Layout title={`${metin.baslik} — Pancake Flip!`}>
+  <div class="sayfa">
+    <DilSecici />
+    <h1>📖 {metin.baslik}</h1>
+    <p class="giris">{metin.giris}</p>
+    <RehberListe client:load {dil} />
+  </div>
+</Layout>
+
+<style>
+  h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .giris {
+    margin: 0;
+    color: var(--yazi-soluk);
+  }
+</style>

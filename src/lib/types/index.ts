@@ -7,3 +7,4 @@ export type * from "./fis";
 export type * from "./seviye";
 export type * from "./ayarlar";
 export type * from "./arayuz";
+export type * from "./ui";
