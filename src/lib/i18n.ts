@@ -113,3 +113,74 @@ export const kategoriAdlari: Record<Dil, Record<"krep" | "dolgu" | "sos" | "topp
   ar: { krep: "كريب", dolgu: "حشوة", sos: "صلصة", topping: "إضافة" },
   fa: { krep: "کرپ", dolgu: "مغزی", sos: "سس", topping: "رویه" },
 };
+
+/** Liste durumlarının metinleri (Yukleniyor, BosDurum, HataDurumu; dört dilde) */
+export const durumMetni: Record<
+  Dil,
+  {
+    yukleniyor: string;
+    hataBaslik: string;
+    hataMesaji: string;
+    tekrar: string;
+    bosBaslik: string;
+    bosAciklama: string;
+    ara: string;
+    aramaBosBaslik: string;
+    aramaBosAciklama: (q: string) => string;
+    temizle: string;
+    oyna: string;
+  }
+> = {
+  tr: {
+    yukleniyor: "Yükleniyor…",
+    hataBaslik: "Bir şeyler ters gitti",
+    hataMesaji: "Liste yüklenemedi. Bağlantını kontrol edip yeniden dene.",
+    tekrar: "Tekrar dene",
+    bosBaslik: "Burada henüz bir şey yok",
+    bosAciklama: "Liste boş. Oyna, yeni şeyler burada birikir.",
+    ara: "Malzeme ara",
+    aramaBosBaslik: "Sonuç bulunamadı",
+    aramaBosAciklama: (q) => `"${q}" ile eşleşen malzeme yok.`,
+    temizle: "Aramayı temizle",
+    oyna: "🥞 Oyna",
+  },
+  en: {
+    yukleniyor: "Loading…",
+    hataBaslik: "Something went wrong",
+    hataMesaji: "The list could not be loaded. Check your connection and try again.",
+    tekrar: "Try again",
+    bosBaslik: "Nothing here yet",
+    bosAciklama: "The list is empty. Play, and new things will collect here.",
+    ara: "Search ingredients",
+    aramaBosBaslik: "No results",
+    aramaBosAciklama: (q) => `No ingredient matches "${q}".`,
+    temizle: "Clear search",
+    oyna: "🥞 Play",
+  },
+  ar: {
+    yukleniyor: "جارٍ التحميل…",
+    hataBaslik: "حدث خطأ ما",
+    hataMesaji: "تعذّر تحميل القائمة. تحقّق من الاتصال وحاول مجددًا.",
+    tekrar: "حاول مجددًا",
+    bosBaslik: "لا يوجد شيء هنا بعد",
+    bosAciklama: "القائمة فارغة. العب، وستتجمّع الأشياء الجديدة هنا.",
+    ara: "ابحث عن مكوّن",
+    aramaBosBaslik: "لا توجد نتائج",
+    aramaBosAciklama: (q) => `لا يوجد مكوّن يطابق «${q}».`,
+    temizle: "مسح البحث",
+    oyna: "🥞 العب",
+  },
+  fa: {
+    yukleniyor: "در حال بارگذاری…",
+    hataBaslik: "مشکلی پیش آمد",
+    hataMesaji: "فهرست بارگذاری نشد. اتصال را بررسی کنید و دوباره تلاش کنید.",
+    tekrar: "تلاش دوباره",
+    bosBaslik: "هنوز چیزی اینجا نیست",
+    bosAciklama: "فهرست خالی است. بازی کنید تا موارد تازه اینجا جمع شوند.",
+    ara: "جستجوی مواد",
+    aramaBosBaslik: "نتیجه‌ای پیدا نشد",
+    aramaBosAciklama: (q) => `هیچ ماده‌ای با «${q}» مطابقت ندارد.`,
+    temizle: "پاک کردن جستجو",
+    oyna: "🥞 بازی کن",
+  },
+};
