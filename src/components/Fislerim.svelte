@@ -1,16 +1,36 @@
 <script lang="ts">
-  // Fişlerim: seviye adisyonları (Rust fis_olustur kodları). Veri yalnızca kayit.fisler()'den okunur.
+  // Fişlerim: seviye adisyonları (Rust fis_olustur kodları). Veri tek yükleme işlevinden (fisleriYukle) gelir; ekran dört
+  // hâlden birini gösterir: yükleniyor, hata, boş, dolu (ortak ui bileşenleriyle).
   import { onMount } from "svelte";
-  import { kayit } from "$lib/kayit.svelte";
+  import BosDurum from "$lib/components/ui/BosDurum.svelte";
+  import HataDurumu from "$lib/components/ui/HataDurumu.svelte";
+  import Yukleniyor from "$lib/components/ui/Yukleniyor.svelte";
+  import { durumMetni } from "$lib/i18n";
   import { kilometreTasi } from "$lib/oyun/seviye";
+  import type { Fis, ListeDurumu } from "$lib/types";
+  import { fisleriYukle } from "$lib/yukleyici";
 
   // Görülen en yeni fişin kodu: yalnızca "YENİ" damgası için (bu cihazdaki görüntüleme kolaylığı, oyun verisi değil)
   const GORULDU = "pancakeflip-fis-goruldu";
-  let hazir = $state(false);
+  const dm = durumMetni.tr;
+  let durum = $state<ListeDurumu>("yukleniyor");
+  let fisler = $state<Fis[]>([]);
   let yeniSayisi = $state(0);
-  onMount(() => {
-    kayit.yukle();
-    const liste = kayit.fisler();
+  let deneme = 0;
+
+  async function yukle() {
+    durum = "yukleniyor";
+    try {
+      fisler = await fisleriYukle(deneme++);
+    } catch {
+      durum = "hata";
+      return;
+    }
+    yeniIsaretle(fisler);
+    durum = fisler.length ? "dolu" : "bos";
+  }
+
+  function yeniIsaretle(liste: Fis[]) {
     try {
       const son = localStorage.getItem(GORULDU);
       const i = son ? liste.findIndex((f) => f.kod === son) : -1;
@@ -20,10 +40,9 @@
     } catch {
       yeniSayisi = 0;
     }
-    hazir = true;
-  });
+  }
 
-  const fisler = $derived(kayit.fisler());
+  onMount(yukle);
   const toplamNet = $derived(fisler.reduce((t, f) => t + Math.max(0, f.net ?? 0), 0));
 
   function tarihYaz(iso: string) {
@@ -38,10 +57,22 @@
 <div class="sayfa">
   <header class="baslik">
     <h1>🧾 Fişlerim</h1>
-    {#if hazir && fisler.length}<span class="hap">{fisler.length} adisyon</span>{/if}
+    {#if durum === "dolu"}<span class="hap">{fisler.length} adisyon</span>{/if}
   </header>
 
-  {#if hazir && fisler.length}
+  {#if durum === "yukleniyor"}
+    <Yukleniyor metin={dm.yukleniyor} satir={3} />
+  {:else if durum === "hata"}
+    <HataDurumu baslik={dm.hataBaslik} mesaj={dm.hataMesaji} tekrarMetni={dm.tekrar} onTekrar={yukle} />
+  {:else if durum === "bos"}
+    <BosDurum
+      ikon="🧾"
+      baslik="Henüz adisyon yok"
+      aciklama="Her 10 seviyede ve her kilometre taşında bir adisyon kesilir; hepsi burada birikir."
+      dugmeMetni={dm.oyna}
+      href="/"
+    />
+  {:else}
     <section class="kasa" aria-label="Kasa">
       <span class="kasa-cekmece" aria-hidden="true">🪙</span>
       <div>
@@ -49,9 +80,7 @@
         <strong>+{toplamNet}</strong>
       </div>
     </section>
-  {/if}
 
-  {#if hazir}
     {#each fisler as f, i (f.kod + i)}
       {@const y = yildizSayisi(f.yildiz)}
       {@const kt = kilometreTasi(f.bolum)}
@@ -77,13 +106,6 @@
           <code class="kod">{f.kod}</code>
         </div>
       </article>
-      </div>
-    {:else}
-      <div class="bos-durum">
-        <div class="tabak" aria-hidden="true"><div class="plaka"></div></div>
-        <h2>Henüz adisyon yok</h2>
-        <p>Her 10 seviyede ve her kilometre taşında bir adisyon kesilir; hepsi burada birikir.</p>
-        <a class="btn" href="/">🥞 Oyna</a>
       </div>
     {/each}
   {/if}
@@ -299,49 +321,6 @@
     overflow-wrap: anywhere;
   }
 
-  .bos-durum {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 36px 16px 8px;
-    text-align: center;
-  }
-
-  .bos-durum h2 {
-    margin: 8px 0 0;
-    font-size: 20px;
-  }
-
-  .bos-durum p {
-    margin: 0 0 8px;
-    color: var(--yazi-soluk);
-  }
-
-  .bos-durum .btn {
-    max-width: 260px;
-  }
-
-  /* Boş tabak: oyun sahnesindeki turkuaz tabak, hafif sallanır */
-  .tabak {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 180px;
-    height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 60%, var(--sahne-duvar) 0 45%, transparent 70%);
-  }
-
-  .plaka {
-    width: 150px;
-    height: 30px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at 50% 35%, var(--sahne-tabak) 55%, color-mix(in srgb, var(--sahne-tabak) 70%, white) 56%);
-    box-shadow: 0 7px 0 var(--sahne-tabak-koyu);
-    animation: salla 2.4s ease-in-out infinite;
-  }
-
   @keyframes gir {
     from { opacity: 0; translate: 0 10px; }
   }
@@ -351,15 +330,11 @@
     70% { opacity: 1; transform: rotate(6deg) scale(0.9); }
   }
 
-  @keyframes salla {
-    50% { transform: rotate(-3deg) translateY(-3px); }
-  }
-
   @media (min-width: 768px) {
     .sayfa { max-width: 560px; margin: 0 auto; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .golge, .plaka, .damga { animation: none; }
+    .golge, .damga { animation: none; }
   }
 </style>

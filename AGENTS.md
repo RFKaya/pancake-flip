@@ -22,6 +22,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/klasor-mimarisi.md`](docs/klasor-mimarisi.md) | Dizin & Dosya Yapısı | Klasör mimarisi yalnızca bu belgede tanımlanır. Yeni dosya eklerken bu hiyerarşiye uy. |
 | [`docs/branding.md`](docs/branding.md) | Marka Kimliği ve Renkler | UI geliştirirken ad-hoc renk uydurma, `branding.md` ve CSS değişkenlerini kullan. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa & Özellik Haritası | Yeni sayfa veya yönlendirme eklerken mimari ağaca sadık kal. |
+| [`docs/gelistirme-notlari.md`](docs/gelistirme-notlari.md) | Geliştirme notları | Liste hâlleri `?durum=` ile elle denenir; yeni liste ekranı veriyi `src/lib/yukleyici.ts` üzerinden alır. |
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum | Ortam kurulumu bu belgeye göre yapılır. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Git akışı ve kod kuralları | Ayrıntılı kurallar burada tutulur. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim süreci | Teslim adımları bu belgeye göre izlenir. |
