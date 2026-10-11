@@ -48,7 +48,7 @@ Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → p
 
 | Durum | Görev | Dal / PR | Günlük |
 |---|---|---|---|
-| [ ] | 09.1 Master koruması (ön koşul) | `feature/09-1-master-korumasi` (#61): yalnız belge kısmı | — |
+| [x] | 09.1 Master koruması (ön koşul) | `feature/09-1-master-korumasi` (#61): yalnız belge kısmı | — |
 | [x] | 10 Çalışma yöntemi | `feature/10-calisma-yontemi` (#62) | [10](istemler/10-calisma-yontemi.md) |
 | [x] | 11 Veri sözleşmesi | `feature/11-veri-sozlesmesi` (#63) | [11](istemler/11-veri-sozlesmesi.md) |
 | [x] | 12 Kart bileşeni | `feature/12-kart-bileseni` (#64) | [12](istemler/12-kart-bileseni.md) |
@@ -188,4 +188,4 @@ Her F görevi aynı kalıpla yazılır (amaç, yapılacaklar, bitti sayılır, t
 - [x] `bun run tauri dev` ekran görüntüleri: [`kanit/tauri-dev-batch-01.png`](kanit/tauri-dev-batch-01.png)
 - [ ] 9 Ekim 23:59 öncesi GitHub → `master` → Code → Download ZIP → Blackboard'a yükleme (etiketten değil, güncel `master`'dan)
 - [x] Hocaya sorulacaklar: (1) PR linki gönderilmez, yalnız ZIP ([Görev 09](tasks/week-3/09-progress-batch-01.task.md) §4); (2) repo adı `pancake-flip` kabul edildi (eğitmen değerlendirmesi 01.1: 10/10)
-- [ ] Görev 09.1 GitHub ayarları (depo sahibi `RFKaya`; yukarıdaki Faz 0.5 notu)
+- [x] Görev 09.1 GitHub ayarları (depo sahibi `RFKaya`; yukarıdaki Faz 0.5 notu)
