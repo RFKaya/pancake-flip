@@ -6,7 +6,8 @@ Dal, commit ve PR kuralları [`AGENTS.md`](../AGENTS.md) §3'tedir: her iş `fea
 
 ## PR güvenliği
 
-- `master` dalı korumalıdır: her değişiklik PR ile girer; force push ve dal silme kapalıdır. Kural seti ("master koruması") depo sahibi tarafından GitHub'da **Settings → Rules → Rulesets** altında etkinleştirilir ([Görev 09.1](tasks/week-4/09-1-master-korumasi.task.md)).
+- `master` dalı korumalıdır: her değişiklik PR ile girer; force push ve dal silme kapalıdır. Kural seti ("master koruması") GitHub'da **Settings → Rules → Rulesets** altında etkindir: varsayılan dal, bypass yok, PR için **1 onay** gerekir ([Görev 09.1](tasks/week-4/09-1-master-korumasi.task.md), kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png)).
+- Ekip iki kişi olduğu için her PR'ı **diğer üye** onaylar; GitHub kişinin kendi PR'ını onaylamasına izin vermez.
 - PR'ı yalnız collaborator'lar merge eder: `RFKaya`, `RedRiveRR` ve eğitmen `keyvanarasteh`.
 - Tanımadığımız birinden gelen PR merge edilmeden önce:
   - **Files changed** sekmesinde her dosya okunur.
