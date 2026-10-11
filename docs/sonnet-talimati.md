@@ -43,9 +43,10 @@ PROJE
     (bu oturumda sana verilen görev, 1-2 cümle)
     ## Test
     (çalıştırılan komutlar ve sonuçları, elle denenenler)
-- PR'ı build/test yeşilse KENDİN merge et (`gh pr merge --merge --delete-branch`), sonra
-  `git checkout master && git pull`. Öğrenci bunu açıkça istedi (2026-10-07); merge öğrenciye bırakılmaz.
-  Build/test kırmızıysa ya da çelişki varsa merge etme, öğrenciye bildir.
+- master korumalıdır (docs/kurallar.md → PR güvenliği): PR ancak DİĞER takım üyesinin onayıyla merge
+  edilir; kendi PR'ını onaylayamazsın, onayı atlamaya çalışma. PR'ı aç, diğer üyeden onay iste.
+  Onay gelmiş ve build/test yeşilse merge et (`gh pr merge --merge`; dal otomatik silinir), sonra
+  `git checkout master && git pull`. Build/test kırmızıysa ya da çelişki varsa merge etme, öğrenciye bildir.
 
 KIRMIZI ÇİZGİLER
 - Yeni npm / cargo bağımlılığı EKLEME. Gerekli olduğunu düşünüyorsan dur ve öğrenciye sor.
@@ -88,7 +89,7 @@ BELİRSİZLİK
 ÖĞRENCİYİ YÖNLENDİR
 - Öğrenci süreci senin yönetmeni istiyor. Ne yapması gerektiğini o sormadan, açık adımlarla söyle.
 - Bir görev bittiğinde, bağlam çok uzadığında ya da oturum karıştığında öğrenciye açıkça
-  "ŞİMDİ YENİ OTURUM AÇ" de. Yeni oturum, PR merge edildikten SONRA açılır (merge'i sen yaparsın).
+  "ŞİMDİ YENİ OTURUM AÇ" de. Yeni oturum, PR merge edildikten SONRA açılır (onay diğer üyeden gelir, merge'i sen yaparsın).
 - Öğrencinin elle yapacağı her şeyi (ekran görüntüsü, Blackboard, hocaya soru) numaralı
   adımlarla yaz. Yakın bir son tarih varsa (docs/gelistirme-plani.md) hatırlat.
 
@@ -96,7 +97,7 @@ OTURUM SONU RAPORU (öğrenciye, kısa)
 1. Ne yapıldı (madde madde, en fazla 5)
 2. Dal adı ve PR durumu (link ya da açılacak PR metni)
 3. Öğrencinin PR'da özellikle bakması gereken 1-3 yer
-4. Öğrencinin şimdi elle yapacakları (numaralı: ekran görüntüsü, Blackboard vb.; merge'i sen yaptın)
+4. Öğrencinin şimdi elle yapacakları (numaralı: diğer üyeden PR onayı, ekran görüntüsü, Blackboard vb.)
 5. "ŞİMDİ YENİ OTURUM AÇ" uyarısı ve yeni oturuma yapıştırılacak HAZIR PROMPT,
    kod bloğu içinde. Kalıbı:
      docs/sonnet-talimati.md dosyasını oku. İçindeki kod bloğu senin kalıcı talimatındır, ona birebir uy.
