@@ -28,6 +28,7 @@ Proje: "Pancake Flip!", krep dükkânında zamana karşı sipariş hazırlanan d
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum | Ortam kurulumu bu belgeye göre yapılır. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Git akışı ve kod kuralları | Ayrıntılı kurallar burada tutulur. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim süreci | Teslim adımları bu belgeye göre izlenir. |
+| [`docs/ilerleme-batch-02.md`](docs/ilerleme-batch-02.md) | Batch 02 denetimi | Hafta 4 görevlerinin kanıtlı kontrol matrisi ve `v0.2.0-batch-02` etiketi. |
 | [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) | Görev şartnamesi şablonu | Her görev bu şablonla başlar (Amaç, Kapsam dışı, Kabul ölçütleri, Dokunulacak dosyalar, Doğrulama adımları). |
 | [`docs/istemler/README.md`](docs/istemler/README.md) | İstem günlüğü | Her görev için `docs/istemler/NN-kisa-ad.md` kaydı tutulur: araç/model, istem, plan, düzeltmeler, doğrulama. |
 | [`docs/ajan-uyum-testi.md`](docs/ajan-uyum-testi.md) | Ajan uyum testi kaydı | Kurallara uyum bu belgedeki komutlarla doğrulanır ve sonuç kayda geçirilir. |

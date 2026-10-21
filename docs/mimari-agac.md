@@ -70,6 +70,6 @@ Oyun **dikey (9:16)** tasarlanmıştır. Geniş ekranda oyun alanı büyütülme
 | **Büyük ekran** | 1600 px ve üstü | Düzen 1100 px'te kalır, iki yanda boşluk (zemin rengi) | Masaüstü ile aynı |
 | **Servis ekranı** (tüm boyutlar) | — | Oyun alanı 9:16 oranında, `max-width: 480px`, yatay ortalı; yüksekliği pencereye sığar | Alt menü yok; duraklatma düğmesi |
 
-- Tauri penceresi varsayılan olarak **420×820** açılır ([`tauri.conf.json`](../src-tauri/tauri.conf.json)).
+- Tauri penceresi varsayılan olarak **420×820** açılır ve **360×640**'tan (en küçük 9:16 telefon) küçültülemez ([`tauri.conf.json`](../src-tauri/tauri.conf.json): `minWidth`, `minHeight`).
 - Izgara `display: grid` + `grid-template-columns: repeat(auto-fill, minmax(...))` ile kurulur; kırılma noktaları `@media (min-width: 768px)` ve `(min-width: 1200px)`.
 - Dokunmatik hedefler en az 44×44 px'tir.
