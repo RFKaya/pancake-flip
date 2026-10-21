@@ -84,3 +84,4 @@ Her görev şu sırayla yapılır; adım atlanmaz:
 - `docs/tasks/` klasörü düzenlenmez.
 - Başka oyunlardan veya markalardan görsel, ses ya da isim kopyalanmaz; yer tutucu olarak emoji, CSS şekilleri ve kendi çizilen SVG kullanılır.
 - Blackboard'a, forma veya GitHub ayarlarına hiçbir şey gönderilmez.
+- **Çince ve Japonca karakter yazılmaz:** kodda, yorumda, belgede, commit/PR metninde ve öğrenciye verilen yanıtta Çince (Han) ya da Japonca (Hiragana, Katakana, Kanji) karakter kullanılmaz. Uygulamanın Arapça ve Farsça sayfalarındaki metinler bu kuralın dışındadır. Denetim komutu: [`docs/istemler/19-ajan-dil-kurali.md`](docs/istemler/19-ajan-dil-kurali.md#doğrulama).
