@@ -11,7 +11,7 @@ Claude Code (masaüstü uygulaması), model Claude Opus 5.5.
 ## Şartname
 
 - **Amaç:** Batch 02'yi kapatmak: Tauri penceresine en küçük boyut, Batch 02 ilerleme belgesi, `v0.2.0-batch-02` etiketi.
-- **Kapsam dışı:** Oyun kodu ve sayıları; AGENTS.md dil kuralı ve yönetim paneli (ayrı görevler); eğitmenin #71 PR'ı; `16-uyari-temizligi.md` adının değiştirilmesi.
+- **Kapsam dışı:** Oyun kodu ve sayıları; AGENTS.md dil kuralı ve yönetim paneli (ayrı görevler); eğitmenin #71 PR'ı (bu PR açıkken ayrıca birleşti); `16-uyari-temizligi.md` adının değiştirilmesi.
 - **Kabul ölçütleri:** `tauri.conf.json` içinde `minWidth` / `minHeight`; oyun bu boyutta taşmadan sığıyor; `docs/ilerleme-batch-02.md` 09.1–16 matrisi kanıtlarla; `bun test`, `bun run check`, `bun run build`, `cargo test` temiz; etiket PR birleştikten sonra, öğrenciye sorularak atılır.
 - **Dokunulacak dosyalar:** `src-tauri/tauri.conf.json`, `docs/mimari-agac.md`, `docs/ilerleme-batch-02.md` (yeni), `docs/gelistirme-plani.md`, `docs/istemler/README.md`, bu günlük, `docs/istemler/img/16-oyun-360x640.png`, `AGENTS.md` ve `README.md` (belge indeksleri).
 - **Doğrulama adımları:** dört komut; tarayıcıda 360×640 görünümde lobi ve servis ekranı, `scrollWidth` / `scrollHeight` ölçümü.
@@ -54,7 +54,7 @@ $ bun run build
 56 page(s) built ... Complete!
 
 $ cd src-tauri && cargo test
-test result: ok. 7 passed; 0 failed
+test result: ok. 12 passed; 0 failed   (#71 birleştikten sonra master ile yeniden; önce 7)
 
 $ cd src-tauri && cargo check
 Finished `dev` profile

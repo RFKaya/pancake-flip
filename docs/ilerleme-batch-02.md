@@ -29,7 +29,7 @@ Güncel `master` + bu dalın değişiklikleri üzerinde (22.10.2026):
 | `bun run check` | 69 dosya: 0 hata, 0 uyarı, 0 ipucu |
 | `bunx svelte-check --threshold warning` | 0 hata, 0 uyarı |
 | `bun run build` | 56 sayfa, `Complete!`, 0 hata |
-| `cargo test` (`src-tauri`) | 7 geçti, 0 kaldı |
+| `cargo test` (`src-tauri`) | 12 geçti, 0 kaldı (7 adisyon komutu + 5 yerel arka uç, #71) |
 | `cargo check` (`src-tauri`) | Yapılandırma geçerli, derleme temiz |
 
 En küçük pencere boyutu (360×640) tarayıcıda denendi: lobi ve servis ekranı sığıyor, yatay ya da dikey kaydırma çıkmıyor (`scrollWidth` 360, `scrollHeight` 640).
@@ -51,4 +51,4 @@ Doğrulama: `git ls-remote --tags origin v0.2.0-batch-02` ve GitHub'da **Tags** 
 
 ## 4. Batch 02 sonrası açık işler
 
-Batch 02 kapsamı dışında, Hafta 05 raporundan kalanlar: AGENTS.md'ye dil kuralı, yönetim panelinin `admin/` altına taşınması ve eğitmenin #71 PR'ı. Takibi [`gelistirme-plani.md`](gelistirme-plani.md) üzerindedir.
+Batch 02 kapsamı dışında, Hafta 05 raporundan kalanlar: AGENTS.md'ye dil kuralı ve yönetim panelinin `admin/` altına taşınması. Eğitmenin yerel arka ucu (#71) birleşti; inceleme notları PR'dadır. Takibi [`gelistirme-plani.md`](gelistirme-plani.md) üzerindedir.
