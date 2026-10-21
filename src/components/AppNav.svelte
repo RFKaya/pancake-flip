@@ -1,9 +1,10 @@
 <script lang="ts">
   // Alt menü navigasyonu (sekmeler: docs/mimari-agac.md)
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
 
   let { currentPath = "/" } = $props();
-  let yol = $state(currentPath);
+  // İlk boyama sunucudan gelen yolu kullanır; sonrasında onMount gezinmeleri izler (bilinçli tek okuma)
+  let yol = $state(untrack(() => currentPath));
 
   const menu = [
     { href: "/", ad: "Oyna", ikon: "🥞" },
