@@ -39,9 +39,9 @@ git commit -m "feat: ..."
 git fetch && git rebase origin/master   # çakışma olursa çöz, force-push GEREKMEZ (dal sana ait ve henüz PR'da değilse)
 git push -u origin feature/<kisa-ad>
 
-# 6) PR aç, yeşilse merge et
+# 6) PR aç, diğer üyenin onayını bekle (master korumalı, 1 onay şart), yeşilse merge et
 gh pr create --base master --title "..." --body "..."
-gh pr merge <no> --merge --delete-branch
+gh pr merge <no> --merge                # onaydan sonra; dal otomatik silinir
 git checkout master && git pull
 ```
 
@@ -159,7 +159,7 @@ Bu repoda bir ajan olarak çalışıyorsan:
 1. Önce [`AGENTS.md`](../AGENTS.md) ve bu belgeyi oku. Kuralları tekrar sorma.
 2. İşe başlamadan **fetch/pull + `gh pr list`** yap; çakışma ihtimalini §4'e göre değerlendir.
 3. Oturum başına **tek görev**. Görev dışına çıkma, büyük refactor yapma.
-4. Bitirince: test + build yeşil → PR aç → **çakışma yoksa merge et** → `master`'a dön ve `pull` yap. Öğrenci bunu açıkça istedi.
+4. Bitirince: test + build yeşil → PR aç → **diğer üyenin onayını bekle** (master korumalı; kendi PR'ını onaylayamazsın) → çakışma yoksa merge et → `master`'a dön ve `pull` yap.
 5. Başkasının açık PR'ını merge etmeden önce diff'ini oku, birleşik halini yerelde `bun test` + `bun run build` ile doğrula.
 6. Yeni, kalıcı bir bilgi öğrenirsen ilgili `docs/*.md` dosyasına yaz (bu belge dahil). Belgeleri kopyalama, link ver.
 7. Emin değilsen, geri dönüşü zor bir işte (dosya silme, veri formatı) **önce öğrenciye sor**.

@@ -48,7 +48,7 @@ Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → p
 
 | Durum | Görev | Dal / PR | Günlük |
 |---|---|---|---|
-| [x] | 09.1 Master koruması (ön koşul) | `feature/09-1-master-korumasi` (#61): yalnız belge kısmı | — |
+| [x] | 09.1 Master koruması (ön koşul) | `feature/09-1-master-korumasi` (#61, belge) · `feature/09-1-master-korumasi-kanit` (#69, ayarlar ve kanıt) | [kanıt](kanit/master-korumasi.png) |
 | [x] | 10 Çalışma yöntemi | `feature/10-calisma-yontemi` (#62) | [10](istemler/10-calisma-yontemi.md) |
 | [x] | 11 Veri sözleşmesi | `feature/11-veri-sozlesmesi` (#63) | [11](istemler/11-veri-sozlesmesi.md) |
 | [x] | 12 Kart bileşeni | `feature/12-kart-bileseni` (#64) | [12](istemler/12-kart-bileseni.md) |
@@ -56,7 +56,7 @@ Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → p
 | [x] | 14 Detay ekranı ve gezinme | `feature/14-detay-ekrani` (#66) | [14](istemler/14-detay-ekrani.md) |
 | [x] | 15 Rust komutu: tipli sonuç ve hata | `feature/15-rust-komutu` (#67) | [15](istemler/15-rust-komutu.md) |
 
-**09.1 açık kalan kısım (depo sahibi `RFKaya` yapar; yönetici yetkisi gerekir):** Settings → Rules → Rulesets'te "master koruması" kural seti (Active; varsayılan dal; Restrict deletions, Block force pushes, Require a pull request), Settings → General'da merge commit ve otomatik dal silme, Settings → Actions'ta dış katkıcı onayı; ardından `master`'a doğrudan push denemesinin reddedildiğini görmek ve kural seti ekran görüntüsünü `docs/kanit/master-korumasi.png` olarak bir PR ile eklemek. Belge kısmı ("PR güvenliği", [`kurallar.md`](kurallar.md)) tamam.
+**09.1 tamamlandı:** depo sahibi `RFKaya` GitHub'da "master koruması" kural setini etkinleştirdi (varsayılan dal; silme ve force-push yasak; 1 onaylı PR zorunlu; bypass yok), merge commit ve otomatik dal silmeyi açtı, dış katkıcılar için iş akışı onayını zorunlu yaptı; `master`'a doğrudan push GH013 ile reddedildi. Kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png) (#69, RedRiveRR onayıyla birleşti). Belge kısmı: "PR güvenliği" ([`kurallar.md`](kurallar.md)).
 
 ### Faz 0 için projeye özgü kararlar
 Puan kriterleri hocanın dosyalarında; burada yalnızca **bizim projeye ait** kararlar var.
