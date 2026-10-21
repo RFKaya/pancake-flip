@@ -7,7 +7,7 @@ export interface MusteriTipi {
   ikon: string; // fişte görünen emoji
   acilis: number; // açıldığı seviye
   agirlik: number; // açıldıktan sonra görülme ağırlığı (normal = 1)
-  sabir: number; // temel sabır süresi (sn)
+  sabir: number; // sabır çarpanı (normal = 1; süre oyun/musteri.ts'te hesaplanır)
   odeme: number; // ödeme çarpanı
   bahsis: number; // bahşiş çarpanı
   ceza: number; // kaçırılınca kesilen coin çarpanı
