@@ -6,7 +6,7 @@
   // seviyeyi ilerletir (kurallar: oturum.ts / seviye.ts). Tavalar Tava.svelte'dedir:
   // basılı tut = hamur dök, yukarı kaydır = çevir, aşağı kaydır = tabağa al.
   // Temel kural: tabak bir siparişin BİREBİR aynısı olunca kendiliğinden servis edilir; yanlış tabak asla kabul edilmez.
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount, untrack } from "svelte";
   import { flip } from "svelte/animate";
   import { fade, fly, scale } from "svelte/transition";
   import { fisKaydet } from "$lib/fisler.svelte";
@@ -32,7 +32,7 @@
   const gelistirici = gelistiriciModuAcik();
 
   /** false = lobi (sahne canlı, oyun donuk, tava kilitli), true = servis başladı */
-  let oyunda = $state(baslangic === "oyun");
+  let oyunda = $state(untrack(() => baslangic === "oyun"));
   let oturum = $state(yeniOturum({ ...ilerleme.veri }));
   let tabak = $state<TabakParcasi[]>([]);
   let sonuc = $state<SonucMesaji | null>(null);
