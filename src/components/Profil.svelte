@@ -5,9 +5,14 @@
   import { kayit } from "$lib/kayit.svelte";
   import { cal, sesDurumu, sesKaydet, sesYukle } from "$lib/oyun/ses";
   import { gerekenMusteri, sayiKisalt, sonrakiAcilis } from "$lib/oyun/seviye";
+  import { yonetimSozlugu } from "$lib/admin-sozluk";
+  import { destekleniyorMu } from "$lib/native";
 
   /** Seviye kimliğin parçası: kısaltılmaz, binlik ayraçla tam yazılır (123.456) */
   const seviyeYaz = (n: number) => n.toLocaleString("tr-TR");
+
+  // Yönetim paneli yalnız uygulamada (yerel arka uç); tarayıcıda bağlantı hiç çizilmez. onMount'ta okunur: SSR'de Tauri yoktur.
+  let yonetimVar = $state(false);
 
   let sesAcik = $state(true);
   let sfx = $state(1);
@@ -15,6 +20,7 @@
   onMount(() => {
     kayit.yukle();
     ilerleme.yukle();
+    yonetimVar = destekleniyorMu("yonetim");
     hazir = true;
     sesYukle();
     sesAcik = sesDurumu.acik;
@@ -165,6 +171,7 @@
     <a href="/iletisim">✉️ İletişim</a>
     <a href="/kosullar">📜 Kullanım Koşulları</a>
     <a href="/gizlilik">🔒 Gizlilik Politikası</a>
+    {#if yonetimVar}<a href="/admin">🛠️ {yonetimSozlugu().baslik}</a>{/if}
   </nav>
 </div>
 

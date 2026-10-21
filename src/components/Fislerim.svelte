@@ -63,6 +63,7 @@
       case "GecersizSeviye": return `Koddaki seviye (${h.seviye}) geçersiz.`;
       case "GecersizYildiz": return `Koddaki yıldız (${h.yildiz}) geçersiz.`;
       case "YalnizUygulamada": return "Kod çözme yalnız uygulamada çalışır.";
+      case "ArkaUc": return h.mesaj; // fis_coz bu hatayı vermez; NativeHata'nın tam karşılanması için
       case "Bilinmeyen": return `Beklenmeyen hata: ${h.mesaj}`;
     }
   }

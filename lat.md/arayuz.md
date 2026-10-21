@@ -4,7 +4,7 @@ Uygulama dikey (9:16) tek sahne etrafında kurulur: lobi ve oyun aynı restoran 
 
 ## Ekranlar ve rotalar
 
-Kök `/` restoran sahnesi; `/fislerim` adisyonlar, `/profil` karne ve ayarlar, `/rehber` malzeme rehberi ve detayıdır. Bilgi sayfaları dört dilde `/hakkinda`, `/iletisim`, `/kosullar`, `/gizlilik`; diğer dillerde `/en/...` öneki kullanılır ([[docs/mimari-agac.md]]).
+Kök `/` restoran sahnesi; `/fislerim` adisyonlar, `/profil` karne ve ayarlar, `/rehber` malzeme rehberi ve detayıdır. `/admin` yönetim panelidir: oyuncu menüsü yoktur, giriş ve oyuncu verisi yalnız uygulamada (yerel arka uç) görünür. Bilgi sayfaları dört dilde `/hakkinda`, `/iletisim`, `/kosullar`, `/gizlilik`; diğer dillerde `/en/...` öneki kullanılır ([[docs/mimari-agac.md]]).
 
 Alt menü üç sekmedir: Oyna, Fişlerim, Profil. Ayrı bir `/oyna` rotası yoktur; oyun aynı sayfada başlar ([[src/components/AppNav.svelte]]).
 

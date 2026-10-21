@@ -9,3 +9,4 @@ export type * from "./ayarlar";
 export type * from "./arayuz";
 export type * from "./ui";
 export type * from "./native";
+export type * from "./yonetim";

@@ -1,4 +1,5 @@
 // Rust komutlarının sonuç ve hata tipleri: alanlar src-tauri/src/lib.rs içindeki yapılarla birebir aynıdır (docs/komutlar.md)
+import type { AlanHatasi, ArkaUcKodu } from "./yonetim";
 
 /** fis_olustur başarı sonucu */
 export interface Adisyon {
@@ -25,6 +26,7 @@ export type FisHatasi =
 /** native.ts hataları: Rust hataları + Rust'a ulaşılamayan durumlar */
 export type NativeHata =
   | FisHatasi
+  | { tur: "ArkaUc"; kod: ArkaUcKodu; mesaj: string; alanlar?: AlanHatasi[] } // yerel arka uç hatası ({ code, message, errors? })
   | { tur: "YalnizUygulamada" } // tarayıcıda çalışıyor, bu özellik yalnız uygulamada var
   | { tur: "Bilinmeyen"; mesaj: string }; // beklenmeyen hata (komut bulunamadı vb.)
 
@@ -35,4 +37,4 @@ export type NativeSonuc<T> = { ok: true; veri: T } | { ok: false; hata: NativeHa
 export type Platform = "android" | "ios" | "macos" | "windows" | "linux" | "web";
 
 /** Platforma göre desteği değişebilen özellikler (docs/platform-destegi.md) */
-export type Ozellik = "adisyonKodu" | "fisCoz" | "ses" | "kayit";
+export type Ozellik = "adisyonKodu" | "fisCoz" | "ses" | "kayit" | "yonetim";

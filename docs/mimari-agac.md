@@ -31,6 +31,10 @@ Pancake Flip!
 │   ├── Hesap (ad, yalnızca cihazda) ve ses ayarları
 │   └── Malzeme rehberi ve bilgi sayfalarına linkler
 │
+├── /admin (Yönetim paneli; oyuncu menüsü yok, yalnız Türkçe; uygulamada Profil → Yönetim Paneli)
+│   ├── Uygulamada: yönetici girişi / hesap oluşturma (yerel arka uç, ilk hesap yönetici olur)
+│   └── Panel Özeti: oyuncu istatistikleri ve seviye dağılımı (uygulamada), oyun içeriği sayıları (her yerde)
+│
 ├── 404 (olmayan her adres): `ui/HataDurumu` ile "bulunamadı" + rehbere dönüş
 │
 └── Bilgi ve Yasal Sayfalar (4 dil: tr varsayılan, en, ar, fa)

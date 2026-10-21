@@ -59,6 +59,19 @@ Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → p
 
 Batch 02 ilerleme kaydı: [`ilerleme-batch-02.md`](ilerleme-batch-02.md).
 
+### Hafta 5 (son tarih: 27.10.2026 23:59)
+
+Eğitmenin Hafta 05 raporundaki işler. Yönetim paneli `RFKaya/Pancake-flip-2` reposundan `/admin` altına dört aşamada taşınır; Tailwind ve lucide-react yerine projenin CSS değişkenleri ve emoji, veri yerel arka uçtan ([`backend.md`](backend.md)).
+
+| Durum | İş | Dal / PR | Günlük |
+|---|---|---|---|
+| [x] | lat.md bilgi grafiği | `docs/lat-md` (#73) | [17](istemler/17-lat-md.md), [18](istemler/18-lat-md-bilgi-grafi.md) |
+| [x] | AGENTS.md: Çince/Japonca karakter yasağı | `feature/ajan-dil-kurali` (#75) | [19](istemler/19-ajan-dil-kurali.md) |
+| [x] | Yönetim paneli 1/4: iskelet, sözlük, `native.ts`, giriş, Panel Özeti | `feature/admin-panel-iskelet` | [20](istemler/20-admin-panel-iskelet.md) |
+| [ ] | Yönetim paneli 2/4: Malzemeler, Müşteri Tipleri | — | — |
+| [ ] | Yönetim paneli 3/4: Seviye Eğrisi, Denge, Kilometre Taşları, Sürümler, Simülatör | — | — |
+| [ ] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | — | — |
+
 **09.1 tamamlandı:** depo sahibi `RFKaya` GitHub'da "master koruması" kural setini etkinleştirdi (varsayılan dal; silme ve force-push yasak; 1 onaylı PR zorunlu; bypass yok), merge commit ve otomatik dal silmeyi açtı, dış katkıcılar için iş akışı onayını zorunlu yaptı; `master`'a doğrudan push GH013 ile reddedildi. Kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png) (#69, RedRiveRR onayıyla birleşti). Belge kısmı: "PR güvenliği" ([`kurallar.md`](kurallar.md)).
 
 ### Faz 0 için projeye özgü kararlar

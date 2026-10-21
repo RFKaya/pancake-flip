@@ -13,6 +13,7 @@ Bileşenler platform adını kendileri sorgulamaz. Platform ve destek bilgisi ya
 | `fisCoz`: adisyon kodu çözme (Rust `fis_coz`) | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor | yok |
 | `ses`: ses efektleri (Web Audio) | farklı yolla | farklı yolla | destekleniyor | destekleniyor | destekleniyor | destekleniyor |
 | `kayit`: ilerleme ve fişlerin cihazda saklanması (localStorage) | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor |
+| `yonetim`: yönetim paneli girişi ve oyuncu verisi (yerel arka uç, [`backend.md`](backend.md)) | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor | yok |
 | Gece / gündüz teması, dört dil, bilgi sayfaları | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor | destekleniyor |
 
 ## "Farklı yolla" ve "yok" satırlarında ne yapıldı
@@ -21,6 +22,7 @@ Bileşenler platform adını kendileri sorgulamaz. Platform ve destek bilgisi ya
 |---|---|---|
 | `adisyonKodu` | Tarayıcı | Rust yok; `native.ts` aynı girdi denetimiyle `WEB-SSS-Y…` biçiminde yedek kod üretir. Fiş yine kesilir. |
 | `fisCoz` | Tarayıcı | Rust yok; `destekleniyorMu("fisCoz")` `false` döner ve Fişlerim'deki **Adisyon kodu çöz** bölümü hiç çizilmez (`{#if cozucuVar}`). `fisCoz()` doğrudan çağrılırsa `YalnizUygulamada` hatası döner, çökmez. |
+| `yonetim` | Tarayıcı | Rust ve SQLite yok; `destekleniyorMu("yonetim")` `false` döner. `/admin` sayfası açılır ama giriş formu ve oyuncu istatistikleri hiç çizilmez; yalnız JSON'dan okunan **Oyun içeriği** özeti görünür. Profil'deki **Yönetim Paneli** bağlantısı da çizilmez. Yönetim komutları doğrudan çağrılırsa `YalnizUygulamada` döner (`src/lib/yonetim.test.ts`). |
 | `ses` | Android, iOS | Mobil WebView'lar sesi ancak bir dokunuştan sonra açar. Ses motoru (`ses.ts`) ilk ses istendiğinde kurulur, askıdaysa yeniden başlatılır (`resume`); ilk ses OYNA dokunuşunun sesidir, böylece kısıt dokunuşla aşılır. Öncesinde ses çalınmaz, hata verilmez. Ayar Profil → Ses'te her platformda aynıdır. |
 
 Tarayıcı beş platformdan biri değildir; `bun run dev` ile geliştirme ve önizleme için kullanılır. Rust yokken ekranların çökmediği `src/lib/native.test.ts` ile denetlenir.

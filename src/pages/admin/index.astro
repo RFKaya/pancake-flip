@@ -1,0 +1,9 @@
+---
+import YonetimLayout from '../../layouts/YonetimLayout.astro';
+import YonetimPaneli from '../../components/admin/YonetimPaneli.svelte';
+import { yonetimSozlugu } from '../../lib/admin-sozluk';
+---
+
+<YonetimLayout title={yonetimSozlugu().sayfaBasligi}>
+  <YonetimPaneli client:only="svelte" />
+</YonetimLayout>
