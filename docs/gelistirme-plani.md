@@ -55,6 +55,9 @@ Görevler: [`tasks/week-4/`](tasks/week-4/README.md). Her görev şartname → p
 | [x] | 13 Liste ekranı ve üç durum | `feature/13-liste-ve-uc-durum` (#65) | [13](istemler/13-liste-ve-uc-durum.md) |
 | [x] | 14 Detay ekranı ve gezinme | `feature/14-detay-ekrani` (#66) | [14](istemler/14-detay-ekrani.md) |
 | [x] | 15 Rust komutu: tipli sonuç ve hata | `feature/15-rust-komutu` (#67) | [15](istemler/15-rust-komutu.md) |
+| [x] | 16 Batch 02 denetimi + `v0.2.0-batch-02` etiketi | `feature/16-batch-02-denetimi` | [16](istemler/16-batch-02-denetimi.md) |
+
+Batch 02 ilerleme kaydı: [`ilerleme-batch-02.md`](ilerleme-batch-02.md).
 
 **09.1 tamamlandı:** depo sahibi `RFKaya` GitHub'da "master koruması" kural setini etkinleştirdi (varsayılan dal; silme ve force-push yasak; 1 onaylı PR zorunlu; bypass yok), merge commit ve otomatik dal silmeyi açtı, dış katkıcılar için iş akışı onayını zorunlu yaptı; `master`'a doğrudan push GH013 ile reddedildi. Kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png) (#69, RedRiveRR onayıyla birleşti). Belge kısmı: "PR güvenliği" ([`kurallar.md`](kurallar.md)).
 

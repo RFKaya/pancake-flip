@@ -182,6 +182,7 @@ Bu proje salt bir web sayfası değil; tek bir kod tabanından masaüstü ve mob
 - [Kurallar](docs/kurallar.md)
 - [Kaynaklar](docs/kaynaklar.md)
 - [Teslim](docs/teslim.md)
+- [İlerleme: Batch 02](docs/ilerleme-batch-02.md)
 - [Veri modeli](docs/veri-modeli.md)
 - [Rust komutları](docs/komutlar.md)
 - [Platform desteği](docs/platform-destegi.md)
