@@ -62,6 +62,7 @@ class Ilerleme {
   }
 }
 
+// @lat: [[veri#Cihazdaki kayıt]]
 export const ilerleme = new Ilerleme();
 
 /** Geliştirici modu: geliştirme sunucusunda her zaman açık; yayında `?dev=1` ile açılır, `?dev=0` ile kapanır. */

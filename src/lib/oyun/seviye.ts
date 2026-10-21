@@ -12,6 +12,7 @@ export function seviyeSinirla(x: number): number {
   return Math.min(SEVIYE.seviyeSiniri, Math.max(1, Math.floor(x)));
 }
 
+// @lat: [[seviye#Seviye başına müşteri]]
 /** Bu seviyeyi geçmek için kaç başarılı müşteri gerekir? Noktalar arası log-seviye ölçeğinde doğrusal, sonrası yavaş artar, tavanı vardır. */
 export function gerekenMusteri(seviye: number): number {
   const { noktalar, ileriArtis, tavan } = SEVIYE.gerekenMusteri;
@@ -30,6 +31,7 @@ export function gerekenMusteri(seviye: number): number {
   return Math.min(tavan, Math.max(1, Math.floor(v + 1e-9)));
 }
 
+// @lat: [[seviye#Zorluk eğrisi]]
 /** Normalize zorluk: 0 (seviye 1) → 1'e yaklaşır, asla geçmez. 1 − e^(−(L−1)/ölçek) */
 export function zorluk(seviye: number): number {
   return 1 - Math.exp(-(seviyeSinirla(seviye) - 1) / SEVIYE.zorluk.olcek);

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { destekleniyorMu, fisCoz, fisOlustur, platform, uygulamadaMi } from "./native";
 
 // bun test'te Tauri yok: native.ts'in tarayıcı yedeği denetlenir (Rust tarafının testleri: src-tauri/src/lib.rs)
+// @lat: [[testler#Tarayıcı yedeği]]
 describe("native.ts tarayıcı yedeği (Rust yokken)", () => {
   test("platform web, uygulama dışı", () => {
     expect(uygulamadaMi()).toBe(false);

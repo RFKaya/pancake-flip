@@ -3,6 +3,7 @@ import { ornekFisler, ornekMusteriler, ornekSiparisler } from "../veri/ornek";
 import { fislerCoz } from "./fis";
 import { MALZEMELER, TIPLER } from "./veri";
 
+// @lat: [[testler#Örnek veri tutarlılığı]]
 describe("örnek veri (src/lib/veri/ornek.ts)", () => {
   test("her ana tipten en az 6 kayıt", () => {
     expect(ornekSiparisler.length).toBeGreaterThanOrEqual(6);

@@ -26,3 +26,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | 14 | Detay ekranı ve gezinme | [14-detay-ekrani.md](14-detay-ekrani.md) |
 | 15 | Rust komutu: tipli sonuç ve hata | [15-rust-komutu.md](15-rust-komutu.md) |
 | 17 | lat.md bilgi grafiği iskeleti | [17-lat-md.md](17-lat-md.md) |
+| 18 | Proje bilgi grafiği (lat.md) | [18-lat-md-bilgi-grafi.md](18-lat-md-bilgi-grafi.md) |

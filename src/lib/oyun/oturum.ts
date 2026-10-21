@@ -179,6 +179,7 @@ export function tabakDurumu(o: Oturum, tabak: TabakParcasi[]): TabakDurumu {
   return { durum: "yanlis", musteri: m, degerlendirme: d };
 }
 
+// @lat: [[oyun-mekanigi#Tabak ve otomatik servis]]
 /**
  * Tabağı, siparişi BİREBİR karşılanan müşteriye verir (eşitlikte sabrı en az kalan). Tabak hiçbir siparişle
  * birebir aynı değilse (yanlış ya da eksik) null döner ve HİÇBİR ŞEY değişmez: müşteri kalır, ilerleme / coin artmaz.

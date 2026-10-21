@@ -16,6 +16,7 @@ function musteriBekle(o: Oturum, rng = rngOlustur(1), azami = 30) {
   for (let t = 0; t < azami && o.musteriler.length < Math.min(1, o.sv.eszamanli); t += 0.1) oturumIlerlet(o, 0.1, rng);
 }
 
+// @lat: [[testler#Oturum akışı ve uzun simülasyon]]
 describe("oturum: müşteri gelişi ve sabır", () => {
   test("başta müşteri yok, kısa sürede ilk müşteri gelir", () => {
     const o = yeniOturum();

@@ -18,6 +18,7 @@ const SEVIYELER = [1, 2, 3, 5, 8, 10, 15, 20, 30, 50, 75, 100, 250, 500, 1000, 1
 const tabak = (...ids: string[]): TabakParcasi[] =>
   ids.map((malzeme) => (malzeme === "krep" ? { malzeme, pisme: "orta" as const } : { malzeme }));
 
+// @lat: [[testler#Sipariş üretici]]
 describe("sipariş üretici", () => {
   test("her seviyede 1.000 tohumda grameri bozmaz, açık malzemeleri ve krep aralığını aşmaz", () => {
     for (const seviye of SEVIYELER) {
@@ -83,6 +84,7 @@ describe("pişme bölgeleri", () => {
   });
 });
 
+// @lat: [[testler#Değerlendirme ve ekonomi]]
 describe("değerlendirme", () => {
   const beklenen = ["krep", "cikolata", "krep", "cilek-sosu"];
   test("doğru tabak PERFECT", () => {
@@ -146,6 +148,7 @@ describe("ekonomi", () => {
   });
 });
 
+// @lat: [[testler#Hamur, çevirme ve tava durumu]]
 describe("hamur dökme", () => {
   test("tolerans ±%30 ile başlar, seviyeyle daralır, ±%15'in altına inmez", () => {
     expect(hamurToleransi(1)).toBeCloseTo(0.3, 5);

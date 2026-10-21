@@ -13,6 +13,7 @@ export const yon = (dil: Dil): "ltr" | "rtl" => (dil === "ar" || dil === "fa" ? 
 
 const dilMi = (s: string | undefined): s is Dil => (diller as readonly string[]).includes(s ?? "");
 
+// @lat: [[arayuz#Dil, yön ve tema]]
 /** URL yolundan dili bulur: /en/hakkinda -> en, /hakkinda -> tr */
 export function dilBul(yol: string): Dil {
   const ilk = yol.split("/").filter(Boolean)[0];

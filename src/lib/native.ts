@@ -47,6 +47,7 @@ async function cagir<T>(komut: string, girdi: Record<string, unknown>): Promise<
   }
 }
 
+// @lat: [[mimari#native.ts tek kapı]]
 /** Seviye adisyonu üretir. Tarayıcı yedeği: aynı biçimde "WEB-SSS-Y…" kodu (girdi denetimi aynı). */
 export async function fisOlustur(seviye: number, yildiz: number): Promise<NativeSonuc<Adisyon>> {
   if (uygulamadaMi()) return cagir<Adisyon>("fis_olustur", { seviye, yildiz });

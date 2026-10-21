@@ -23,6 +23,7 @@ export interface Gelir {
   toplam: number; // maliyet düşülmeden
 }
 
+// @lat: [[oyun-mekanigi#Para, combo ve ilerleme]]
 /** Bir siparişin geliri (maliyet servis sırasında malzeme konurken ayrıca düşülür) */
 export function gelirHesapla(p: {
   fiyat: number;
