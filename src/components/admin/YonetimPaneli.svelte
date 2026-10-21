@@ -10,12 +10,18 @@
   import type { YonetimMenuOgesi, YonetimOturumu, YonetimSekmesi } from "$lib/types";
   import { hataMetni } from "$lib/yonetim";
   import Giris from "./Giris.svelte";
+  import Malzemeler from "./Malzemeler.svelte";
+  import MusteriTipleri from "./MusteriTipleri.svelte";
   import PanelOzeti from "./PanelOzeti.svelte";
 
   const m = yonetimSozlugu();
   const arkaUcVar = destekleniyorMu("yonetim");
 
-  const sekmeler: YonetimMenuOgesi[] = [{ id: "ozet", ikon: "📊" }];
+  const sekmeler: YonetimMenuOgesi[] = [
+    { id: "ozet", ikon: "📊" },
+    { id: "malzemeler", ikon: "🥞" },
+    { id: "musteriler", ikon: "🧑" },
+  ];
   let aktif = $state<YonetimSekmesi>("ozet");
 
   let oturum = $state<YonetimOturumu | null>(null);
@@ -83,6 +89,10 @@
       <main class="icerik">
         {#if aktif === "ozet"}
           <PanelOzeti oyuncuVerisi={arkaUcVar && oturum !== null} />
+        {:else if aktif === "malzemeler"}
+          <Malzemeler {oturum} />
+        {:else if aktif === "musteriler"}
+          <MusteriTipleri {oturum} />
         {/if}
       </main>
     </div>

@@ -31,3 +31,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | 18 | Proje bilgi grafiği (lat.md) | [18-lat-md-bilgi-grafi.md](18-lat-md-bilgi-grafi.md) |
 | 19 | Ajan dil kuralı (Çince/Japonca yok) | [19-ajan-dil-kurali.md](19-ajan-dil-kurali.md) |
 | 20 | Yönetim paneli 1/4: iskelet ve Panel Özeti | [20-admin-panel-iskelet.md](20-admin-panel-iskelet.md) |
+| 21 | Yönetim paneli 2/4: Malzemeler ve Müşteri Tipleri | [21-admin-panel-katalog.md](21-admin-panel-katalog.md) |
