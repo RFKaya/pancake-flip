@@ -14,6 +14,7 @@ const M = malzemeler as Malzeme[];
 // Spec'teki ve ötesindeki uç değerler: 1000 ve 1e9 "sonsuz"a yakın davranışı yoklar
 const UC = [1, 2, 3, 5, 8, 10, 15, 20, 30, 50, 75, 100, 150, 250, 500, 1000, 5000, 100000, 1e6, 1e9];
 
+// @lat: [[testler#Sonsuz seviye eğrileri]]
 describe("gerekenMusteri (seviye başına müşteri sayısı)", () => {
   test("ilk seviyeler hızlı: 1,1,2,2,3", () => {
     expect([1, 2, 3, 4, 5].map(gerekenMusteri)).toEqual([1, 1, 2, 2, 3]);

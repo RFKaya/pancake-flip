@@ -6,6 +6,7 @@ import { SEVIYE } from "./veri";
 
 const kayit = (v: Record<string, unknown>) => JSON.stringify({ surum: 1, seviye: 1, ilerleme: 0, toplamMusteri: 0, toplamCoin: 0, enYuksekSeviye: 1, ...v });
 
+// @lat: [[testler#İlerleme kaydı]]
 describe("ilerleme kaydı (ilerlemeCoz)", () => {
   test("geçerli kayıt aynen geri gelir", () => {
     const v = { surum: 1 as const, seviye: 20, ilerleme: 3, toplamMusteri: 140, toplamCoin: 5043, enYuksekSeviye: 25, enIyiSeri: 17, toplamMukemmel: 88 };

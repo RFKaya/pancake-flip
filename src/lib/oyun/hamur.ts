@@ -69,6 +69,7 @@ export function hamurDurumu(miktar: number, hedef: number, seviye: number, terci
 /** Geçerli kalınlık hedefleri: tercihler açılmadan yalnızca "normal" */
 export const hamurHedefleri = (tercihAcik: boolean): Kalinlik[] => (tercihAcik ? ["ince", "normal", "kalin"] : ["normal"]);
 
+// @lat: [[oyun-mekanigi#Hamur dökme ve kalınlık]]
 export function hamurSonucu(miktar: number, seviye: number, ayar: Ayarlar, tercihAcik = false): HamurSonuc {
   for (const k of hamurHedefleri(tercihAcik)) {
     const d = hamurDurumu(miktar, ayar.hamur.hedef[k], seviye, tercihAcik);

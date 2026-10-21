@@ -163,6 +163,7 @@ export function tavaServis(t: Tava, c: Baglam): TabakParcasi | null {
   return krepParcasi(p, t.kalinlik, c.ayar, usta);
 }
 
+// @lat: [[oyun-mekanigi#Pişme ve çevirme]]
 /** Tavayı dt saniye ilerletir; olan olayları döner (ses, parçacık, tabağa konma için). */
 export function tavaIlerlet(t: Tava, dt: number, c: Baglam): TavaOlay[] {
   const { ayar } = c;

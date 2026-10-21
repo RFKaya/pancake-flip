@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @lat: [[arayuz#Lobi ve oyun aynı sahne]]
   // Restoran sahnesi: lobi ve oyun AYNI sahnenin iki durumudur (sayfa/kamera geçişi yok). Duvar, tezgâh, tava ve tabak tek kez
   // çizilir; OYNA yalnızca `oyunda` durumunu açar: lobi arayüzü kapanır, oyun arayüzü (fişler, malzeme çubuğu) kısa sürede belirir.
   // Sonsuz oyun: duvarda müşteri fişleri, ortada tava(lar), yakında tabak. Bölüm yok; her başarılı müşteri

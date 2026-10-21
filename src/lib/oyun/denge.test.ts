@@ -36,6 +36,7 @@ function idealKrepSuresi(seviye: number, kalinlik: Kalinlik): number {
   return sure;
 }
 
+// @lat: [[testler#Sabır ve pişme dengesi]]
 describe("denge: her sipariş müşterinin sabrı içinde yapılabilir", () => {
   // Malzeme düğmesine basıp tabağa düşmesi için oyuncuya tanınan süre (sn); gerçek oyunda dokunuş anlıktır
   const MALZEME_SN = 0.4;

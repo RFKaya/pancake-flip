@@ -4,6 +4,7 @@ import { fislerCoz, fisNeti } from "./fis";
 
 const fis = (bolum: number, kasa?: number): Fis => ({ kod: `WEB-${bolum}`, bolum, yildiz: 3, net: 0, kasa, tarih: "2026-10-07T12:00:00.000Z" });
 
+// @lat: [[testler#Fiş kazancı ve adisyon kaydı]]
 describe("fiş kazancı (fisNeti)", () => {
   test("ilk fişin kazancı kasanın tamamıdır", () => {
     expect(fisNeti(120, [])).toBe(120);

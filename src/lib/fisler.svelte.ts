@@ -3,6 +3,7 @@ import { kayit } from "./kayit.svelte";
 import { fisOlustur } from "./native";
 import { fisNeti } from "./oyun/fis";
 
+// @lat: [[veri#Adisyon kodları]]
 /**
  * Kodu üretir, kayda ekler ve döndürür. `kasa` o anki toplam coin'dir; fişe yazılan kazanç (net) bir önceki fişten
  * bu yana kazanılandır (fisNeti). Kod beklendikten sonra kayıt tek seferde okunup yazılır, böylece aynı anda kesilen
