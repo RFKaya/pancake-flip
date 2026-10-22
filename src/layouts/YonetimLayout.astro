@@ -1,0 +1,30 @@
+---
+// Yönetim paneli iskeleti: oyuncu menüsü ve üst başlık yoktur; tema ve stiller oyunla aynıdır (Layout.astro)
+import '../styles/app.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="tr" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <script is:inline>
+      // Açılışta renk yanıp sönmesin diye tema hemen uygulanır (Layout.astro ile aynı)
+      document.documentElement.dataset.tema =
+        localStorage.getItem("tema") ??
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

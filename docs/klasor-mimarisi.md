@@ -63,6 +63,7 @@ pancake-flip/
 ### 6. `src/components/` (Yeniden Kullanılabilir UI Bileşenleri)
 - **Ne konur?** Butonlar, kartlar, formlar, üst/alt barlar (`.svelte` veya `.tsx`).
 - **Kural:** Birden fazla sayfada tekrar eden veya bağımsız bir işlevi olan görsel parçalar burada toplanır. Svelte veya React ile yazılabilir.
+- **`src/components/admin/`:** Yönetim paneli (`/admin`) ekranları. Metinleri `src/lib/admin-sozluk.ts`'ten, hesapları `src/lib/yonetim.ts`'ten alır; iskeleti `src/layouts/YonetimLayout.astro`'dur.
 
 ### 7. `src/lib/` (Durum ve İş Mantığı)
 - **Ne konur?** Svelte 5 `$state` store'ları (kayıt, fişler, tema) ve Rust invoke çağrıları. Oyun mantığı `src/lib/oyun/`, oyun verileri `src/lib/veri/` altındadır.

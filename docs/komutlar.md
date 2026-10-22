@@ -32,6 +32,20 @@ Bir adisyon kodunu parçalarına ayırır. Fişlerim ekranındaki **Adisyon kodu
 | Hatalar | `BosKod`, `GecersizKod { kod }` (biçim `KRP-SSS-YXXXXXX` değil), `GecersizSeviye { seviye }` |
 | Tarayıcı yedeği | `YalnizUygulamada`; bu yüzden bölüm tarayıcıda hiç gösterilmez ([`platform-destegi.md`](platform-destegi.md)) |
 
+## Yönetim paneli (yerel arka uç)
+
+Yerel arka ucun komutları ve tabloları [`backend.md`](backend.md)'dedir. Yönetim paneli (`/admin`) bunları yine yalnız `native.ts` üzerinden çağırır; sonuç tipleri [`src/lib/types/yonetim.ts`](../src/lib/types/yonetim.ts) içindedir.
+
+| `native.ts` | Rust komutu | Sonuç |
+|---|---|---|
+| `yonetimOturumu()` | `auth_me` | `YonetimOturumu \| null` (oturum yoksa `null`) |
+| `yonetimGiris(eposta, parola)` | `auth_login` | `YonetimOturumu` |
+| `yonetimKayit(ad, eposta, parola)` | `auth_register` | `YonetimOturumu` (ilk hesap yönetici olur) |
+| `yonetimCikis()` | `auth_logout` | `null` |
+| `panelOzeti()` | `pancake_dashboard` | `PanelOzeti` (`ViewAny:Player` izni gerekir) |
+
+Tarayıcıda hepsi `YalnizUygulamada` döner.
+
 ## Hata biçimi
 
 Rust hataları `{ "tur": "...", ... }` JSON nesnesi olarak gelir (`#[serde(tag = "tur")]`):
@@ -41,6 +55,8 @@ Rust hataları `{ "tur": "...", ... }` JSON nesnesi olarak gelir (`#[serde(tag =
 { "tur": "BosKod" }
 { "tur": "GecersizKod", "kod": "WEB-010-3ABC" }
 ```
+
+Yerel arka uç komutlarının hataları `{ "code", "message", "errors"? }` biçiminde gelir (`src-tauri/src/backend/error.rs`); `native.ts` bunları `{ tur: "ArkaUc", kod, mesaj, alanlar? }` hatasına çevirir. İletiler Türkçedir ve arayüzde olduğu gibi gösterilir.
 
 `native.ts` ayrıca iki hata ekler: `YalnizUygulamada` (tarayıcıda, Rust yok) ve `Bilinmeyen { mesaj }` (beklenmeyen durum). Arayüzde hatalar `ui/HataDurumu` ile gösterilir.
 
