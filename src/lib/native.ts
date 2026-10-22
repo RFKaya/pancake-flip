@@ -2,13 +2,15 @@
 // Sonuçlar tiplidir (NativeSonuc): istisna fırlatılmaz. Tarayıcıda (Rust yokken) ekran çökmez: makul bir yedek sonuç ya da
 // "YalnizUygulamada" hatası döner. Platform bilgisi de buradan alınır (docs/platform-destegi.md).
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import { MALZEMELER, TIPLER } from "./oyun/veri";
+import { AYAR, MALZEMELER, SEVIYE, TIPLER } from "./oyun/veri";
 import type {
   Adisyon,
   AlanHatasi,
   ArkaUcKodu,
   FisBilgisi,
   FisHatasi,
+  IcerikKapsami,
+  IcerikSurumu,
   ListeSorgusu,
   NativeSonuc,
   Ozellik,
@@ -120,7 +122,15 @@ export async function panelOzeti(): Promise<NativeSonuc<PanelOzeti>> {
 }
 
 /** Tarayıcı yedeğinde listelenen kayıtlar: oyunun JSON verisi (salt okunur) */
-const JSON_KAYITLARI: { [K in YonetimKaynagi]: YonetimKaynaklari[K][] } = { Malzeme: MALZEMELER, MusteriTipi: TIPLER };
+const JSON_KAYITLARI: { [K in YonetimKaynagi]: YonetimKaynaklari[K][] } = {
+  Malzeme: MALZEMELER,
+  MusteriTipi: TIPLER,
+  GameConfig: [
+    { key: "seviye", version: 1, data: SEVIYE, updatedAt: null },
+    { key: "ayarlar", version: 1, data: AYAR, updatedAt: null },
+  ],
+  ContentVersion: [], // sürümler yalnız yerel veritabanında
+};
 
 /** Kaynağın kayıtları (crud_index; "ViewAny:<Kaynak>"). Tarayıcıda JSON verisinin tamamı tek sayfa olarak döner. */
 export async function kayitListesi<K extends YonetimKaynagi>(kaynak: K, sorgu: ListeSorgusu = {}): Promise<NativeSonuc<Sayfa<YonetimKaynaklari[K]>>> {
@@ -151,4 +161,16 @@ export async function kayitGuncelle<K extends YonetimKaynagi>(
 export async function kayitSil(kaynak: YonetimKaynagi, id: string, neden?: string): Promise<NativeSonuc<null>> {
   if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
   return cagir<null>("crud_destroy", { resource: kaynak, id, reason: neden ?? null });
+}
+
+/** Taslak içerik sürümünü doğrulayıp yayınlar; aynı kapsamdaki önceki yayın "geri-alindi" olur (content_publish; "Publish:ContentVersion") */
+export async function icerikYayinla(id: string, not?: string): Promise<NativeSonuc<IcerikSurumu>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<IcerikSurumu>("content_publish", { id, not: not ?? null });
+}
+
+/** Kapsamın yayındaki sürümünü bir öncekine döndürür; neden zorunludur (content_rollback; "Publish:ContentVersion") */
+export async function icerikGeriAl(kapsam: IcerikKapsami, neden: string): Promise<NativeSonuc<IcerikSurumu>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<IcerikSurumu>("content_rollback", { kapsam, neden });
 }

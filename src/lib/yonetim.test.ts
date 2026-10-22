@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { yonetimSozlugu } from "./admin-sozluk";
 import {
   destekleniyorMu,
+  icerikGeriAl,
+  icerikYayinla,
   kayitEkle,
   kayitGuncelle,
   kayitListesi,
@@ -12,11 +14,21 @@ import {
   yonetimKayit,
   yonetimOturumu,
 } from "./native";
-import { MALZEMELER, SEVIYE, TIPLER } from "./oyun/veri";
+import { gerekenMusteri, tumAcilislar } from "./oyun/seviye";
+import { AYAR, MALZEMELER, SEVIYE, TIPLER } from "./oyun/veri";
 import type { NativeHata, YonetimOturumu } from "./types";
 import {
+  alanGruplari,
   dagilimYuzdeleri,
+  dengeDogrula,
+  egriSatirlari,
   hataMetni,
+  ornekSiparisler,
+  sayiAlanlari,
+  seviyeDuraklari,
+  sonrakiSurum,
+  surumSirala,
+  yolaYaz,
   icerikOzeti,
   izinVar,
   kimlikGecerli,
@@ -123,7 +135,65 @@ describe("katalog: izin, süzme ve doğrulama", () => {
   });
 });
 
+describe("ayar ekranları: eğri, çizelge, simülatör, denge, sürümler", () => {
+  test("eğri satırları oyunun kurallarıyla aynı; zorluk artarak gider, sınırı geçen seviye yok", () => {
+    const satirlar = egriSatirlari();
+    expect(satirlar[0]).toMatchObject({ seviye: 1, gerekenMusteri: gerekenMusteri(1), zorluk: 0 });
+    for (let i = 1; i < satirlar.length; i++) expect(satirlar[i].zorluk).toBeGreaterThanOrEqual(satirlar[i - 1].zorluk);
+    expect(satirlar.every((s) => s.seviye <= SEVIYE.seviyeSiniri)).toBe(true);
+  });
+
+  test("duraklar seviyeye göre sıralı; her kilometre taşı ve her açılış bir kez", () => {
+    const d = seviyeDuraklari();
+    expect(d.map((x) => x.seviye)).toEqual([...d.map((x) => x.seviye)].sort((a, b) => a - b));
+    expect(d.filter((x) => x.kilometreTasi).length).toBe(SEVIYE.kilometreTaslari.length);
+    expect(d.reduce((n, x) => n + x.acilislar.length, 0)).toBe(tumAcilislar().length);
+  });
+
+  test("örnek siparişler: aynı tohum aynı sonuç, yalnız açık müşteri tipleri, sabır alt sınırın üstünde", () => {
+    expect(ornekSiparisler(30, 7)).toEqual(ornekSiparisler(30, 7));
+    expect(ornekSiparisler(1, 1).map((o) => o.tip.id)).toEqual(TIPLER.filter((t) => t.acilis <= 1).map((t) => t.id));
+    for (const o of ornekSiparisler(500, 3)) {
+      expect(o.siparis.parcalar[0]).toBe("krep");
+      expect(o.fiyat).toBeGreaterThan(0);
+      expect(o.sabir).toBeGreaterThanOrEqual(SEVIYE.sabirMin);
+    }
+  });
+
+  test("sayı alanları ve yola yazma: iç içe yol, asıl nesne değişmez", () => {
+    const n = { a: 1, b: { c: 2, d: [3] }, e: "x" };
+    expect(sayiAlanlari(n)).toEqual([{ yol: "a", deger: 1 }, { yol: "b.c", deger: 2 }]);
+    expect(alanGruplari(sayiAlanlari(n))).toEqual([["", [{ yol: "a", deger: 1 }]], ["b", [{ yol: "b.c", deger: 2 }]]]);
+    const y = yolaYaz(n, "b.c", 9);
+    expect(y.b.c).toBe(9);
+    expect(n.b.c).toBe(2);
+  });
+
+  test("denge doğrulama: oyunun ayarı geçer; kalite sırası ve eksi değer yakalanır", () => {
+    expect(dengeDogrula(AYAR, m)).toEqual({});
+    const bozuk = yolaYaz(yolaYaz(AYAR, "kalite.good", 95), "tabakMax", -1);
+    expect(dengeDogrula(bozuk, m)).toEqual({ "kalite.perfect": m.denge.kaliteSirasi, tabakMax: m.form.sifirVeUstuSayi });
+  });
+
+  test("sonraki sürüm numarası kapsama göre ve yayındaki sürümü de hesaba katar", () => {
+    const s = (kapsam: "ayarlar" | "seviye", surum: number) => ({ id: `${kapsam}-${surum}`, kapsam, surum, durum: "taslak" as const, yayinlayan: null, yayinTarihi: null, not: null, veri: {} });
+    expect(sonrakiSurum([], "ayarlar", 1)).toBe(2);
+    expect(sonrakiSurum([s("ayarlar", 3), s("seviye", 7)], "ayarlar", 1)).toBe(4);
+    expect(surumSirala([s("seviye", 1), s("ayarlar", 2), s("ayarlar", 5)]).map((x) => x.id)).toEqual(["ayarlar-5", "ayarlar-2", "seviye-1"]);
+  });
+});
+
 describe("yönetim komutlarının tarayıcı yedeği (Rust yokken)", () => {
+  test("ayarlar JSON'dan, sürümler boş; yayın ve geri alma YalnizUygulamada", async () => {
+    const a = await kayitListesi("GameConfig");
+    if (a.ok) expect(a.veri.items.find((x) => x.key === "ayarlar")?.data).toEqual(AYAR);
+    const v = await kayitListesi("ContentVersion");
+    if (v.ok) expect(v.veri.items).toEqual([]);
+    const yalniz: { ok: false; hata: NativeHata } = { ok: false, hata: { tur: "YalnizUygulamada" } };
+    expect(await icerikYayinla("x")).toEqual(yalniz);
+    expect(await icerikGeriAl("ayarlar", "deneme")).toEqual(yalniz);
+  });
+
   test("kayıt listesi tarayıcıda oyunun JSON verisini döner; yazma komutları YalnizUygulamada", async () => {
     const l = await kayitListesi("Malzeme");
     expect(l.ok).toBe(true);

@@ -9,18 +9,29 @@
   import { tema } from "$lib/tema.svelte";
   import type { YonetimMenuOgesi, YonetimOturumu, YonetimSekmesi } from "$lib/types";
   import { hataMetni } from "$lib/yonetim";
+  import DengeAyarlari from "./DengeAyarlari.svelte";
   import Giris from "./Giris.svelte";
+  import KilometreTaslari from "./KilometreTaslari.svelte";
   import Malzemeler from "./Malzemeler.svelte";
   import MusteriTipleri from "./MusteriTipleri.svelte";
   import PanelOzeti from "./PanelOzeti.svelte";
+  import SeviyeEgrisi from "./SeviyeEgrisi.svelte";
+  import Simulator from "./Simulator.svelte";
+  import Surumler from "./Surumler.svelte";
 
   const m = yonetimSozlugu();
   const arkaUcVar = destekleniyorMu("yonetim");
 
+  // Sürümler yalnız yerel veritabanında vardır: tarayıcıda menüde hiç görünmez
   const sekmeler: YonetimMenuOgesi[] = [
     { id: "ozet", ikon: "📊" },
     { id: "malzemeler", ikon: "🥞" },
     { id: "musteriler", ikon: "🧑" },
+    { id: "egri", ikon: "📈" },
+    { id: "kilometre", ikon: "🧾" },
+    { id: "simulator", ikon: "🎲" },
+    { id: "denge", ikon: "⚖️" },
+    ...(arkaUcVar ? [{ id: "surumler" as const, ikon: "🗂️" }] : []),
   ];
   let aktif = $state<YonetimSekmesi>("ozet");
 
@@ -93,6 +104,16 @@
           <Malzemeler {oturum} />
         {:else if aktif === "musteriler"}
           <MusteriTipleri {oturum} />
+        {:else if aktif === "egri"}
+          <SeviyeEgrisi />
+        {:else if aktif === "kilometre"}
+          <KilometreTaslari />
+        {:else if aktif === "simulator"}
+          <Simulator />
+        {:else if aktif === "denge"}
+          <DengeAyarlari {oturum} />
+        {:else if aktif === "surumler"}
+          <Surumler {oturum} />
         {/if}
       </main>
     </div>

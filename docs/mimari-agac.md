@@ -33,7 +33,11 @@ Pancake Flip!
 │
 ├── /admin (Yönetim paneli; oyuncu menüsü yok, yalnız Türkçe; uygulamada Profil → Yönetim Paneli)
 │   ├── Uygulamada: yönetici girişi / hesap oluşturma (yerel arka uç, ilk hesap yönetici olur)
-│   └── Panel Özeti: oyuncu istatistikleri ve seviye dağılımı (uygulamada), oyun içeriği sayıları (her yerde)
+│   ├── Panel Özeti: oyuncu istatistikleri ve seviye dağılımı (uygulamada), oyun içeriği sayıları (her yerde)
+│   ├── Malzemeler, Müşteri Tipleri: liste ve arama (her yerde); ekle / düzenle / sil (uygulamada, izne göre)
+│   ├── Seviye Eğrisi, Kilometre Taşları, Simülatör: oyunun kurallarından hesaplanır (her yerde, salt okunur)
+│   ├── Denge Ayarları: ayarların sayı alanları; düzenleme taslak sürüm olarak kaydedilir (uygulamada)
+│   └── Sürümler: taslak yayınlama ve geri alma (yalnız uygulamada; tarayıcıda menüde yok)
 │
 ├── 404 (olmayan her adres): `ui/HataDurumu` ile "bulunamadı" + rehbere dönüş
 │
