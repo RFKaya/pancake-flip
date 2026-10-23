@@ -27,7 +27,7 @@
     <svg viewBox={`0 0 ${G} ${Y}`} role="img" aria-label={m.egri.zorlukCizgisi}>
       {#each [0, 0.5, 1] as z (z)}
         <line class="izgara" x1={P} x2={G - P} y1={y(z)} y2={y(z)} />
-        <text class="eksen" x={P - 6} y={y(z) + 4} text-anchor="end">{z}</text>
+        <text class="eksen" x={P - 6} y={y(z) + 4} text-anchor="end">{z.toLocaleString("tr-TR")}</text>
       {/each}
       <polyline class="cizgi" points={cizgi} />
       {#each satirlar as s, i (s.seviye)}
