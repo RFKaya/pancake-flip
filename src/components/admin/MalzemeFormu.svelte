@@ -21,6 +21,9 @@
     ),
   );
 
+  // Kaydın kendi rengi listede yoksa (veritabanında başka bir değişkenle kaydedilmiş olabilir) seçenek olarak eklenir; kutu boş görünmez
+  const renkler = untrack(() => [...new Set([...RENK_DEGISKENLERI, taslak.renkDegiskeni])]);
+
   let hatalar = $state<FormHatalari>({});
   let genelHata = $state("");
   let gonderiliyor = $state(false);
@@ -83,7 +86,7 @@
       <label>
         {m.malzemeler.renk}
         <select bind:value={taslak.renkDegiskeni} style:border-inline-start={`8px solid var(${taslak.renkDegiskeni})`}>
-          {#each RENK_DEGISKENLERI as r (r)}<option value={r}>{r}</option>{/each}
+          {#each renkler as r (r)}<option value={r}>{r}</option>{/each}
         </select>
         {@render alanHatasi("renkDegiskeni")}
       </label>
