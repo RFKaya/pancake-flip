@@ -84,7 +84,8 @@ export function seviyeAyari(seviye: number): SeviyeAyari {
   };
 }
 
-function tumAcilislar(): Acilis[] {
+/** Seviyeyle açılan bütün yenilikler (malzeme, müşteri tipi, mekanik); yönetim panelinin zaman çizelgesi de bunu okur */
+export function tumAcilislar(): Acilis[] {
   return [
     ...MALZEMELER.filter((m) => m.kategori !== "krep").map((m) => ({ tur: "malzeme" as const, id: m.id, ad: m.ad, ikon: m.ikon, seviye: m.acilis })),
     ...TIPLER.filter((t) => t.id !== "normal").map((t) => ({ tur: "musteri" as const, id: t.id, ad: t.ad, ikon: t.ikon, seviye: t.acilis })),
