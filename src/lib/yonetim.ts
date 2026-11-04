@@ -1,7 +1,28 @@
 // Yönetim paneli hesapları: saf fonksiyonlar (bileşenler yalnızca gösterir). Oyuncu verisi native.ts'ten, içerik JSON'dan gelir.
 import type { YonetimMetni } from "./admin-sozluk";
-import { MALZEMELER, SEVIYE, TIPLER } from "./oyun/veri";
-import type { FormHatalari, IcerikOzeti, Kategori, Malzeme, MusteriTipi, NativeHata, PanelOzeti, YonetimOturumu } from "./types";
+import { siparisFiyati } from "./oyun/ekonomi";
+import { sabirHesapla } from "./oyun/musteri";
+import { rngOlustur } from "./oyun/rng";
+import { seviyeAyari, tumAcilislar } from "./oyun/seviye";
+import { siparisUret } from "./oyun/siparis";
+import { AYAR, MALZEMELER, SEVIYE, TIPLER } from "./oyun/veri";
+import type {
+  Ayarlar,
+  EgriSatiri,
+  FormHatalari,
+  IcerikKapsami,
+  IcerikOzeti,
+  IcerikSurumu,
+  Kategori,
+  Malzeme,
+  MusteriTipi,
+  NativeHata,
+  OrnekSiparis,
+  PanelOzeti,
+  SayiAlani,
+  SeviyeDurak,
+  YonetimOturumu,
+} from "./types";
 
 /** Oyun içeriğinin sayıları (src/lib/veri/*.json); tarayıcıda da çalışır */
 export function icerikOzeti(): IcerikOzeti {
@@ -96,6 +117,102 @@ export function musteriTipiDogrula(x: MusteriTipi, yeni: boolean, mevcutIdler: s
   if (x.dMax != null && !tamSayiMi(x.dMax, 1)) h.dMax = m.form.enAzBirTamSayi;
   return h;
 }
+
+// ---- Seviye eğrisi, kilometre taşları ve simülatör: oyunun kendi kurallarıyla (src/lib/oyun) hesaplanır ----
+
+/** Eğri tablosunda gösterilen seviyeler: başta sık, sonra seyrek; seviye sınırını geçmez */
+export const ornekSeviyeler = () =>
+  [1, 2, 3, 5, 8, 10, 15, 20, 25, 30, 50, 75, 100, 250, 500, 1000, 10000, 1e6, 1e9].filter((l) => l <= SEVIYE.seviyeSiniri);
+
+/** Seviye eğrisi tablosu: her örnek seviyede oyunun kullandığı değerler */
+export function egriSatirlari(seviyeler = ornekSeviyeler()): EgriSatiri[] {
+  return seviyeler.map((l) => {
+    const sv = seviyeAyari(l);
+    return {
+      seviye: sv.seviye,
+      gerekenMusteri: sv.gerekenMusteri,
+      zorluk: sv.zorluk,
+      cevirPencere: sv.cevirPencere,
+      hamurTolerans: sv.hamurTolerans,
+      sabirCarpani: sv.sabirCarpani,
+      gelmeAraligi: sv.gelmeAraligi,
+      tava: sv.tava,
+      eszamanli: sv.eszamanli,
+    };
+  });
+}
+
+/** Seviye seviye zaman çizelgesi: kilometre taşları ve açılışlar, seviyeye göre sıralı */
+export function seviyeDuraklari(): SeviyeDurak[] {
+  const duraklar = new Map<number, SeviyeDurak>();
+  const durak = (seviye: number) => {
+    if (!duraklar.has(seviye)) duraklar.set(seviye, { seviye, kilometreTasi: null, acilislar: [] });
+    return duraklar.get(seviye) as SeviyeDurak;
+  };
+  for (const k of SEVIYE.kilometreTaslari) durak(k.seviye).kilometreTasi = { baslik: k.baslik, alt: k.alt };
+  for (const a of tumAcilislar()) durak(a.seviye).acilislar.push(a);
+  return [...duraklar.values()].sort((a, b) => a.seviye - b.seviye);
+}
+
+/** Simülatör: bu seviyede açık her müşteri tipi için tohumla tekrarlanabilir bir örnek sipariş */
+export function ornekSiparisler(seviye: number, tohum: number): OrnekSiparis[] {
+  const sv = seviyeAyari(seviye);
+  const rng = rngOlustur(tohum);
+  return TIPLER.filter((t) => t.acilis <= sv.seviye).map((tip) => {
+    const siparis = siparisUret(sv, MALZEMELER, tip, AYAR, rng);
+    return { tip, siparis, fiyat: siparisFiyati(siparis, MALZEMELER), sabir: sabirHesapla(siparis.d, sv.seviye, tip) };
+  });
+}
+
+// ---- Denge ayarları ve sürümler ----
+
+/** Nesnedeki bütün sayı alanları (iç içe nesneler dahil, listeler hariç), noktalı yol sırasıyla */
+export function sayiAlanlari(nesne: unknown, onEk = ""): SayiAlani[] {
+  if (typeof nesne !== "object" || nesne === null || Array.isArray(nesne)) return [];
+  return Object.entries(nesne).flatMap(([k, v]) => {
+    const yol = onEk ? `${onEk}.${k}` : k;
+    if (typeof v === "number") return [{ yol, deger: v }];
+    return sayiAlanlari(v, yol);
+  });
+}
+
+/** Sayı alanlarını yolun ilk parçasına göre gruplar ("kalite.perfect" → "kalite"); iç içe olmayan alanlar "" grubunda toplanır; sıra korunur */
+export function alanGruplari(alanlar: SayiAlani[]): [string, SayiAlani[]][] {
+  const gruplar = new Map<string, SayiAlani[]>();
+  for (const a of alanlar) {
+    const grup = a.yol.includes(".") ? a.yol.split(".")[0] : "";
+    gruplar.set(grup, [...(gruplar.get(grup) ?? []), a]);
+  }
+  return [...gruplar.entries()];
+}
+
+/** Noktalı yoldaki sayıyı değiştirilmiş yeni bir kopya döndürür (asıl nesne değişmez) */
+export function yolaYaz<T>(nesne: T, yol: string, deger: number): T {
+  const kopya = structuredClone(nesne) as Record<string, unknown>;
+  const parcalar = yol.split(".");
+  let hedef = kopya;
+  for (const p of parcalar.slice(0, -1)) hedef = hedef[p] as Record<string, unknown>;
+  hedef[parcalar[parcalar.length - 1]] = deger;
+  return kopya as T;
+}
+
+/** Denge ayarlarını denetler: her sayı sonlu ve 0 ya da büyük; kalite eşikleri perfect ≥ great ≥ good (arka uç da bunu ister) */
+export function dengeDogrula(ayar: Ayarlar, m: YonetimMetni): FormHatalari {
+  const h: FormHatalari = {};
+  for (const a of sayiAlanlari(ayar)) if (!Number.isFinite(a.deger) || a.deger < 0) h[a.yol] = m.form.sifirVeUstuSayi;
+  const k = ayar.kalite;
+  if (!(k.perfect >= k.great && k.great >= k.good)) h["kalite.perfect"] = m.denge.kaliteSirasi;
+  return h;
+}
+
+/** Kapsamın bir sonraki sürüm numarası: kayıtlı sürümlerin ve yayındaki ayarın en büyüğünden bir fazla */
+export function sonrakiSurum(surumler: IcerikSurumu[], kapsam: IcerikKapsami, yayindaki = 0): number {
+  return Math.max(yayindaki, ...surumler.filter((s) => s.kapsam === kapsam).map((s) => s.surum), 0) + 1;
+}
+
+/** Sürümler yeniden eskiye: önce kapsam, sonra sürüm numarası */
+export const surumSirala = (surumler: IcerikSurumu[]) =>
+  [...surumler].sort((a, b) => a.kapsam.localeCompare(b.kapsam) || b.surum - a.surum);
 
 /** native.ts hatasını kullanıcıya gösterilecek cümleye çevirir (arka uç iletileri zaten Türkçe gelir) */
 export function hataMetni(hata: NativeHata, m: YonetimMetni): string {

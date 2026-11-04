@@ -13,8 +13,13 @@
     return () => kutu.close();
   });
 
+  // Dış tıklama: basma da bırakma da arka planda olmalı. Yalnız bırakmaya bakılırsa bir kutuda metin seçip
+  // fareyi dışarıda bırakmak pencereyi kapatır ve formda yazılanlar kaybolur.
+  let disaridaBasildi = false;
+
   function disTiklama(e: MouseEvent) {
-    if (e.target === kutu) onKapat();
+    if (disaridaBasildi && e.target === kutu) onKapat();
+    disaridaBasildi = false;
   }
 </script>
 
@@ -23,6 +28,7 @@
   class="pencere"
   aria-labelledby="pencere-baslik"
   oncancel={(e) => (e.preventDefault(), onKapat())}
+  onmousedown={(e) => (disaridaBasildi = e.target === kutu)}
   onclick={disTiklama}
 >
   <header>
