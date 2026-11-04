@@ -6,11 +6,11 @@ Bu klasör oyunun ne yaptığını ve neden öyle yaptığını anlatır; kodun 
 
 Grafiğin dosyaları ve kapsamları; her giriş ilgili bölümün köküdür.
 
-- [[mimari]] — Katmanlar, native kapısı, oyun döngüsü, değişmez kararlar
+- [[mimari]] — Katmanlar, native kapısı, yerel arka uç, oyun döngüsü, değişmez kararlar
 - [[oyun-mekanigi]] — Hamur, pişme, çevirme, tabak eşleşmesi, para
 - [[seviye]] — Sonsuz seviye eğrisi, açılışlar, geliştirici modu
-- [[veri]] — Tip sözleşmesi, JSON veri, cihaz kaydı, adisyon kodları
-- [[arayuz]] — Ekranlar, lobi/oyun sahnesi, dil-yön-tema, dokunma
+- [[veri]] — Tip sözleşmesi, JSON veri, cihaz kaydı, yönetim verisi, adisyon kodları
+- [[arayuz]] — Ekranlar, lobi/oyun sahnesi, yönetim paneli, izinler, dil-yön-tema, dokunma
 - [[platform]] — Özellik × platform tablosu ve tarayıcı yedekleri
 - [[testler]] — Test şartnameleri ve `@lat:` bağları
 - [[gorevler]] — Aşamalar, açık işler, çalışma akışı
