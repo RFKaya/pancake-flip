@@ -39,6 +39,10 @@ Pancake Flip!
 │   ├── Denge Ayarları: ayarların sayı alanları; düzenleme taslak sürüm olarak kaydedilir (uygulamada)
 │   └── Sürümler: taslak yayınlama ve geri alma (yalnız uygulamada; tarayıcıda menüde yok)
 │
+├── /izinler (İzinler; yalnız uygulamada)
+│   ├── İzin listesi ve durumu: bildirim (verildi / reddedildi / henüz sorulmadı)
+│   └── İzin iste, test bildirimi gönder (tarayıcıda yalnız açıklama görünür)
+│
 ├── 404 (olmayan her adres): `ui/HataDurumu` ile "bulunamadı" + rehbere dönüş
 │
 └── Bilgi ve Yasal Sayfalar (4 dil: tr varsayılan, en, ar, fa)
