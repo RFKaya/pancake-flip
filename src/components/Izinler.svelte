@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { izinDurumu, izinIste, bildirimGonder } from "$lib/native";
+  import { bildirimGonder, destekleniyorMu, izinDurumu, izinIste } from "$lib/native";
   import type { IzinDurumu } from "$lib/types";
 
   let izinler = $state<IzinDurumu[]>([]);
-  let native = $state(true);
+  let native = $state(false);
   let mesaj = $state("");
 
   const etiket: Record<string, string> = {
@@ -16,20 +16,20 @@
   };
 
   async function yenile() {
-    try { izinler = await izinDurumu(); } catch { izinler = []; }
+    const s = await izinDurumu();
+    izinler = s.ok ? s.veri : [];
   }
   async function iste(id: string) {
-    try { izinler = await izinIste(id); }
-    catch (e) { mesaj = "İzin istenemedi: " + String(e); }
+    const s = await izinIste(id);
+    if (s.ok) izinler = s.veri;
+    else mesaj = "İzin istenemedi.";
   }
   async function test() {
-    try {
-      await bildirimGonder("Pancake Flip", "Günlük krep hatırlatması / oyun bildirimi");
-      mesaj = "Bildirim gönderildi (izin verildiyse görürsünüz).";
-    } catch (e) { mesaj = "Bildirim gönderilemedi: " + String(e); }
+    const s = await bildirimGonder("Pancake Flip", "Günlük krep hatırlatması / oyun bildirimi");
+    mesaj = s.ok ? "Bildirim gönderildi (izin verildiyse görürsünüz)." : "Bildirim gönderilemedi.";
   }
   onMount(() => {
-    native = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+    native = destekleniyorMu("izin");
     if (native) yenile();
   });
 </script>
@@ -56,15 +56,15 @@
 </section>
 
 <style>
-  .izinler { max-width: 640px; margin: 0 auto; padding: var(--bosluk-l, 1rem); display: flex; flex-direction: column; gap: var(--bosluk-m, 0.75rem); }
-  .aciklama, .not { color: var(--renk-metin-soluk, #666); }
-  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--bosluk-m, 0.75rem); }
-  li { border: 1px solid var(--renk-kenarlik, #e2e2e2); border-radius: var(--kose, 12px); padding: var(--bosluk-m, 0.75rem); display: flex; flex-direction: column; gap: 0.35rem; }
-  .ust { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-  .rozet { font-size: 0.8rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid var(--renk-kenarlik, #e2e2e2); }
-  .rozet-granted { color: var(--renk-basari, #137333); }
-  .rozet-denied { color: var(--renk-hata, #b00020); }
-  .notlar { margin: 0; color: var(--renk-metin-soluk, #666); font-size: 0.9rem; }
-  button { align-self: flex-start; padding: 0.4rem 0.9rem; border-radius: var(--kose, 10px); border: 1px solid var(--renk-vurgu, #6b4f3b); background: var(--renk-vurgu, #6b4f3b); color: #fff; cursor: pointer; }
-  .mesaj { color: var(--renk-metin-soluk, #666); font-size: 0.9rem; }
+  .izinler { max-width: 640px; margin: 0 auto; padding: var(--bosluk-4); display: flex; flex-direction: column; gap: var(--bosluk-3); }
+  .aciklama, .not { color: var(--yazi-soluk); }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--bosluk-3); }
+  li { border: 1px solid var(--kenar); background: var(--kart); border-radius: var(--radius); padding: var(--bosluk-3); display: flex; flex-direction: column; gap: var(--bosluk-2); }
+  .ust { display: flex; justify-content: space-between; align-items: center; gap: var(--bosluk-2); }
+  .rozet { font-size: 0.8rem; padding: 0.1rem var(--bosluk-2); border-radius: 999px; border: 1px solid var(--kenar); }
+  .rozet-granted { color: var(--basari); }
+  .rozet-denied { color: var(--vurgu); }
+  .notlar { margin: 0; color: var(--yazi-soluk); font-size: 0.9rem; }
+  button { align-self: flex-start; padding: var(--bosluk-2) var(--bosluk-4); border-radius: var(--radius-kucuk); border: 1px solid var(--renk-ana); background: var(--renk-ana); color: var(--renk-ana-yazi); cursor: pointer; }
+  .mesaj { color: var(--yazi-soluk); font-size: 0.9rem; }
 </style>

@@ -11,6 +11,7 @@ import type {
   FisHatasi,
   IcerikKapsami,
   IcerikSurumu,
+  IzinDurumu,
   ListeSorgusu,
   NativeSonuc,
   Ozellik,
@@ -45,6 +46,7 @@ const DESTEK: Record<Ozellik, Record<Platform, boolean>> = {
   ses: { android: true, ios: true, macos: true, windows: true, linux: true, web: true },
   kayit: { android: true, ios: true, macos: true, windows: true, linux: true, web: true },
   yonetim: { android: true, ios: true, macos: true, windows: true, linux: true, web: false }, // yerel arka uç (SQLite) yalnız Rust'ta
+  izin: { android: true, ios: true, macos: true, windows: true, linux: true, web: false }, // sistem izni ve bildirim yalnız Rust'ta
 };
 
 /** Bu özellik şu anki platformda destekleniyor mu (desteklenmiyorsa arayüzde hiç gösterilmez) */
@@ -122,23 +124,24 @@ export async function panelOzeti(): Promise<NativeSonuc<PanelOzeti>> {
 }
 
 
-/** İzin durumunu okur; web'de (Rust yoksa) boş döner, asla diyalog açmaz. */
-export async function izinDurumu(): Promise<import("./types").IzinDurumu[]> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return [];
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<import("./types").IzinDurumu[]>("permissions_status");
+// İzinler (docs/izinler.md): tarayıcıda sistem izni yoktur; arayüz destekleniyorMu("izin") false iken bu bölümü çizmez.
+
+/** İzinlerin anlık durumu (permissions_status); asla sistem diyaloğu açmaz */
+export async function izinDurumu(): Promise<NativeSonuc<IzinDurumu[]>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<IzinDurumu[]>("permissions_status", {});
 }
-/** Verilen izin için OS diyaloğunu açar, güncel durumu döner. */
-export async function izinIste(id: string): Promise<import("./types").IzinDurumu[]> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return [];
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<import("./types").IzinDurumu[]>("permission_request", { id });
+
+/** Verilen izin için sistem diyaloğunu açar, güncel durumu döner (permission_request) */
+export async function izinIste(id: string): Promise<NativeSonuc<IzinDurumu[]>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<IzinDurumu[]>("permission_request", { id });
 }
-/** Bildirim gönderir (izin verildiyse). */
-export async function bildirimGonder(baslik: string, govde: string): Promise<void> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return;
-  const { invoke } = await import("@tauri-apps/api/core");
-  await invoke("bildirim_gonder", { baslik, govde });
+
+/** Sistem bildirimi gönderir; izin verilmediyse gösterilmez (bildirim_gonder) */
+export async function bildirimGonder(baslik: string, govde: string): Promise<NativeSonuc<null>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<null>("bildirim_gonder", { baslik, govde });
 }
 
 /** Tarayıcı yedeğinde listelenen kayıtlar: oyunun JSON verisi (salt okunur) */
