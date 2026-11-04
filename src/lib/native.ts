@@ -2,7 +2,23 @@
 // Sonuçlar tiplidir (NativeSonuc): istisna fırlatılmaz. Tarayıcıda (Rust yokken) ekran çökmez: makul bir yedek sonuç ya da
 // "YalnizUygulamada" hatası döner. Platform bilgisi de buradan alınır (docs/platform-destegi.md).
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import type { Adisyon, AlanHatasi, ArkaUcKodu, FisBilgisi, FisHatasi, NativeSonuc, Ozellik, PanelOzeti, Platform, YonetimOturumu } from "./types";
+import { MALZEMELER, TIPLER } from "./oyun/veri";
+import type {
+  Adisyon,
+  AlanHatasi,
+  ArkaUcKodu,
+  FisBilgisi,
+  FisHatasi,
+  ListeSorgusu,
+  NativeSonuc,
+  Ozellik,
+  PanelOzeti,
+  Platform,
+  Sayfa,
+  YonetimKaynagi,
+  YonetimKaynaklari,
+  YonetimOturumu,
+} from "./types";
 
 /** Tauri uygulamasının içinde miyiz (tarayıcıda false) */
 export function uygulamadaMi(): boolean {
@@ -101,4 +117,38 @@ export async function yonetimCikis(): Promise<NativeSonuc<null>> {
 export async function panelOzeti(): Promise<NativeSonuc<PanelOzeti>> {
   if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
   return cagir<PanelOzeti>("pancake_dashboard", {});
+}
+
+/** Tarayıcı yedeğinde listelenen kayıtlar: oyunun JSON verisi (salt okunur) */
+const JSON_KAYITLARI: { [K in YonetimKaynagi]: YonetimKaynaklari[K][] } = { Malzeme: MALZEMELER, MusteriTipi: TIPLER };
+
+/** Kaynağın kayıtları (crud_index; "ViewAny:<Kaynak>"). Tarayıcıda JSON verisinin tamamı tek sayfa olarak döner. */
+export async function kayitListesi<K extends YonetimKaynagi>(kaynak: K, sorgu: ListeSorgusu = {}): Promise<NativeSonuc<Sayfa<YonetimKaynaklari[K]>>> {
+  if (!uygulamadaMi()) {
+    const items = JSON_KAYITLARI[kaynak].map((k) => ({ ...k }));
+    return { ok: true, veri: { items, total: items.length, page: 1, pageSize: items.length } };
+  }
+  return cagir<Sayfa<YonetimKaynaklari[K]>>("crud_index", { resource: kaynak, query: sorgu });
+}
+
+/** Yeni kayıt (crud_store; "Create:<Kaynak>") */
+export async function kayitEkle<K extends YonetimKaynagi>(kaynak: K, veri: YonetimKaynaklari[K]): Promise<NativeSonuc<YonetimKaynaklari[K]>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<YonetimKaynaklari[K]>("crud_store", { resource: kaynak, data: veri });
+}
+
+/** Kaydı kısmen günceller: yalnız gönderilen alanlar değişir, null gönderilen isteğe bağlı alan silinir (crud_update; "Update:<Kaynak>") */
+export async function kayitGuncelle<K extends YonetimKaynagi>(
+  kaynak: K,
+  id: string,
+  veri: { [A in keyof YonetimKaynaklari[K]]?: YonetimKaynaklari[K][A] | null },
+): Promise<NativeSonuc<YonetimKaynaklari[K]>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<YonetimKaynaklari[K]>("crud_update", { resource: kaynak, id, data: veri });
+}
+
+/** Kaydı siler; neden denetim günlüğüne yazılır (crud_destroy; "Delete:<Kaynak>") */
+export async function kayitSil(kaynak: YonetimKaynagi, id: string, neden?: string): Promise<NativeSonuc<null>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<null>("crud_destroy", { resource: kaynak, id, reason: neden ?? null });
 }
