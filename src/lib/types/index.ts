@@ -10,3 +10,4 @@ export type * from "./arayuz";
 export type * from "./ui";
 export type * from "./native";
 export type * from "./yonetim";
+export type { IzinDurumu } from "./izin";
