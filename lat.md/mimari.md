@@ -1,10 +1,10 @@
 # Mimari
 
-Tek kod tabanı üç katmandan oluşur: Astro statik sayfaları, Svelte 5 adaları ve Tauri v2 kabuğu. Rust yalnız adisyon komutlarını sağlar; oyunun bütün kuralları saf TypeScript'tedir.
+Tek kod tabanı üç katmandan oluşur: Astro statik sayfaları, Svelte 5 adaları ve Tauri v2 kabuğu. Rust adisyon, yönetim arka ucu ve izin komutlarını sağlar; oyunun bütün kuralları saf TypeScript'tedir.
 
 ## Katmanlar
 
-Astro `output: 'static'` ile 56 sayfa üretir; etkileşimli parçalar `client:load` ve `client:only` adalarıdır. Tauri aynı çıktıyı yerel WebView'da 420×820 dikey pencerede gösterir. Paket yöneticisi Bun'dır (`bun run dev`, `bun test`, `bun run build`).
+Astro `output: 'static'` ile 58 sayfa üretir; etkileşimli parçalar `client:load` ve `client:only` adalarıdır. Tauri aynı çıktıyı yerel WebView'da 420×820 dikey pencerede gösterir. Paket yöneticisi Bun'dır (`bun run dev`, `bun test`, `bun run build`).
 
 - Sayfalar ve rotalar: `src/pages/` (Türkçe kökte, `en`, `ar`, `fa` önekli).
 - Bileşenler: `src/components/` (Svelte 5 Runes) ve ortak kart/durum bileşenleri `src/lib/components/ui/`.
@@ -14,9 +14,21 @@ Astro `output: 'static'` ile 56 sayfa üretir; etkileşimli parçalar `client:lo
 
 ## native.ts tek kapı
 
-Tauri `invoke` ve `isTauri` yalnız [[src/lib/native.ts]] içinde kullanılır. `fisOlustur` ve `fisCoz` istisna fırlatmaz; `{ ok: true, veri }` ya da `{ ok: false, hata }` döner. Tarayıcıda Rust yokken `WEB-` yedeği üretilir, kod çözme kapalıdır ([[platform#Tarayıcı yedekleri]]).
+Tauri `invoke` ve `isTauri` yalnız [[src/lib/native.ts]] içinde kullanılır. Bütün komutlar (`fisOlustur`, `fisCoz`, yönetim ve izin) istisna fırlatmaz; `{ ok: true, veri }` ya da `{ ok: false, hata }` döner.
+
+Tarayıcıda Rust yokken `WEB-` yedeği üretilir, kod çözme kapalıdır ([[platform#Tarayıcı yedekleri]]).
+
+Rust hataları `FisHatasi` ya da arka uç biçimindedir; ikincisi `native.ts` içinde `{ tur: "ArkaUc", kod, mesaj, alanlar? }` olarak tiplenir ([[src/lib/native.ts#cagir]]).
 
 Bileşenler platform adını kendileri sorgulamaz; `destekleniyorMu(ozellik)` kullanır ([[src/lib/native.ts#destekleniyorMu]]).
+
+## Yerel arka uç
+
+Sunucu yoktur: yönetim verisi uygulama veri klasöründeki bir SQLite dosyasında durur ve Tauri komutlarıyla açılır. Sunucuya geçilince yalnız `src-tauri/src/backend/` değişir; komut adları ve veri biçimi aynı kalır.
+
+Roller ve izinler `Eylem:Kaynak` adlarıyla tutulur, `admin` rolü her denetimi geçer ve ilk kayıt olan hesap yönetici olur. Her denetleyici işlevi önce izni denetler ve silme nedeni denetim günlüğüne yazılır ([[docs/backend.md]], [[docs/komutlar.md]]).
+
+Panelden yayınlanan ayarlar `game_configs` tablosuna yazılır, ama oyun şimdilik JSON'daki değerlerle çalışır; panel bu yüzden oyunu henüz değiştirmez ([[veri#Yönetim verisi]]).
 
 ## Tek oyun döngüsü
 

@@ -5,7 +5,7 @@ lat:
 
 # Test Şartnameleri
 
-`bun test` ile çalışan 99 test kuralları arayüzden bağımsız doğrular. Her şartname bir test dosyasına `@lat:` işaretiyle bağlanır; `lat check` kopuk bağı hata sayar.
+`bun test` ile çalışan 120 test kuralları arayüzden bağımsız doğrular. Her şartname bir test dosyasına `@lat:` işaretiyle bağlanır; `lat check` kopuk bağı hata sayar.
 
 ## Sipariş üretici
 
@@ -41,7 +41,19 @@ Bozuk, eksik ya da eski sürümlü ilerleme kaydı güvenli başlangıç değeri
 
 ## Tarayıcı yedeği
 
-Rust yokken platform `web` döner, adisyon kodu `WEB-` biçiminde üretilir, geçersiz girdi tipli hata verir ve kod çözme kapalıdır.
+Rust yokken platform `web` döner, adisyon kodu `WEB-` biçiminde üretilir, geçersiz girdi tipli hata verir ve kod çözme kapalıdır. Yönetim ve izin komutları `YalnizUygulamada` döner; `kayitListesi` JSON verisini verir.
+
+## Yönetim paneli hesapları
+
+İçerik özeti JSON'la aynıdır, dağılım çubukları en kalabalık aralığa göre ölçeklenir, oran ve seviye doğru yazılır, arka uç hatası alan iletileriyle birleşir.
+
+## Katalog izni ve doğrulaması
+
+Oturum yoksa hiç izin yoktur, `admin` her şeyi yapar; arama büyük küçük harf duymaz, kimlik biçimi ve tekrarı, sayı alanları ve sıfır sabır yakalanır.
+
+## Ayar ekranı hesapları
+
+Eğri satırları oyunun kurallarıyla aynıdır, örnek siparişler tohumla yinelenir, geçersiz denge ayarı yakalanır ve sonraki sürüm numarası kapsama göre hesaplanır.
 
 ## Örnek veri tutarlılığı
 

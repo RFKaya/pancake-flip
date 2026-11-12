@@ -43,6 +43,7 @@ import {
 
 const m = yonetimSozlugu();
 
+// @lat: [[testler#Yönetim paneli hesapları]]
 describe("yönetim paneli hesapları", () => {
   test("içerik özeti JSON verisiyle aynı", () => {
     expect(icerikOzeti()).toEqual({
@@ -82,6 +83,7 @@ describe("yönetim paneli hesapları", () => {
   });
 });
 
+// @lat: [[testler#Katalog izni ve doğrulaması]]
 describe("katalog: izin, süzme ve doğrulama", () => {
   const oturum = (permissions: string[], superAdmin = false): YonetimOturumu => ({
     user: { id: 2, name: "Tasarımcı", email: "t@ornek.com", status: "active", lastLoginAt: null, createdAt: "2026-10-22T10:00:00Z" },
@@ -135,6 +137,7 @@ describe("katalog: izin, süzme ve doğrulama", () => {
   });
 });
 
+// @lat: [[testler#Ayar ekranı hesapları]]
 describe("ayar ekranları: eğri, çizelge, simülatör, denge, sürümler", () => {
   test("eğri satırları oyunun kurallarıyla aynı; zorluk artarak gider, sınırı geçen seviye yok", () => {
     const satirlar = egriSatirlari();
@@ -183,6 +186,7 @@ describe("ayar ekranları: eğri, çizelge, simülatör, denge, sürümler", () 
   });
 });
 
+// @lat: [[testler#Tarayıcı yedeği]]
 describe("yönetim komutlarının tarayıcı yedeği (Rust yokken)", () => {
   test("ayarlar JSON'dan, sürümler boş; yayın ve geri alma YalnizUygulamada", async () => {
     const a = await kayitListesi("GameConfig");
