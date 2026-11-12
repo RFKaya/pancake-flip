@@ -26,6 +26,7 @@ Bugün açık olan işler, bekleyen kararlar ve planlanan özellikler aşağıda
 - Gerçek Tauri uygulamasında panel ve `/izinler` elle denenmedi; PR'lar yalnız tarayıcıda ve sahte `invoke` ile doğrulandı.
 - Teslim: güncel `master` üzerinden ZIP indirilip Blackboard'a yüklenmeli.
 - README oynanış videosu tamamlandı: öğrencinin ekran kaydı ve doğrulama [[docs/istemler/27-readme-oynanis-videosu.md]] içinde.
+- Vize ekran görüntüsü otomasyonu ve ZIP teslimi: [[docs/teslim.md]]; doğrulama [[docs/istemler/28-ekran-goruntusu-teslim.md]] içinde. Teslim dalı açık PR kaynaklarını da içerir; ana dala birleşmiş sayılmaz.
 - Planlanan: F1 ikinci tabak, F2 ileri müşteriler, F4 dekor, F5 oyun içi dört dil + RTL, F6 başarımlar, F7 Android derlemesi, F8 sonsuz servis.
 
 ## Çalışma akışı

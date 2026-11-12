@@ -16,6 +16,8 @@ pancake-flip/
 ├── astro.config.mjs         # Astro entegrasyonları (Svelte, React, MDX) ve Vite port ayarları
 ├── tsconfig.json            # TypeScript yapılandırması ve $lib alias'ı
 ├── .gitignore               # Versiyon kontrol dışı bırakılan dosyalar
+├── scripts/                 # Bağımlılıksız geliştirme ve teslim otomasyonları
+├── screenshots/             # Üretilen teslim PNG'leri ve rapor; Git dışında
 │
 ├── public/                  # Statik varlıklar (Derlenmeyen logolar, favicon, görseller)
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
@@ -86,3 +88,7 @@ pancake-flip/
 ## 🗄️ Geçici Yerel Arka Uç (`src-tauri/src/backend/`)
 
 SQLite tabanlı geçici arka uç (migration, rol/izin, kaynak denetleyicileri, iş işlevleri) `src-tauri/src/backend/` altındadır; ayrıntı, tablolar ve komut listesi tek kaynakta: [`docs/backend.md`](backend.md).
+
+## Teslim otomasyonu
+
+`scripts/ekran-goruntuleri.mjs`, derlenen web rotalarını keşfeder ve `screenshots/` çıktısını üretir. Çalıştırma, kapsam ve paketleme adımları: [`teslim.md` → Vize teslimi](teslim.md#vize-teslimi).

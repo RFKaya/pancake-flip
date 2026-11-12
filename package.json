@@ -10,7 +10,8 @@
     "astro": "astro",
     "test": "bun test",
     "check": "astro check",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "screenshots": "bun scripts/ekran-goruntuleri.mjs"
   },
   "license": "MIT",
   "dependencies": {
