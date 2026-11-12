@@ -79,6 +79,7 @@ pancake-flip/
 
 ### 10. `docs/` (Dokümantasyon)
 - **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları.
+- `docs/gorseller/`: README'de gösterilen ekran görüntüleri (kısa, ASCII dosya adları; ekran adı `lobi.png`, `servis.png`).
 
 ---
 
