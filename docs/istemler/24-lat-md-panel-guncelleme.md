@@ -53,3 +53,18 @@ test sayısı (test( çağrıları, 9 dosya)               → 120 (lat.md/testl
 ```
 
 Yapılamayanlar: gerçek `lat check` (komut bu makinede yok), `bun test` ve `bun run check` (bu makinede `bun` yok; `astro check` ve test sayısı sayımı ile dolaylı denendi). Kod davranışı değişmediği için testlerin sonucu etkilenmez; tek kod değişikliği `yonetim.test.ts` içine eklenen dört `@lat:` yorumudur.
+
+
+## PR incelemesi — 12.11.2026
+
+- **Araç/model:** Codex masaüstü uygulaması, GPT-6.
+- **İstem:** "Açık PR'lara bak. İnceleyelim ve kapatana kadar tamamlayalım."
+- **Onaylanan plan:** #82 ve #83'ü sırayla incele, günlüklerin 24/25 kayıtlarını koruyarak çakışmayı çöz, doğrulamaları mevcut günlüklere ekle ve korumalı PR akışıyla birleştir. Kullanıcı "Planı onaylıyorum, tamamla" dedi. Oyun davranışı ve bağımlılıklar kapsam dışıdır.
+- **İncelenen sürüm:** `42f1b914eefbcc7aa9f0f0ea405146f640dbaf64`; güncellenen belgeler native kapısı, panel kabuğu, izin ekranı ve arka uç belgesiyle karşılaştırıldı. Engelleyici bulgu yok.
+- `bun test`: 120 geçti, 0 kaldı; 9 dosya, 405395 beklenti.
+- `bun run check`: 78 dosya; 0 hata, 0 uyarı, 0 ipucu.
+- `bun run build`: 58 sayfa, `Complete!`, çıkış 0.
+- Yerel grafik denetimi: 9 belge, 75 bağlantı, 54 giriş; bağlantı hedefleri, başlık/sembol bağları, giriş uzunlukları ve test şartnamelerinin `@lat:` anımları geçti. İlk denetim taslağının kök dosya/dizin hedeflerini çözmesi düzeltildi. Gerçek `lat check` bu ortamda kurulu olmadığından çalıştırılmadı.
+- `git diff --check` temiz. Dil kuralı taraması eşleşme vermedi.
+- Gerçek Tauri uygulamasında elle deneme yapılmadı; bu PR davranış değiştirmiyor.
+
