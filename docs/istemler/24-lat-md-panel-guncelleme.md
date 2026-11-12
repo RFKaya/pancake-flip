@@ -67,4 +67,3 @@ Yapılamayanlar: gerçek `lat check` (komut bu makinede yok), `bun test` ve `bun
 - Yerel grafik denetimi: 9 belge, 75 bağlantı, 54 giriş; bağlantı hedefleri, başlık/sembol bağları, giriş uzunlukları ve test şartnamelerinin `@lat:` anımları geçti. İlk denetim taslağının kök dosya/dizin hedeflerini çözmesi düzeltildi. Gerçek `lat check` bu ortamda kurulu olmadığından çalıştırılmadı.
 - `git diff --check` temiz. Dil kuralı taraması eşleşme vermedi.
 - Gerçek Tauri uygulamasında elle deneme yapılmadı; bu PR davranış değiştirmiyor.
-
