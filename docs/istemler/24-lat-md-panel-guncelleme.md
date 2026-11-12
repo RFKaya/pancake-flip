@@ -45,4 +45,11 @@ Build ve tip denetimi aşağıdaki "Sonuçlar" bölümündedir.
 
 ## Sonuçlar
 
-_PR açılmadan önce doldurulur._
+```text
+Yerel lat.md denetimi (12.11.2026, master #80 dahil)  → bağlantılar, giriş paragrafları, @lat bağları geçti
+astro build                                          → 58 page(s) built, Complete!
+astro check                                          → 0 errors, 0 warnings, 0 hints
+test sayısı (test( çağrıları, 9 dosya)               → 120 (lat.md/testler.md ile aynı)
+```
+
+Yapılamayanlar: gerçek `lat check` (komut bu makinede yok), `bun test` ve `bun run check` (bu makinede `bun` yok; `astro check` ve test sayısı sayımı ile dolaylı denendi). Kod davranışı değişmediği için testlerin sonucu etkilenmez; tek kod değişikliği `yonetim.test.ts` içine eklenen dört `@lat:` yorumudur.
