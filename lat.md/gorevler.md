@@ -22,7 +22,7 @@ Bugün açık olan işler, bekleyen kararlar ve planlanan özellikler aşağıda
 - PR #73: lat.md altyapısı ve bu bilgi grafiği (`docs/lat-md`).
 - 09.1: GitHub Rulesets ekran görüntüsü ve doğrudan push reddi kanıtı bekliyor; depo sahibi yapmalı.
 - Teslim: güncel `master` üzerinden ZIP indirilip Blackboard'a yüklenmeli.
-- README'ye görsel (ekran görüntüsü) ve video (oynanış) eklenecek; henüz başlanmadı.
+- README'ye oynanış videosu eklenecek; ekran görüntüleri README'de, video elle kaydedilmeli.
 - Planlanan: F1 ikinci tabak, F2 ileri müşteriler, F4 dekor, F5 oyun içi dört dil + RTL, F6 başarımlar, F7 Android derlemesi, F8 sonsuz servis.
 
 ## Çalışma akışı

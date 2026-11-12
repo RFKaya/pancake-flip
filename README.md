@@ -36,6 +36,7 @@
 ## 📋 İçindekiler
 - [Akademik Bilgiler](#-akademik-bilgiler--ders-künyesi)
 - [Proje Hakkında](#-proje-hakkında)
+- [Ekran Görüntüleri](#-ekran-görüntüleri)
 - [Mimari ve Çoklu Çatı (Multi-Framework)](#-mimari-ve-çoklu-çatı-multi-framework)
 - [Temel Yetenekler](#-temel-yetenekler)
 - [Teknoloji Yığını](#️-teknoloji-yığını)
@@ -118,6 +119,20 @@ Bu proje, İstinye Üniversitesi Bilişim Güvenliği Teknolojisi programı **MY
 **Pancake Flip!**, dikey (9:16) ve tek elle oynanan bir krep dükkânı oyunudur. Müşteriler sipariş fişleriyle gelir; oyuncu tavada hamur döker, krebi doğru anda çevirir, tabağa alır ve malzemeleri fişteki sıraya göre koyar. Tabak siparişin birebir aynısı olunca kendiliğinden servis edilir. Oyunun bölümü ve sonu yoktur: ilerleme sonsuz bir **LEVEL** sistemidir; seviye atladıkça yeni malzemeler, müşteri tipleri ve mekanikler açılır.
 
 Proje, hocanın `hello-mobil` şablonu üzerine kurulmuştur; şablondaki "liste → detay → Rust ile kod üretme → kayıtlar" akışı oyunda "lobi → servis → Rust ile adisyon kodu → Fişlerim" olarak kullanılır.
+
+---
+
+## 📸 Ekran Görüntüleri
+
+Görüntüler 420×820 dikey pencerede, yerel geliştirme sunucusundan alınmıştır (tarayıcı; Tauri uygulamasında aynı ekranlar açılır).
+
+| Lobi | Servis ekranı | Gece teması |
+|:---:|:---:|:---:|
+| <img src="docs/gorseller/lobi.png" alt="Lobi: restoran sahnesi ve OYNA düğmesi" width="220"> | <img src="docs/gorseller/servis.png" alt="Servis ekranı: sipariş fişi, tava ve tabak" width="220"> | <img src="docs/gorseller/lobi-gece.png" alt="Lobi, gece teması" width="220"> |
+
+| Malzeme rehberi | Profil | Yönetim paneli |
+|:---:|:---:|:---:|
+| <img src="docs/gorseller/rehber.png" alt="Malzeme rehberi kart listesi" width="220"> | <img src="docs/gorseller/profil.png" alt="Profil ve şef karnesi" width="220"> | <img src="docs/gorseller/yonetim-paneli.png" alt="Yönetim paneli: Panel Özeti" width="220"> |
 
 ---
 

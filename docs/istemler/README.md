@@ -34,3 +34,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | 21 | Yönetim paneli 2/4: Malzemeler ve Müşteri Tipleri | [21-admin-panel-katalog.md](21-admin-panel-katalog.md) |
 | 22 | Yönetim paneli 3/4: ayar ekranları ve sürümler | [22-admin-panel-ayarlar.md](22-admin-panel-ayarlar.md) |
 | 23 | Yetkiler (izinler): bildirim izni ve `/izinler` | [23-izinler.md](23-izinler.md) |
+| 25 | README ekran görüntüleri | [25-readme-gorsel-video.md](25-readme-gorsel-video.md) |
