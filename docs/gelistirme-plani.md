@@ -74,7 +74,7 @@ Eğitmenin Hafta 05 raporundaki işler. Yönetim paneli `RFKaya/Pancake-flip-2` 
 | [x] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | `feature/admin-panel-kayitlar` | [26](istemler/26-admin-panel-kayitlar.md) |
 | [x] | README'ye ekran görüntüleri (`docs/gorseller/`) | `feature/readme-gorsel-video` | [25](istemler/25-readme-gorsel-video.md) |
 | [x] | README'ye oynanış videosu (öğrencinin gerçek ekran kaydı) | `feature/27-readme-oynanis-videosu` | [27](istemler/27-readme-oynanis-videosu.md) |
-| [ ] | Vize için otomatik üç boyutta ekran görüntüleri ve teslim ZIP'leri | `feature/28-ekran-goruntusu-teslim` | [28](istemler/28-ekran-goruntusu-teslim.md) |
+| [x] | Vize için otomatik üç boyutta ekran görüntüleri ve teslim ZIP'leri | `feature/28-ekran-goruntusu-teslim` | [28](istemler/28-ekran-goruntusu-teslim.md) |
 
 **09.1 tamamlandı:** depo sahibi `RFKaya` GitHub'da "master koruması" kural setini etkinleştirdi (varsayılan dal; silme ve force-push yasak; 1 onaylı PR zorunlu; bypass yok), merge commit ve otomatik dal silmeyi açtı, dış katkıcılar için iş akışı onayını zorunlu yaptı; `master`'a doğrudan push GH013 ile reddedildi. Kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png) (#69, RedRiveRR onayıyla birleşti). Belge kısmı: "PR güvenliği" ([`kurallar.md`](kurallar.md)).
 

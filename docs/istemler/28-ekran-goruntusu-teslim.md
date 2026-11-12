@@ -33,4 +33,9 @@ Yeni bağımlılık eklemeden Chrome ile tüm web sayfalarını üç boyutta yak
 - `bun test`: 129 geçti, 0 kaldı (birleşik kaynaklar).
 - `bun run check`: 80 dosya; 0 hata, 0 uyarı, 0 ipucu.
 - `bun run build`: 58 sayfa, Complete, çıkış 0.
-- Son çekim, görüntü incelemesi ve ZIP denetimi sürüyor.
+- Son `bun run screenshots`: 58 rota + 22 ek senaryo, toplam 240 PNG (80 phone, 80 tablet, 80 desktop); `complete: true`, 0 yatay taşma, 0 metin kesilmesi uyarısı, 0 sayfa/kaynak hatası, çıkış 0. Geçici Chrome profili temizlendi.
+- Çekim kaynağı `5018842`, çalışma ağacı temiz. Bundan sonraki kayıt değişiklikleri yalnız görev ve doğrulama belgeleridir; uygulama, public varlıkları ve script değişmedi.
+- 240 PNG'nin tamamı 12 temas sayfasında incelendi. Lobi üç boyutta, oyun, profil, Arapça Hakkında, yönetim malzemeleri, tablet seviye eğrisi ve uzun mobil denge ekranları ayrıca tam görüntülerde kontrol edildi. Alt menü artık metni örtmüyor. Tasarlanmış yatay kaydırmalı tabloların yalnız ilk sütunları görüntüde; Tauri yerel ekranları bu web paketinin dışında.
+- `screenshots.zip`: 240 PNG + `rapor.json`; ZIP içindeki her PNG başlığından gerçek genişlik/yükseklik okunup raporla eşleştirildi. Viewport'lar hocanın üç boyutuyla aynı; uzun sayfalar tam sayfa olduğu için PNG yüksekliği artar.
+- `proje.zip`: `git archive HEAD` ile 398 kayıt. Script, README videosu, yönetim paneli 4/4 kaynakları var; `node_modules`, `target`, `dist`, `build`, `.git` ve `.env` yok. Bu son belge kaydından sonra aynı arşiv komutuyla güncellenir.
+- `git diff --check` temiz; dil kuralı denetimi eşleşme vermedi. Rust, gerçek Tauri/SQLite ve Blackboard yüklemesi denenmedi.
