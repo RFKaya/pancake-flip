@@ -21,11 +21,12 @@ Hafta 3 teslimi (Faz 0) kapandı ve `v0.1.0-batch-01` etiketi atıldı; Hafta 4 
 
 Bugün açık olan işler, bekleyen kararlar ve planlanan özellikler aşağıdadır.
 
-- Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü. Hafta 5 son tarihi 27.10.2026 geçti; henüz başlamadı.
+- Yönetim paneli 4/4 PR #84'te tamamlandı ve diğer üye onayladı; henüz ana dala birleşmedi. Vize teslim dalı bu kaynakları da içerir.
 - Panelde yayınlanan ayarlar oyuna yansımaz: oyun JSON'dan okur, panel veritabanına yazar ([[mimari#Yerel arka uç]]).
 - Gerçek Tauri uygulamasında panel ve `/izinler` elle denenmedi; PR'lar yalnız tarayıcıda ve sahte `invoke` ile doğrulandı.
 - Teslim: güncel `master` üzerinden ZIP indirilip Blackboard'a yüklenmeli.
-- README'ye oynanış videosu eklenecek; ekran görüntüleri README'de, video elle kaydedilmeli.
+- README oynanış videosu tamamlandı: öğrencinin ekran kaydı ve doğrulama [[docs/istemler/27-readme-oynanis-videosu.md]] içinde.
+- Vize ekran görüntüsü otomasyonu ve ZIP teslimi: [[docs/teslim.md]]; doğrulama [[docs/istemler/28-ekran-goruntusu-teslim.md]] içinde. Teslim dalı açık PR kaynaklarını da içerir; ana dala birleşmiş sayılmaz.
 - Planlanan: F1 ikinci tabak, F2 ileri müşteriler, F4 dekor, F5 oyun içi dört dil + RTL, F6 başarımlar, F7 Android derlemesi, F8 sonsuz servis.
 
 ## Çalışma akışı

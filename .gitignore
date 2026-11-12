@@ -15,3 +15,8 @@ vite.config.ts.timestamp-*
 docs/tasks/**/raw/
 **/raw/
 .lat-build
+
+# Otomatik teslim çıktıları
+/screenshots/
+/screenshots.zip
+/proje.zip

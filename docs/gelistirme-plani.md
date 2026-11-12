@@ -71,9 +71,10 @@ Eğitmenin Hafta 05 raporundaki işler. Yönetim paneli `RFKaya/Pancake-flip-2` 
 | [x] | Yönetim paneli 2/4: Malzemeler, Müşteri Tipleri | `feature/admin-panel-katalog` | [21](istemler/21-admin-panel-katalog.md) |
 | [x] | Yönetim paneli 3/4: Seviye Eğrisi, Denge, Kilometre Taşları, Sürümler, Simülatör | `feature/admin-panel-ayarlar` | [22](istemler/22-admin-panel-ayarlar.md) |
 | [x] | Yetkiler (izinler): bildirim izni ve `/izinler` ekranı (eğitmenin başlangıç PR'ı); belge ve platform tablosu uyumu | `feature/yetkiler-izin-altyapisi` (#79), `feature/izin-belge-uyumu` | [23](istemler/23-izinler.md) |
-| [ ] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | — | — |
+| [x] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | `feature/admin-panel-kayitlar` | [26](istemler/26-admin-panel-kayitlar.md) |
 | [x] | README'ye ekran görüntüleri (`docs/gorseller/`) | `feature/readme-gorsel-video` | [25](istemler/25-readme-gorsel-video.md) |
-| [ ] | README'ye oynanış videosu (oynanışı el ile kaydetmek gerekir) | — | — |
+| [x] | README'ye oynanış videosu (öğrencinin gerçek ekran kaydı) | `feature/27-readme-oynanis-videosu` | [27](istemler/27-readme-oynanis-videosu.md) |
+| [x] | Vize için otomatik üç boyutta ekran görüntüleri ve teslim ZIP'leri | `feature/28-ekran-goruntusu-teslim` | [28](istemler/28-ekran-goruntusu-teslim.md) |
 
 **09.1 tamamlandı:** depo sahibi `RFKaya` GitHub'da "master koruması" kural setini etkinleştirdi (varsayılan dal; silme ve force-push yasak; 1 onaylı PR zorunlu; bypass yok), merge commit ve otomatik dal silmeyi açtı, dış katkıcılar için iş akışı onayını zorunlu yaptı; `master`'a doğrudan push GH013 ile reddedildi. Kanıt: [`kanit/master-korumasi.png`](kanit/master-korumasi.png) (#69, RedRiveRR onayıyla birleşti). Belge kısmı: "PR güvenliği" ([`kurallar.md`](kurallar.md)).
 

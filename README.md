@@ -37,6 +37,7 @@
 - [Akademik Bilgiler](#-akademik-bilgiler--ders-künyesi)
 - [Proje Hakkında](#-proje-hakkında)
 - [Ekran Görüntüleri](#-ekran-görüntüleri)
+- [Oynanış Videosu](#oynanis-videosu)
 - [Mimari ve Çoklu Çatı (Multi-Framework)](#-mimari-ve-çoklu-çatı-multi-framework)
 - [Temel Yetenekler](#-temel-yetenekler)
 - [Teknoloji Yığını](#️-teknoloji-yığını)
@@ -133,6 +134,16 @@ Görüntüler 420×820 dikey pencerede, yerel geliştirme sunucusundan alınmı�
 | Malzeme rehberi | Profil | Yönetim paneli |
 |:---:|:---:|:---:|
 | <img src="docs/gorseller/rehber.png" alt="Malzeme rehberi kart listesi" width="220"> | <img src="docs/gorseller/profil.png" alt="Profil ve şef karnesi" width="220"> | <img src="docs/gorseller/yonetim-paneli.png" alt="Yönetim paneli: Panel Özeti" width="220"> |
+
+---
+
+<a id="oynanis-videosu"></a>
+## Oynanış Videosu
+
+<a href="docs/gorseller/oynanis.mp4"><img src="docs/gorseller/servis.png" alt="Pancake Flip! oynanış videosunu izle" width="260"></a>
+
+[Oynanış videosunu izle veya indir (MP4, yaklaşık 9,3 MB)](docs/gorseller/oynanis.mp4).
+33 saniyelik gerçek ekran kaydında hamur dökme, krep çevirme, tabağa alma, otomatik servis ve seviye ilerlemesi gösterilir. Kayıt tarayıcıdan alınmıştır; üstteki LEVEL ve para göstergesi kadraj dışındadır.
 
 ---
 
