@@ -21,3 +21,9 @@ Liste ekranları veriyi tek yükleme noktasından alır ([`src/lib/yukleyici.ts`
 Arama boş sonuç verirse (`/rehber?q=xyz`) boş hâl **Aramayı temizle** düğmesiyle gelir. Arama metni adreste (`?q=`) tutulur; detay ekranından geri dönünce kaybolmaz.
 
 `?durum=` yalnız istemcide okunur ve oyun kurallarına, kayda dokunmaz. Yayında kimse bu eki kullanmazsa her şey gerçek veriyle çalışır.
+
+## Yönetim kayıt listeleri
+
+Oyuncular, Fişler, Şüpheli Kayıtlar ve Denetim Günlüğü `yonetimKayitlariniYukle` işlevini kullanır; komutlar [`komutlar.md`](komutlar.md)'dedir. Uygulamada `/admin?durum=yukleniyor|hata|bos|ornek` adresini açıp ilgili sekmeyi seç: `hata` ilk yüklemeyi başarısız yapar, **Tekrar dene** gerçek veriyi getirir. `ornek` yalnız bu yükleyicideki tipli, geçici örnek satırları gösterir; yükleyici bunları kayda yazmaz. Tarayıcıda bu dört ekran ve örnek verileri görünmez.
+
+Arama ve süzgeçler **Uygula** ile gönderilir, sayfa ilk sayfaya döner; **Süzgeçleri temizle** bütün koşulları kaldırır. Her sayfa arka uçtan alınır; ilk 100 kayıtla sınırlı yerel süzme yapılmaz. Denetim günlüğü tarih aralığı UTC'dir ve seçili son günün son saniyesini kapsar. Oyuncu fişindeki `bolum`, arayüzde **Seviye** olarak gösterilir.
