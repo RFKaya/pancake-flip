@@ -47,3 +47,14 @@ Görüntüler tarayıcıdan alındı; gerçek Tauri penceresinde alınmadı. Yö
 ## Video neden yok
 
 Oynanış videosu için ekran kaydı gerekir; bu makinede bunu alacak araç yok (Chrome eklentisi bağlı değil, `ffmpeg` kurulu değil). Plan tablosunda ayrı bir açık iş olarak duruyor. Kaydı bir kişi elle alıp (ör. Windows `Win+G` ya da telefondan) README'ye bağlantı olarak ekleyebilir; büyük MP4'ü repoya koymak yerine bağlantı önerilir.
+
+## PR incelemesi — 12.11.2026
+
+- **Araç/model:** Codex masaüstü uygulaması, GPT-6.
+- **İstem:** "Açık PR'lara bak. İnceleyelim ve kapatana kadar tamamlayalım."
+- **Onaylanan plan:** #82'den sonra güncel master'ı bu dala al, günlük dizinindeki 24/25 kayıtlarını birlikte koru, doğrulama sonuçlarını bu günlüğe ekle ve PR'ı korumalı normal akışla birleştir. Kullanıcı "Planı onaylıyorum, tamamla" dedi. Oyun kodu ve bağımlılıklar kapsam dışıdır.
+- **Düzeltme:** `docs/istemler/README.md` çakışması iki kayıt numara sırasıyla korunarak çözüldü. `lat.md/gorevler.md` otomatik birleşmesi kontrol edildi: #82'nin güncel panel/izin işleri ile #83'ün açık video işi birlikte duruyor.
+- Altı PNG tek tek açılıp incelendi; geliştirme araç çubuğu ve girilmiş kişisel veri yok. Görüntüler 840×1640 pikseldir (420×820 görünümün 2× çıktısı); README yolları 6/6 geçerli.
+- Video görevi açık kalır; bu PR'ın kapsamı ekran görüntüleridir. Tauri uygulamasında yeni elle test yapılmadı.
+- Birleşik sürümde `bun test`: 120 geçti, 0 kaldı; `bun run check`: 0 hata, 0 uyarı, 0 ipucu; `bun run build`: 58 sayfa, çıkış 0.
+- `git diff --check`, çakışma işaretleri ve dil kuralı taraması temiz. Yeni bağımlılık veya davranış değişikliği yok.

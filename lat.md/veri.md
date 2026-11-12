@@ -14,6 +14,14 @@ Her tip ailesi ayrı dosyadadır ve `index.ts` hepsini dışa aktarır: `Malzeme
 
 `pancakeflip-ilerleme` seviye ve sayaçları tutar; açılan malzemeler seviyeden hesaplandığı için kayda yazılmaz ([[src/lib/ilerleme.svelte.ts#ilerleme]]). `pancakeflip-kayit` adisyonları tutar; bozuk veri güvenli başlangıca döner ([[src/lib/oyun/ilerlemeKaydi.ts#ilerlemeCoz]]).
 
+## Yönetim verisi
+
+Yönetim panelinin verisi cihazdaki SQLite dosyasındadır; oyunun cihaz kaydı (`localStorage`) ile karışmaz. Tablolar `docs/backend.md` içindedir, ön yüz tipleri `src/lib/types/yonetim.ts` dosyasındadır.
+
+Tarayıcıda liste ekranları oyunun JSON verisini okur. Uygulamada malzeme ve müşteri tipi düzenlemeleri ile yayınlanan ayarlar veritabanına yazılır; oyun JSON'dan okumaya devam ettiği için bu değişiklikler oyuna yansımaz ([[src/lib/native.ts#kayitListesi]], [[docs/backend.md]]).
+
+Müşteri tipinin `sabir` alanı saniye değil çarpandır; süre `sabirHesapla` ile hesaplanır ([[src/lib/oyun/musteri.ts#sabirHesapla]]).
+
 ## Adisyon kodları
 
 Biçim `KRP-SSS-YXXXXXX`: seviye en az üç hane, yıldız ve saatten altı haneli hex. Kodu Rust üretir, tarayıcıda `WEB-` yedeği kullanılır ([[src/lib/native.ts#fisOlustur]]). Fişin net değeri önceki fişlerden bu yana kazanılan coindir; böylece toplam kasa aşılmaz ([[src/lib/oyun/fis.ts#fisNeti]]).

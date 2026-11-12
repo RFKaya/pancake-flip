@@ -13,12 +13,16 @@ Beş platform hedeflenir: Android, iOS, macOS, Windows ve Linux. Platform bilgis
 | `fisCoz` (kodu çözme) | Rust `fis_coz` | yok, bölüm çizilmez |
 | `ses` (Web Audio) | platforma göre farklı yolla | destekleniyor |
 | `kayit` (localStorage) | destekleniyor | destekleniyor |
+| `yonetim` (yönetim paneli girişi, oyuncu verisi, ayar sürümleri) | Rust yerel arka uç (SQLite) | yok, yalnız JSON'dan salt okunur ekranlar |
+| `izin` (sistem izni ve bildirim) | Rust `permissions_status`, `permission_request`, `bildirim_gonder` | yok, bölüm çizilmez |
 
 Tablo `native.ts → DESTEK` ile aynıdır ve yeni özellikte birlikte güncellenir ([[src/lib/native.ts#destekleniyorMu]], [[docs/platform-destegi.md]]).
 
 ## Tarayıcı yedekleri
 
 Tarayıcı beş platformdan biri değildir; geliştirme ve önizleme içindir. Rust yokken `fisOlustur` aynı girdi denetimiyle `WEB-SSS-Y…` üretir; `fisCoz` `YalnizUygulamada` hatası döner ve arayüz bu bölümü hiç çizmez ([[src/lib/native.ts#fisCoz]]).
+
+Yönetim ve izin komutları da tarayıcıda `YalnizUygulamada` döner. Tek istisna `kayitListesi`: oyunun JSON verisini salt okunur tek sayfa olarak verir, böylece panelin içerik ekranları tarayıcıda da açılır ([[src/lib/native.ts#kayitListesi]]).
 
 ## Ses kilidi
 
