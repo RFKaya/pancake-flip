@@ -36,3 +36,4 @@ Bu klasörde her görev için bir kayıt tutulur. Kayıt, işin yapay zeka arac�
 | 23 | Yetkiler (izinler): bildirim izni ve `/izinler` | [23-izinler.md](23-izinler.md) |
 | 24 | lat.md güncellemesi: yönetim paneli ve izinler | [24-lat-md-panel-guncelleme.md](24-lat-md-panel-guncelleme.md) |
 | 25 | README ekran görüntüleri | [25-readme-gorsel-video.md](25-readme-gorsel-video.md) |
+| 27 | README oynanış videosu | [27-readme-oynanis-videosu.md](27-readme-oynanis-videosu.md) |

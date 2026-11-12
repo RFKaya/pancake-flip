@@ -25,7 +25,7 @@ Bugün açık olan işler, bekleyen kararlar ve planlanan özellikler aşağıda
 - Panelde yayınlanan ayarlar oyuna yansımaz: oyun JSON'dan okur, panel veritabanına yazar ([[mimari#Yerel arka uç]]).
 - Gerçek Tauri uygulamasında panel ve `/izinler` elle denenmedi; PR'lar yalnız tarayıcıda ve sahte `invoke` ile doğrulandı.
 - Teslim: güncel `master` üzerinden ZIP indirilip Blackboard'a yüklenmeli.
-- README'ye oynanış videosu eklenecek; ekran görüntüleri README'de, video elle kaydedilmeli.
+- README oynanış videosu tamamlandı: öğrencinin ekran kaydı ve doğrulama [[docs/istemler/27-readme-oynanis-videosu.md]] içinde.
 - Planlanan: F1 ikinci tabak, F2 ileri müşteriler, F4 dekor, F5 oyun içi dört dil + RTL, F6 başarımlar, F7 Android derlemesi, F8 sonsuz servis.
 
 ## Çalışma akışı
