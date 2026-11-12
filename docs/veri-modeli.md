@@ -23,6 +23,8 @@ import type { Fis, Malzeme, Musteri } from "$lib/types";
 
 ## İlişkiler
 
+Yönetim panelinin yerel kayıt sözleşmeleri [`types/yonetim.ts`](../src/lib/types/yonetim.ts) içindedir: `OyuncuKaydi`, `YonetimFisi`, `SupheliKayit`, `DenetimKaydi`. Sütunların tek kaynağı ve rol/izin eşlemesi [`backend.md`](backend.md)'dedir. Oyuncunun ilerlemesi eksik/eski kayıtlar için kısmi ve nullable olabilir; yönetim fişinin birincil anahtarı `kod`'dur. Oyuncuya ait localStorage `Fis` tipi ile yönetim fişi aynı veri değildir.
+
 ```
 MusteriTipi 1 ──< Musteri            (Musteri.tip = MusteriTipi.id)
 Musteri     1 ─── 1 Siparis          (Musteri.siparis)

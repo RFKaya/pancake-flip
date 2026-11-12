@@ -71,7 +71,7 @@ Eğitmenin Hafta 05 raporundaki işler. Yönetim paneli `RFKaya/Pancake-flip-2` 
 | [x] | Yönetim paneli 2/4: Malzemeler, Müşteri Tipleri | `feature/admin-panel-katalog` | [21](istemler/21-admin-panel-katalog.md) |
 | [x] | Yönetim paneli 3/4: Seviye Eğrisi, Denge, Kilometre Taşları, Sürümler, Simülatör | `feature/admin-panel-ayarlar` | [22](istemler/22-admin-panel-ayarlar.md) |
 | [x] | Yetkiler (izinler): bildirim izni ve `/izinler` ekranı (eğitmenin başlangıç PR'ı); belge ve platform tablosu uyumu | `feature/yetkiler-izin-altyapisi` (#79), `feature/izin-belge-uyumu` | [23](istemler/23-izinler.md) |
-| [ ] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | — | — |
+| [x] | Yönetim paneli 4/4: Oyuncular, Fişler, Şüpheli Kayıtlar, Denetim Günlüğü | `feature/admin-panel-kayitlar` | [26](istemler/26-admin-panel-kayitlar.md) |
 | [x] | README'ye ekran görüntüleri (`docs/gorseller/`) | `feature/readme-gorsel-video` | [25](istemler/25-readme-gorsel-video.md) |
 | [ ] | README'ye oynanış videosu (oynanışı el ile kaydetmek gerekir) | — | — |
 
