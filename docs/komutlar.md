@@ -52,6 +52,18 @@ Yerel arka ucun komutları ve tabloları [`backend.md`](backend.md)'dedir. Yöne
 
 Tarayıcıda hepsi `YalnizUygulamada` döner; tek istisna `kayitListesi`: oyunun JSON verisini salt okunur tek sayfa olarak döndürür (`ContentVersion` için boş liste).
 
+## İzinler
+
+İzin yüzeyi ve gerekçeleri [`izinler.md`](izinler.md)'dedir; ekran `/izinler`. Sonuç tipi [`src/lib/types/izin.ts`](../src/lib/types/izin.ts) içindeki `IzinDurumu`'dur.
+
+| `native.ts` | Rust komutu | Sonuç |
+|---|---|---|
+| `izinDurumu()` | `permissions_status` | `IzinDurumu[]` (asla sistem diyaloğu açmaz) |
+| `izinIste(id)` | `permission_request` | güncel `IzinDurumu[]` (sistem diyaloğunu açar; bilinmeyen `id` hata döner) |
+| `bildirimGonder(baslik, govde)` | `bildirim_gonder` | `null` (izin yoksa bildirim görünmez) |
+
+Tarayıcıda hepsi `YalnizUygulamada` döner; bu yüzden bölüm tarayıcıda hiç gösterilmez ([`platform-destegi.md`](platform-destegi.md)).
+
 ## Hata biçimi
 
 Rust hataları `{ "tur": "...", ... }` JSON nesnesi olarak gelir (`#[serde(tag = "tur")]`):

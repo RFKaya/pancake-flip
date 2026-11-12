@@ -37,4 +37,4 @@ export type NativeSonuc<T> = { ok: true; veri: T } | { ok: false; hata: NativeHa
 export type Platform = "android" | "ios" | "macos" | "windows" | "linux" | "web";
 
 /** Platforma göre desteği değişebilen özellikler (docs/platform-destegi.md) */
-export type Ozellik = "adisyonKodu" | "fisCoz" | "ses" | "kayit" | "yonetim";
+export type Ozellik = "adisyonKodu" | "fisCoz" | "ses" | "kayit" | "yonetim" | "izin";
