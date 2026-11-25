@@ -54,7 +54,7 @@ export interface AlanHatasi {
 }
 
 /** Yönetim panelinin sekmeleri (kenar menüsü); sonraki aşamalarda yenileri eklenir */
-export type YonetimSekmesi = "ozet" | "malzemeler" | "musteriler" | "egri" | "kilometre" | "simulator" | "denge" | "surumler";
+export type YonetimSekmesi = "ozet" | "malzemeler" | "musteriler" | "egri" | "kilometre" | "simulator" | "denge" | "surumler" | "oyuncular" | "fisler" | "supheli" | "denetim";
 
 /** Kenar menüsündeki bir bölüm (ad sözlükten gelir: menu[id]) */
 export interface YonetimMenuOgesi {
@@ -78,6 +78,76 @@ export interface YonetimKaynaklari {
   MusteriTipi: MusteriTipi;
   GameConfig: OyunAyarKaydi;
   ContentVersion: IcerikSurumu;
+  Player: OyuncuKaydi;
+  Fis: YonetimFisi;
+  FraudFlag: SupheliKayit;
+  AuditLog: DenetimKaydi;
+}
+
+/** players tablosu: ilerleme eski ya da eksik JSON içerebilir. */
+export interface OyuncuKaydi {
+  id: string;
+  ad: string;
+  eposta: string | null;
+  kayitTarihi: string | null;
+  sonOyun: string | null;
+  durum: "aktif" | "engelli" | "supheli";
+  ilerleme: Partial<import("./seviye").IlerlemeVerisi> | null;
+}
+
+/** fisler tablosu: kod birincil anahtar, bolum alanı LEVEL'dir. */
+export interface YonetimFisi {
+  kod: string;
+  playerId: string | null;
+  bolum: number;
+  yildiz: number | null;
+  net: number | null;
+  kasa: number | null;
+  tarih: string | null;
+}
+
+export interface SupheliKayit {
+  id: string;
+  playerId: string;
+  neden: string;
+  kanit: string | null;
+  durum: "acik" | "temiz" | "yaptirim";
+  tarih: string | null;
+}
+
+/** AuditLog salt okunurdur. Önce/sonra her tür JSON olabilir. */
+export interface DenetimKaydi {
+  id: string;
+  at: string | null;
+  actorId: string | null;
+  action: string;
+  entity: string;
+  entityId: string;
+  reason: string | null;
+  before: unknown;
+  after: unknown;
+}
+
+export type KayitKaynagi = "Player" | "Fis" | "FraudFlag" | "AuditLog";
+
+export interface SayfalamaGirdileri {
+  sayfa: number;
+  toplam: number;
+  boyut: number;
+  mesgul: boolean;
+  onSayfa: (sayfa: number) => void;
+}
+
+export interface OyuncuDetayiGirdileri {
+  kayit: OyuncuKaydi;
+  oturum: YonetimOturumu | null;
+  onKapat: () => void;
+  onKaydedildi: () => void;
+}
+
+export interface FisDetayiGirdileri {
+  kayit: YonetimFisi;
+  onKapat: () => void;
 }
 
 /** Yayındaki oyun ayarı (game_configs): "seviye" → SeviyeYapilandirmasi, "ayarlar" → Ayarlar */

@@ -19,6 +19,8 @@ Bileşenler platform adını kendileri sorgulamaz. Platform ve destek bilgisi ya
 
 ## "Farklı yolla" ve "yok" satırlarında ne yapıldı
 
+Oyuncular, Fişler, Şüpheli Kayıtlar ve Denetim Günlüğü mevcut `yonetim` yeteneğine bağlıdır (`DESTEK` platform değerleri değişmez). Bu dört menü tarayıcıda hiç çizilmez; uygulamada ilgili `ViewAny` izni gerekir. Detay için `View`, seviye ayarı için `SetLevel:Player`, inceleme güncellemesi için `Update:FraudFlag` aranır. Denetim Günlüğü salt okunurdur. Ön yüzde oyuncu e-postası `Reveal:PII` yoksa maskelenir; mevcut arka uç bu alanı kaynak yanıtında döndürdüğü için bu maskeleme bir sunucu erişim denetimi değildir.
+
 | Özellik | Platform | Ne yapıldı |
 |---|---|---|
 | `adisyonKodu` | Tarayıcı | Rust yok; `native.ts` aynı girdi denetimiyle `WEB-SSS-Y…` biçiminde yedek kod üretir. Fiş yine kesilir. |

@@ -15,6 +15,7 @@ import type {
   ListeSorgusu,
   NativeSonuc,
   Ozellik,
+  OyuncuKaydi,
   PanelOzeti,
   Platform,
   Sayfa,
@@ -145,7 +146,7 @@ export async function bildirimGonder(baslik: string, govde: string): Promise<Nat
 }
 
 /** Tarayıcı yedeğinde listelenen kayıtlar: oyunun JSON verisi (salt okunur) */
-const JSON_KAYITLARI: { [K in YonetimKaynagi]: YonetimKaynaklari[K][] } = {
+const JSON_KAYITLARI: Partial<{ [K in YonetimKaynagi]: YonetimKaynaklari[K][] }> = {
   Malzeme: MALZEMELER,
   MusteriTipi: TIPLER,
   GameConfig: [
@@ -158,10 +159,18 @@ const JSON_KAYITLARI: { [K in YonetimKaynagi]: YonetimKaynaklari[K][] } = {
 /** Kaynağın kayıtları (crud_index; "ViewAny:<Kaynak>"). Tarayıcıda JSON verisinin tamamı tek sayfa olarak döner. */
 export async function kayitListesi<K extends YonetimKaynagi>(kaynak: K, sorgu: ListeSorgusu = {}): Promise<NativeSonuc<Sayfa<YonetimKaynaklari[K]>>> {
   if (!uygulamadaMi()) {
-    const items = JSON_KAYITLARI[kaynak].map((k) => ({ ...k }));
+    const kayitlar = JSON_KAYITLARI[kaynak];
+    if (!kayitlar) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+    const items = kayitlar.map((k) => ({ ...k }));
     return { ok: true, veri: { items, total: items.length, page: 1, pageSize: items.length } };
   }
   return cagir<Sayfa<YonetimKaynaklari[K]>>("crud_index", { resource: kaynak, query: sorgu });
+}
+
+/** Gerekçeli oyuncu seviye ayarı; izin ve denetim kaydı Rust tarafından uygulanır. */
+export async function oyuncuSeviyeAyarla(playerId: string, seviye: number, neden: string): Promise<NativeSonuc<OyuncuKaydi>> {
+  if (!uygulamadaMi()) return { ok: false, hata: { tur: "YalnizUygulamada" } };
+  return cagir<OyuncuKaydi>("player_set_level", { playerId, seviye, neden: neden.trim() });
 }
 
 /** Yeni kayıt (crud_store; "Create:<Kaynak>") */

@@ -23,6 +23,11 @@ import {
   dengeDogrula,
   egriSatirlari,
   hataMetni,
+  gunAraligi,
+  kayitSorgusu,
+  sayiYaz,
+  seviyeAyariDogrula,
+  tarihYaz,
   ornekSiparisler,
   sayiAlanlari,
   seviyeDuraklari,
@@ -42,6 +47,27 @@ import {
 } from "./yonetim";
 
 const m = yonetimSozlugu();
+
+describe("kayıt ekranları: girdi ve sorgu", () => {
+  test("seviye sınırları, kesir, NaN ve boşluk gerekçesi reddedilir", () => {
+    for (const s of [0, -1, 1.5, NaN, Infinity, SEVIYE.seviyeSiniri + 1]) expect(seviyeAyariDogrula(s, "destek talebi", m)).not.toBe("");
+    expect(seviyeAyariDogrula(1, "     ", m)).toBe(m.kayitlar.nedenHatasi);
+    expect(seviyeAyariDogrula(1, "  abcd  ", m)).toBe(m.kayitlar.nedenHatasi);
+    expect(seviyeAyariDogrula(SEVIYE.seviyeSiniri, "  destek talebi  ", m)).toBe("");
+  });
+  test("sorgu boş süzgeçleri çıkarır; sıfır yıldız ve ikinci sayfa korunur", () => {
+    expect(kayitSorgusu(2, "  KRP-  ", { playerId: "", yildiz: 0, bolum: 8 })).toEqual({ page: 2, pageSize: 25, search: "KRP-", filters: { yildiz: 0, bolum: 8 } });
+    expect(gunAraligi("2026-11-12", "2026-11-13")).toEqual({ atMin: "2026-11-12T00:00:00Z", atMax: "2026-11-13T23:59:59Z" });
+    const aralik = gunAraligi("2026-11-12", "2026-11-12");
+    expect("2026-11-12T23:59:59Z" <= aralik.atMax).toBe(true);
+    expect("2026-11-13T00:00:00Z" <= aralik.atMax).toBe(false);
+    expect(kayitSorgusu(1, "", gunAraligi("", "")).filters).toEqual({});
+  });
+  test("eksik/bozuk değerler sıfır veya geçersiz tarih yazmaz", () => {
+    expect(sayiYaz(undefined)).toBe("—"); expect(sayiYaz(null)).toBe("—"); expect(sayiYaz(NaN)).toBe("—");
+    expect(sayiYaz(0)).toBe("0"); expect(tarihYaz(null)).toBe("—"); expect(tarihYaz("bozuk")).toBe("—");
+  });
+});
 
 // @lat: [[testler#Yönetim paneli hesapları]]
 describe("yönetim paneli hesapları", () => {
