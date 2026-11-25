@@ -206,7 +206,8 @@ jobs:
     if: ${{ !cancelled() }}
     permissions:
       contents: write
-    runs-on: macos-latest
+    # ARM64 çalıştırıcı kuyruğu dolduğunda da ARM64 cihaz paketini üretebilmek için.
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
