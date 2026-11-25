@@ -18,11 +18,13 @@
 
 ## Plan ve onay
 
-Rauf, kapasite sorunu için planı ve teslimin tamamlanmasını onayladı. iOS işini `macos-15-intel` çalıştırıcısına al, PR'da beş işi doğrula, sonra birleştir ve deneme etiketini gönder.
+Rauf, kapasite sorunu için planı ve teslimin tamamlanmasını onayladı. Apple derlemelerini gerektiğinde `macos-15-intel` çalıştırıcısına al, PR'da beş işi doğrula, sonra birleştir ve deneme etiketini gönder.
 
 ## Düzeltmeler
 
 GitHub, iOS işine üç denemede de ARM64 macOS çalıştırıcısı atayamadı. iOS işi Intel çalıştırıcıya taşındı. Uygulama hedefi `aarch64-apple-ios` olarak kaldı.
+
+Masaüstü macOS işi de ARM64 kuyruğunda aynı nedenle tekrar iptal edildi. Intel çalıştırıcıya geçildi. `.dmg` için `universal-apple-darwin` hedefi iki işlemci mimarisini kapsıyor.
 
 ## Doğrulama
 
