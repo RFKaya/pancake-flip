@@ -459,7 +459,7 @@ Kesin rota ağacı Görev 07'de `docs/mimari-agac.md` içine yazılır.
 
 Her seviyenin ilk başarılı siparişine kadar kısa yönergeler kullanılacak kontrolü gösterir. Oyuncu tavaya basılı tutar, hamur hedefe geldiğinde bırakır, ilk yüz piştiğinde yukarı ve ikinci yüz piştiğinde aşağı kaydırır. Krep yanarsa ya da sipariş başarısız olursa tekrar denemede ilgili yönerge ve ağır çekim yeniden görünür. İlk doğru tabakta öğretici otomatik servisi gösterir.
 
-Ağır çekimde oyun %30 hızda ilerler. Bu hız hem tavaya hem müşteri sabrı ve geliş süresine uygulanır. Hamur hedefe normal hızda ulaşır. Ağır çekim, oyuncunun hamuru bırakması gereken anda başlar. Sahne hafifçe yakınlaşır, renkler solar ve oyun sesleri pesleşip uzar. Oyun doğru hareketi kabul ettiğinde adım tamamlanır.
+Ağır çekimde oyun %30 hızda ilerler. Bu hız hem tavaya hem müşteri sabrı ve geliş süresine uygulanır. Hamur hedefe normal hızda ulaşır. Ağır çekim, oyuncunun hamuru bırakması gereken anda başlar. Sahne hafifçe yakınlaşır, arka planın renkleri solar ve oyun sesleri pesleşip uzar. Oyun doğru hareketi kabul ettiğinde adım tamamlanır.
 
 Yeni malzeme, müşteri tipi veya mekanik açıldığında kısa bir tanıtım görünür. Oyuncu, ilk uygun siparişte ya da olayda ilgili kontrolün veya fişin üzerinde yönlendirme görür. Açılış seviyeleri [sonsuz seviye belgesinde](sonsuz-seviye.md#4-açılışlar-milestonelar) tutulur.
 

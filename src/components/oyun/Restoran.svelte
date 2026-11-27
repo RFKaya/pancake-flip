@@ -823,11 +823,25 @@
     -webkit-user-select: none;
     scale: 1;
     transform-origin: 50% 55%;
-    transition: scale 200ms ease-out, filter 200ms ease-out;
+    transition: scale 200ms ease-out;
   }
-  .sahne.agir-cekim { scale: var(--ogretici-yakinlik); filter: saturate(0.76); }
+  .sahne.agir-cekim { scale: var(--ogretici-yakinlik); }
+  /* Arka planı soldur. Tava, tabak ve sipariş fişleri bu katmanın üstünde kalır. */
+  .sahne::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    -webkit-backdrop-filter: saturate(0.76);
+    backdrop-filter: saturate(0.76);
+    transition: opacity 200ms ease-out;
+  }
+  .sahne.agir-cekim::after { opacity: 1; }
   @media (prefers-reduced-motion: reduce) {
     .sahne, .sahne.agir-cekim { scale: 1; transition: none; }
+    .sahne::after { transition: none; }
   }
 
   /* Lobi ↔ oyun: yalnızca opacity/transform, kısa; sahne (kamera, tava, tabak) yerinde kalır */

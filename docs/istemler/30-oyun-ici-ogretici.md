@@ -52,7 +52,7 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - Fazla hamur döküldüğünde metin tekrar denemeyi anlatır. Pişmenin çiğ evrelerinde oyun normal hıza döner.
 - Bırakma ölçüsüne gelene kadar tava normal hızda çalışır. Ağır çekimde hafif yakınlaşma ve daha pes, uzun oyun sesleri devreye girer.
 - Yakınlaşma %3,5 oldu ve kart metinleri kısaldı. Temel yönergeler her seviyede ilk başarılı siparişe kadar, hatalı denemeler dahil, tekrarlanır.
-- Ağır çekimde sahnenin renk doygunluğu %76'ya düşer ve geçiş yumuşak olur.
+- Ağır çekimde arka planın renk doygunluğu %76'ya düşer. Tava ve tabaktaki krep doğal renkleriyle çizilir.
 - İkinci tava ve seri bonusu aynı seviyede ayrı tanıtılır. Geliştirici seviyesi değiştirilirse bekleyen teslim iptal edilir.
 
 ## Doğrulama
@@ -63,4 +63,5 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - Chromium'da 390×844 görünümde kısa basma ve hatalı kaydırma, geçerli hamur, çevirme, tabağa alma, otomatik servis ve yenileme denendi.
 - İlk döküm hedefe yaklaşık 0,7 saniyede ulaştı. Bu anda yakınlaşma başladı ve bırakma sesinin Web Audio frekansı düştü. Geçerli bırakıştan sonra ağır çekim sona erdi.
 - Bir krep bilerek yakıldı. Yeni denemede döküm, çevirme ve tabağa alma yönergeleri tekrar çıktı. Başarılı teslimden sonra Seviye 2 öğreticisi başladı ve bu davranış yenilemeden sonra korundu.
+- Chromium, ağır çekimde arka plan filtresinin tava ve tabak altında kaldığını ve normal hızda kaybolduğunu doğruladı. Pişmiş yüz 390×844 görüntüde incelendi.
 - Seviye 10 testinde çilek sosu ve çocuk müşteri kartları sırayla gösterildi. Geliştirici testi gerçek ilerleme kaydını değiştirmedi.
