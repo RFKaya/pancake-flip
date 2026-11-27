@@ -387,10 +387,12 @@
   // ---- Jestler ----
   let bas: { x: number; y: number } | null = null;
   let son: { x: number; y: number } | null = null;
+  let etkinParmak: number | null = null;
   let tuketildi = false;
 
   function asagi(e: PointerEvent) {
-    if (kilit) return;
+    if (kilit || duraklat || etkinParmak !== null || e.button !== 0) return;
+    etkinParmak = e.pointerId;
     bas = son = { x: e.clientX, y: e.clientY };
     tuketildi = false;
     try {
@@ -426,7 +428,11 @@
   }
 
   function hareket(e: PointerEvent) {
-    if (!bas || !son) return;
+    if (e.pointerId !== etkinParmak || !bas || !son) return;
+    if (e.pointerType === "mouse" && (e.buttons & 1) === 0) {
+      jestiBitir();
+      return;
+    }
     const dx = e.clientX - son.x;
     const dy = e.clientY - son.y;
     son = { x: e.clientX, y: e.clientY };
@@ -451,11 +457,17 @@
     }
   }
 
-  function birak() {
-    if (!bas) return;
+  function birak(e: PointerEvent) {
+    if (etkinParmak === e.pointerId) jestiBitir();
+  }
+
+  function jestiBitir() {
+    if (etkinParmak === null) return;
+    etkinParmak = null;
     bas = son = null;
     const miktar = t.hamur.miktar;
     const s = tavaBirak(t, baglam);
+    onOgreticiDurumu(ogreticiDurumu);
     if (!s) return;
     if (!s.kalinlik) {
       // Hedefin toleransı dışında: krep olmaz, tava boşalır, hemen yeniden dökülebilir
@@ -476,6 +488,8 @@
   }
 </script>
 
+<svelte:window onpointerup={birak} onpointercancel={birak} onblur={jestiBitir} />
+
 <div class="slot" style:width={`${250 * olcek}px`} style:height={`${200 * olcek}px`}>
   <div
     class="alan"
@@ -485,8 +499,7 @@
     bind:this={alanEl}
     onpointerdown={asagi}
     onpointermove={hareket}
-    onpointerup={birak}
-    onpointercancel={birak}
+    onlostpointercapture={birak}
     role="button"
     tabindex="0"
     aria-label="Tava: basılı tut hamur dök, yukarı kaydır çevir, aşağı kaydır tabağa al"

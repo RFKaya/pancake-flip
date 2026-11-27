@@ -64,4 +64,5 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - İlk döküm hedefe yaklaşık 0,7 saniyede ulaştı. Bu anda yakınlaşma başladı ve bırakma sesinin Web Audio frekansı düştü. Geçerli bırakıştan sonra ağır çekim sona erdi.
 - Bir krep bilerek yakıldı. Yeni denemede döküm, çevirme ve tabağa alma yönergeleri tekrar çıktı. Başarılı teslimden sonra Seviye 2 öğreticisi başladı ve bu davranış yenilemeden sonra korundu.
 - Chromium, ağır çekimde arka plan filtresinin tava ve tabak altında kaldığını ve normal hızda kaybolduğunu doğruladı. Pişmiş yüz 390×844 görüntüde incelendi.
+- Hamur hedefe ulaştığı anda farenin tava üzerindeki yakalaması kesildi ve fare tava dışında bırakıldı. Döküm tamamlandı ve oyun normal hıza döndü.
 - Seviye 10 testinde çilek sosu ve çocuk müşteri kartları sırayla gösterildi. Geliştirici testi gerçek ilerleme kaydını değiştirmedi.
