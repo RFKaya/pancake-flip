@@ -823,9 +823,9 @@
     -webkit-user-select: none;
     scale: 1;
     transform-origin: 50% 55%;
-    transition: scale 200ms ease-out;
+    transition: scale 200ms ease-out, filter 200ms ease-out;
   }
-  .sahne.agir-cekim { scale: var(--ogretici-yakinlik); }
+  .sahne.agir-cekim { scale: var(--ogretici-yakinlik); filter: saturate(0.76); }
   @media (prefers-reduced-motion: reduce) {
     .sahne, .sahne.agir-cekim { scale: 1; transition: none; }
   }

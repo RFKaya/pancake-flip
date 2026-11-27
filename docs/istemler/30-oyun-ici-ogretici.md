@@ -52,6 +52,7 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - Fazla hamur döküldüğünde metin tekrar denemeyi anlatır. Pişmenin çiğ evrelerinde oyun normal hıza döner.
 - Bırakma ölçüsüne gelene kadar tava normal hızda çalışır. Ağır çekimde hafif yakınlaşma ve daha pes, uzun oyun sesleri devreye girer.
 - Yakınlaşma %3,5 oldu ve kart metinleri kısaldı. Temel yönergeler her seviyede ilk başarılı siparişe kadar, hatalı denemeler dahil, tekrarlanır.
+- Ağır çekimde sahnenin renk doygunluğu %76'ya düşer ve geçiş yumuşak olur.
 - İkinci tava ve seri bonusu aynı seviyede ayrı tanıtılır. Geliştirici seviyesi değiştirilirse bekleyen teslim iptal edilir.
 
 ## Doğrulama
