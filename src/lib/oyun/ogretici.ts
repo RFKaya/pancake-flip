@@ -108,9 +108,9 @@ const dokuyor = (durum: TavaOgreticiDurumu | undefined) => durum === "dokuyor" |
 
 function dokumIpucu(id: string, ikon: string, sira: number, durum: TavaOgreticiDurumu, baslik: string, metin: string): OgreticiIpucu {
   const ortak = { id, ikon, hedef: tava(sira) };
-  if (durum === "fazla") return { ...ortak, baslik: "Hamur fazla oldu", metin: "Bırak ve bir sonraki döküşte ölçü yeşil olur olmaz bırak." };
+  if (durum === "fazla") return { ...ortak, baslik: "Hamur fazla oldu", metin: "Bırak ve bir sonraki döküşte ölçü yeşil olur olmaz bırak.", yavaslat: false };
   if (durum === "birak") return { ...ortak, baslik: "Şimdi bırak", metin: "Hamur yeterli. Parmağını ya da fare düğmesini kaldır." };
-  return { ...ortak, baslik, metin };
+  return { ...ortak, baslik, metin, yavaslat: false };
 }
 
 export function ogreticiSec(b: OgreticiBaglam): OgreticiIpucu | null {

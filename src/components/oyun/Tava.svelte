@@ -1,7 +1,7 @@
 <script lang="ts">
   // Tek tava: basılı tut = hamur dök, yukarı swipe = çevir, aşağı swipe = tabağa kaydır.
   // Kurallar saf mantıktan gelir (pisirme.ts, hamur.ts); burası yalnızca gösterir, jestleri iletir ve "juice" ekler.
-  import { onDestroy, onMount, untrack } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import { AYAR } from "$lib/oyun/veri";
   import { cal, donguAyarla } from "$lib/oyun/ses";
   import {
@@ -335,7 +335,7 @@
       }
       const anahtar = `${t.yuz}${hazir}`;
       if (hazir && dingAnahtar !== anahtar) {
-        cal("ding");
+        void tick().then(() => cal("ding"));
         zipla(0.8);
       }
       dingAnahtar = anahtar;
@@ -343,7 +343,7 @@
     if (t.faz === "doku" && hedefte && !hedefTutturuldu) {
       hedefTutturuldu = true;
       ekle({ tur: "yildiz", x: 125 + hedefW / 2 - 6, y: 92, dx: 10, dy: -16, txt: "✓" });
-      cal("tik"); // doğru miktara ulaşıldı
+      void tick().then(() => cal("tik")); // hedefe ulaşınca öğreticinin ses hızını bekle
     }
 
     // Havadaki sesler fiziksel anlara bağlı: kalkış (anticipation bitince) ve havada dönerken

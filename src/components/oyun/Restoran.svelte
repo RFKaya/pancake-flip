@@ -17,7 +17,7 @@
   import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
   import { sayiKisalt, sonrakiAcilis } from "$lib/oyun/seviye";
-  import { cal, coinYagmuru, sesYukle } from "$lib/oyun/ses";
+  import { cal, coinYagmuru, sesHiziAyarla, sesYukle } from "$lib/oyun/ses";
   import { AYAR, malzeme, tip as tipBul } from "$lib/oyun/veri";
   import sahneAyar from "$lib/veri/sahne.json";
   import GelistiriciPaneli from "./GelistiriciPaneli.svelte";
@@ -151,7 +151,8 @@
     yogunSaat: oturum.yogunKalan > 0,
     seri: oturum.seri,
   }) : null);
-  const oyunHizi = $derived(ogretici ? sahneAyar.ogretici.hiz : 1);
+  const agirCekim = $derived(ogretici !== null && ogretici.yavaslat !== false);
+  const oyunHizi = $derived(agirCekim ? sahneAyar.ogretici.hiz : 1);
 
   function ogreticiTamamla(id: string) {
     if (ogreticiGorulen.includes(id)) return;
@@ -171,8 +172,10 @@
   $effect(() => {
     document.body.toggleAttribute("data-oyunda", oyunda);
   });
+  $effect(() => sesHiziAyarla(oyunHizi));
   onDestroy(() => {
     document.body?.removeAttribute("data-oyunda");
+    sesHiziAyarla(1);
     teslimIptal();
   });
 
@@ -536,7 +539,8 @@
   const ruh = (m: Musteri) => (sabirOrani(m) > 0.5 ? "iyi" : sabirOrani(m) > 0.25 ? "orta" : "kotu");
 </script>
 
-<div class="sahne" bind:this={sahneEl}>
+<div class="sahne-cerceve">
+<div class="sahne" class:agir-cekim={agirCekim} style:--ogretici-yakinlik={sahneAyar.ogretici.yakinlik} bind:this={sahneEl}>
   <header class="ust">
     <button class="geri" class:gizli={!oyunda} onclick={() => { oyunda = false; cal("tikla"); }} aria-label="Lobiye dön" tabindex={oyunda ? 0 : -1}>←</button>
     <span class="seviye" bind:this={seviyeEl} title={`Seviye ${oturum.seviye}`}>LEVEL {sayiKisalt(oturum.seviye)}</span>
@@ -796,17 +800,17 @@
     />
   {/if}
 </div>
+</div>
 
 <style>
+  .sahne-cerceve { max-width: 480px; margin-inline: auto; overflow: clip; }
   .sahne {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 480px;
     height: 100dvh;
-    margin: 0 auto;
     padding: calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));
     overflow: hidden;
     color: var(--yazi);
@@ -814,6 +818,13 @@
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
+    scale: 1;
+    transform-origin: 50% 55%;
+    transition: scale 200ms ease-out;
+  }
+  .sahne.agir-cekim { scale: var(--ogretici-yakinlik); }
+  @media (prefers-reduced-motion: reduce) {
+    .sahne, .sahne.agir-cekim { scale: 1; transition: none; }
   }
 
   /* Lobi ↔ oyun: yalnızca opacity/transform, kısa; sahne (kamera, tava, tabak) yerinde kalır */

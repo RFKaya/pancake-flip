@@ -23,14 +23,20 @@ describe("oyun öğreticisi", () => {
     const dokulen = [OGRETICI.dok];
     const cevrilen = [...dokulen, OGRETICI.cevir];
 
-    expect(ogreticiSec(baglam())).toMatchObject({ id: OGRETICI.dok, hedef: { tur: "tava", sira: 0 } });
-    expect(ogreticiSec(baglam({ tavalar: ["dokuyor"] }))?.id).toBe(OGRETICI.dok);
-    expect(ogreticiSec(baglam({ tavalar: ["birak"] }))?.baslik).toBe("Şimdi bırak");
-    expect(ogreticiSec(baglam({ tavalar: ["fazla"] }))?.baslik).toBe("Hamur fazla oldu");
+    expect(ogreticiSec(baglam())).toMatchObject({ id: OGRETICI.dok, hedef: { tur: "tava", sira: 0 }, yavaslat: false });
+    expect(ogreticiSec(baglam({ tavalar: ["dokuyor"] }))).toMatchObject({ id: OGRETICI.dok, yavaslat: false });
+    const birak = ogreticiSec(baglam({ tavalar: ["birak"] }));
+    expect(birak).toMatchObject({ id: OGRETICI.dok, baslik: "Şimdi bırak" });
+    expect(birak?.yavaslat).toBeUndefined();
+    expect(ogreticiSec(baglam({ tavalar: ["fazla"] }))).toMatchObject({ id: OGRETICI.dok, baslik: "Hamur fazla oldu", yavaslat: false });
     expect(ogreticiSec(baglam({ gorulen: dokulen, tavalar: ["mesgul"] }))).toBeNull();
-    expect(ogreticiSec(baglam({ gorulen: dokulen, tavalar: ["cevir"] }))?.id).toBe(OGRETICI.cevir);
+    const cevir = ogreticiSec(baglam({ gorulen: dokulen, tavalar: ["cevir"] }));
+    expect(cevir?.id).toBe(OGRETICI.cevir);
+    expect(cevir?.yavaslat).toBeUndefined();
     expect(ogreticiSec(baglam({ gorulen: cevrilen, tavalar: ["cevir"] }))).toBeNull();
-    expect(ogreticiSec(baglam({ gorulen: cevrilen, tavalar: ["tabaga"] }))?.id).toBe(OGRETICI.tabak);
+    const tabaga = ogreticiSec(baglam({ gorulen: cevrilen, tavalar: ["tabaga"] }));
+    expect(tabaga?.id).toBe(OGRETICI.tabak);
+    expect(tabaga?.yavaslat).toBeUndefined();
     expect(ogreticiSec(baglam({ gorulen: [...cevrilen, OGRETICI.tabak], tavalar: ["tabaga"] }))).toBeNull();
   });
 
@@ -73,8 +79,14 @@ describe("oyun öğreticisi", () => {
 
     expect(ogreticiSec(baglam({ ...ayar, hedef: normal }))).toBeNull();
     expect(ogreticiSec(baglam({ ...ayar, hedef: ince, tavalar: ["mesgul", "mesgul"] }))).toBeNull();
-    expect(ogreticiSec(baglam({ ...ayar, hedef: ince, tavalar: ["mesgul", "bos"] }))).toMatchObject({ id: OGRETICI.kalinlik, hedef: { tur: "tava", sira: 1 } });
-    expect(ogreticiSec(baglam({ ...ayar, hedef: kalin, tavalar: ["birak", "bos"] }))).toMatchObject({ id: OGRETICI.kalinlik, baslik: "Şimdi bırak", hedef: { tur: "tava", sira: 0 } });
+    expect(ogreticiSec(baglam({ ...ayar, hedef: ince, tavalar: ["mesgul", "bos"] }))).toMatchObject({
+      id: OGRETICI.kalinlik, hedef: { tur: "tava", sira: 1 }, yavaslat: false,
+    });
+    expect(ogreticiSec(baglam({ ...ayar, hedef: ince, tavalar: ["dokuyor", "bos"] }))).toMatchObject({ id: OGRETICI.kalinlik, yavaslat: false });
+    const birak = ogreticiSec(baglam({ ...ayar, hedef: kalin, tavalar: ["birak", "bos"] }));
+    expect(birak).toMatchObject({ id: OGRETICI.kalinlik, baslik: "Şimdi bırak", hedef: { tur: "tava", sira: 0 } });
+    expect(birak?.yavaslat).toBeUndefined();
+    expect(ogreticiSec(baglam({ ...ayar, hedef: kalin, tavalar: ["fazla", "bos"] }))).toMatchObject({ id: OGRETICI.kalinlik, yavaslat: false });
     expect(ogreticiSec(baglam({ ...ayar, hedef: kalin, gorulen: [...gorulen, OGRETICI.kalinlik] }))).toBeNull();
   });
 
@@ -83,7 +95,13 @@ describe("oyun öğreticisi", () => {
     const ayar = { seviye, gorulen: [...testOgreticiGecmisi(seviye), "acilis:mekanik:coklu-musteri", "acilis:mekanik:combo"] };
 
     expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "bos"] }))).toBeNull();
-    expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "dokuyor"] }))).toMatchObject({ id: OGRETICI.ikinciTava, hedef: { tur: "tava", sira: 1 } });
+    expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "dokuyor"] }))).toMatchObject({
+      id: OGRETICI.ikinciTava, hedef: { tur: "tava", sira: 1 }, yavaslat: false,
+    });
+    const birak = ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "birak"] }));
+    expect(birak).toMatchObject({ id: OGRETICI.ikinciTava, baslik: "Şimdi bırak" });
+    expect(birak?.yavaslat).toBeUndefined();
+    expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "fazla"] }))).toMatchObject({ id: OGRETICI.ikinciTava, yavaslat: false });
     expect(ogreticiSec(baglam({ ...ayar, seri: 2 }))).toMatchObject({ id: OGRETICI.combo, sureli: true, hedef: { tur: "seri" } });
   });
 });

@@ -17,6 +17,7 @@ export interface OgreticiIpucu {
   metin: string;
   hedef: OgreticiHedefi;
   sureli?: boolean;
+  yavaslat?: boolean;
 }
 
 export interface OgreticiBaglam {

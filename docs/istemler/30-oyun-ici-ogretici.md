@@ -17,7 +17,7 @@ Platform paketleri, yeni bağımlılıklar ve G7'nin diğer geliştirme kalemler
 ### Kabul ölçütleri
 
 - [x] İlk döküm, çevirme, tabağa alma ve otomatik teslim uygun anda gösterilir.
-- [x] Hareket geçerli olduğunda öğretici ilerler. Oyun, yönlendirme gösterilirken %30 hızda çalışır.
+- [x] Hareket geçerli olduğunda öğretici ilerler. Ağır çekimde oyun %30 hızda çalışır. Dökümde ağır çekim hedef ölçüde başlar.
 - [x] Aynı seviyedeki açılışlar sırayla gösterilir. İlk kullanım yönlendirmesi gerçek siparişe ve ilgili kontrole bağlanır.
 - [x] Yeniden açılışta tamamlanan adımlar hatırlanır. Geliştirici seviyesi gerçek kaydı etkilemez.
 - [x] Derleme ve Bun testleri geçer.
@@ -27,6 +27,7 @@ Platform paketleri, yeni bağımlılıklar ve G7'nin diğer geliştirme kalemler
 - Restoran, tava ve öğretici kartı `src/components/oyun/` altında.
 - Öğretici seçimi, ilerleme çözümü ve odaklı testler `src/lib/oyun/` altında.
 - İlerleme kaydı `src/lib/ilerleme.svelte.ts`, tipler `src/lib/types/`, sahne zamanları `src/lib/veri/sahne.json` altında.
+- Oyun efektleri ve tava döngülerinin hızı `src/lib/oyun/ses.ts` içinde ayarlanır.
 - Tasarım, sonsuz seviye, veri modeli, geliştirme planı ve istem günlüğü `docs/` altında.
 
 ### Doğrulama adımları
@@ -39,6 +40,8 @@ Platform paketleri, yeni bağımlılıklar ve G7'nin diğer geliştirme kalemler
 
 İlk pancakenin hamurunu dökerken, ters çevirirken ve benzer ilk kullanım anlarında oyunu ağır çekime al. Yeni özelliklerde oyuncuya ne yapacağını söyle. Değişiklikten sonra oyunu test için aç.
 
+Ağır çekimde hafif yakınlaşma ve yavaşlayan sesler ekle. Hamur normal hızda aksın, bırakma anı ağır çekime girsin.
+
 ## Plan
 
 Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçek hareket penceresinde hız katsayısını tavaya ve müşteri zamanına uygula. Seviye verilerinden tanıtımları bul ve ilk kullanım adımlarını kaydet. Oyunu bağımsız bir test profiliyle Seviye 1'de aç. Kullanıcı planı `yap` yanıtıyla onayladı.
@@ -47,6 +50,7 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 
 - İlk teslimin var olan otomatik hareketi yavaşlatıldı ve kartta açıklandı.
 - Fazla hamur döküldüğünde metin tekrar denemeyi anlatır. Pişmenin çiğ evrelerinde oyun normal hıza döner.
+- Bırakma ölçüsüne gelene kadar tava normal hızda çalışır. Ağır çekimde hafif yakınlaşma ve daha pes, uzun oyun sesleri devreye girer.
 - İkinci tava ve seri bonusu aynı seviyede ayrı tanıtılır. Geliştirici seviyesi değiştirilirse bekleyen teslim iptal edilir.
 
 ## Doğrulama
@@ -54,5 +58,6 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - `bun run build` 58 statik sayfayı başarıyla derledi.
 - `bun test` 137 test geçirdi. Sekiz yeni test öğretici seçimini, açılış sırasını ve kayıt uyumunu kapsar.
 - `bun run svelte-check --tsconfig ./tsconfig.json` 0 hata ve 0 uyarıyla tamamlandı.
-- Chromium'da 390×844 görünümde kısa basma ve hatalı kaydırma, geçerli hamur, çevirme, tabağa alma, otomatik servis ve yenileme denendi. İlk geçerli döküm yaklaşık 2,5 saniye sürdü.
+- Chromium'da 390×844 görünümde kısa basma ve hatalı kaydırma, geçerli hamur, çevirme, tabağa alma, otomatik servis ve yenileme denendi.
+- İlk döküm hedefe yaklaşık 0,7 saniyede ulaştı. Bu anda yakınlaşma başladı ve bırakma sesinin Web Audio frekansı düştü. Geçerli bırakıştan sonra ağır çekim sona erdi.
 - Seviye 10 testinde çilek sosu ve çocuk müşteri kartları sırayla gösterildi. Geliştirici testi gerçek ilerleme kaydını değiştirmedi.
