@@ -36,6 +36,7 @@
   /** false = lobi (sahne canlı, oyun donuk, tava kilitli), true = servis başladı */
   let oyunda = $state(untrack(() => baslangic === "oyun"));
   let oturum = $state(yeniOturum({ ...ilerleme.veri }));
+  let seviyeOgretildi = $state(ilerleme.veri.seviyeOgretildi ?? ilerleme.veri.ilerleme > 0);
   let tabak = $state<TabakParcasi[]>([]);
   let sonuc = $state<SonucMesaji | null>(null);
   let testModu = $state(false);
@@ -142,6 +143,8 @@
   const ogreticiGorulen = $derived(testModu ? testOgretici : ogreticiGecmisi(ilerleme.veri));
   const ogretici = $derived(oyunda && !paneAcik ? ogreticiSec({
     seviye: oturum.seviye,
+    seviyeOgretildi,
+    krepBekleniyor: !tabakYanlis && (siradaki === "krep" || !oturum.musteriler.length),
     gorulen: ogreticiGorulen,
     tavalar: tavaOgretici.slice(0, tavaSayisi),
     siradaki: tabakYanlis ? null : siradaki,
@@ -161,7 +164,6 @@
   }
 
   function dokumTamam(sira: number, kalinlik: Kalinlik) {
-    ogreticiTamamla(OGRETICI.dok);
     if (sira === 1) ogreticiTamamla(OGRETICI.ikinciTava);
     if (siradaki === "krep" && !tabakYanlis && hedefKalinlik !== "normal" && kalinlik === hedefKalinlik) ogreticiTamamla(OGRETICI.kalinlik);
   }
@@ -268,7 +270,6 @@
     }
     if (tabak.length >= AYAR.tabakMax) return;
     tabak.push(p);
-    if (p.pisme === "iyi" && tabakDurumu(oturum, tabak).durum !== "yanlis") ogreticiTamamla(OGRETICI.tabak);
     tabakZipla(1.2);
     salla(0.5);
     cal("plop"); // krep tabağa temas etti
@@ -379,7 +380,7 @@
     const d = tabakDurumu(oturum, tabak);
     if (d.durum !== "dogru") return;
     const hedefId = d.musteri.id;
-    const hiz = ogreticiGorulen.includes(OGRETICI.teslim) ? 1 : sahneAyar.ogretici.hiz;
+    const hiz = seviyeOgretildi ? 1 : sahneAyar.ogretici.hiz;
     teslimde = true;
     teslimZamanlayici = setTimeout(() => ucur(hedefId, hiz), sahneAyar.teslimBeklemeMs / hiz);
   }
@@ -422,11 +423,12 @@
   }
 
   function teslim() {
+    const servisSeviyesi = oturum.seviye;
     const d = tabakDurumu(oturum, tabak);
     const servis = d.durum === "dogru" ? d.musteri : null;
     const r = musteriyeVer(oturum, tabak);
     if (!r) return;
-    ogreticiTamamla(OGRETICI.teslim);
+    seviyeOgretildi = oturum.seviye === servisSeviyesi;
     if (servis) ayrilanEkle(servis, "mutlu", r.sonuc);
     sonucGoster(r.sonuc, "", r.kazanc);
 
@@ -450,7 +452,7 @@
     cal(r.sonuc === "perfect" ? "perfect" : "great"); // başarı: en yüksek öncelik
     setTimeout(() => cal("yay"), 280); // müşteri tepkisi
     if (r.seviyeAtladi.length) seviyeAtlandi(r.seviyeAtladi);
-    if (!testModu) ilerleme.oturumKaydet(oturum);
+    if (!testModu) ilerleme.oturumKaydet(oturum, seviyeOgretildi);
   }
 
   /** n parayı tabağın şu anki yerinden (teslimde müşterinin önü) kasaya uçurur; son paranın varış süresini (ms) döner */
@@ -494,6 +496,7 @@
     teslimIptal();
     testModu = true;
     oturumSeviyeAyarla(oturum, seviye);
+    seviyeOgretildi = false;
     testOgretici = testOgreticiGecmisi(oturum.seviye);
     tavaOgretici = ["bos", "bos"];
     bilgiId = null;
@@ -511,7 +514,7 @@
   }
 
   function kayitUygula() {
-    ilerleme.seviyeUygula(oturum.seviye, oturum.ilerleme);
+    ilerleme.seviyeUygula(oturum.seviye, oturum.ilerleme, seviyeOgretildi);
     testModu = false;
   }
 
@@ -519,6 +522,7 @@
     teslimIptal();
     ilerleme.yukle();
     oturum = yeniOturum({ ...ilerleme.veri });
+    seviyeOgretildi = ilerleme.veri.seviyeOgretildi ?? ilerleme.veri.ilerleme > 0;
     testModu = false;
     tavaOgretici = ["bos", "bos"];
     bilgiId = null;
@@ -713,7 +717,6 @@
             ogreticiVurgusu={ogretici?.hedef.tur === "tava" && ogretici.hedef.sira === i}
             onOgreticiDurumu={(durum) => (tavaOgretici[i] = durum)}
             onDokuldu={(kalinlik) => dokumTamam(i, kalinlik)}
-            onCevrildi={() => ogreticiTamamla(OGRETICI.cevir)}
           />
         {/each}
       </div>

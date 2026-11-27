@@ -83,24 +83,24 @@ export function testOgreticiGecmisi(seviye: number): string[] {
 }
 
 const musteriMetni: Record<string, string> = {
-  cocuk: "Çocuklar tatlı sipariş verir. Fişteki malzemeleri sırayla ekle.",
-  elestirmen: "Eleştirmenin sabrı daha kısa. Fişindeki sırayı izle ve bekletme.",
-  vip: "VIP müşteriler daha çok öder ve daha az bekler. Sabır çubuğuna dikkat et.",
+  cocuk: "Tatlı ister. Fişe bak.",
+  elestirmen: "Sabrı kısa. Bekletme.",
+  vip: "İyi öder, az bekler.",
 };
 
 function tanitim(a: Acilis): OgreticiIpucu {
   const ortak = { id: acilisId(a), ikon: a.ikon, baslik: `${a.ad} açıldı`, sureli: true };
-  if (a.tur === "malzeme") return { ...ortak, hedef: malzemeButonu(a.id), metin: "Siparişte sırası geldiğinde bu malzemeye dokun." };
-  if (a.tur === "musteri") return { ...ortak, baslik: `Yeni müşteri · ${a.ad}`, hedef: fis(), metin: musteriMetni[a.id] ?? "Yeni müşterinin siparişine ve sabır çubuğuna bak." };
+  if (a.tur === "malzeme") return { ...ortak, hedef: malzemeButonu(a.id), metin: "Fişte sırası gelince ekle." };
+  if (a.tur === "musteri") return { ...ortak, baslik: `Yeni müşteri · ${a.ad}`, hedef: fis(), metin: musteriMetni[a.id] ?? "Fişe ve sabır çubuğuna bak." };
   switch (a.id) {
-    case katman: return { ...ortak, hedef: fis(), metin: "Fiş istediğinde aynı tabağa birden fazla krep koy." };
-    case "coklu-musteri": return { ...ortak, hedef: tava(1), metin: "Bir krep pişerken sağ tavada ikinciyi hazırla. Müşterilerin sabır çubuklarını izle." };
-    case "tercih": return { ...ortak, hedef: fis(), metin: "Fişteki kalınlığa bak, hamuru tavada işaretli çizgiye kadar doldur." };
-    case "uc-musteri": return { ...ortak, hedef: fis(), metin: "Üç fiş birikebilir. Sabrı en az kalan müşterinin tarifine öncelik ver." };
-    case "ileri-siparis": return { ...ortak, hedef: fis(), metin: "Uzun tariflerde fişteki simgeleri soldan sağa takip et." };
-    case "yogun-saat": return { ...ortak, hedef: { tur: "yogun" }, metin: "Yoğun saatte müşteriler daha sık gelir, teslimler daha çok kazandırır." };
-    case combo: return { ...ortak, hedef: { tur: "seri" }, metin: "Müşterileri peş peşe memnun ederek ek coin kazan." };
-    default: return { ...ortak, hedef: fis(), metin: "Yeni sipariş bilgisi için fişleri kontrol et." };
+    case katman: return { ...ortak, hedef: fis(), metin: "Krepleri aynı tabağa koy." };
+    case "coklu-musteri": return { ...ortak, hedef: tava(1), metin: "İki tavada aynı anda pişir." };
+    case "tercih": return { ...ortak, hedef: fis(), metin: "Fişteki kalınlığı tuttur." };
+    case "uc-musteri": return { ...ortak, hedef: fis(), metin: "En az sabrı kalana öncelik ver." };
+    case "ileri-siparis": return { ...ortak, hedef: fis(), metin: "Fişi soldan sağa takip et." };
+    case "yogun-saat": return { ...ortak, hedef: { tur: "yogun" }, metin: "Daha çok müşteri, daha çok kazanç." };
+    case combo: return { ...ortak, hedef: { tur: "seri" }, metin: "Peş peşe servisle ek coin kazan." };
+    default: return { ...ortak, hedef: fis(), metin: "Yeni siparişler için fişe bak." };
   }
 }
 
@@ -108,36 +108,37 @@ const dokuyor = (durum: TavaOgreticiDurumu | undefined) => durum === "dokuyor" |
 
 function dokumIpucu(id: string, ikon: string, sira: number, durum: TavaOgreticiDurumu, baslik: string, metin: string): OgreticiIpucu {
   const ortak = { id, ikon, hedef: tava(sira) };
-  if (durum === "fazla") return { ...ortak, baslik: "Hamur fazla oldu", metin: "Bırak ve bir sonraki döküşte ölçü yeşil olur olmaz bırak.", yavaslat: false };
-  if (durum === "birak") return { ...ortak, baslik: "Şimdi bırak", metin: "Hamur yeterli. Parmağını ya da fare düğmesini kaldır." };
+  if (durum === "fazla") return { ...ortak, baslik: "Fazla hamur", metin: "Bırak ve tekrar dene.", yavaslat: false };
+  if (durum === "birak") return { ...ortak, baslik: "Şimdi bırak", metin: "Ölçü tamam." };
   return { ...ortak, baslik, metin, yavaslat: false };
 }
 
 export function ogreticiSec(b: OgreticiBaglam): OgreticiIpucu | null {
   const gormedi = (id: string) => !b.gorulen.includes(id);
   if (b.teslimde) {
-    return gormedi(teslim) ? { id: teslim, ikon: "🍽️", baslik: "İlk sipariş hazır", metin: "Tabak fişteki tarifle eşleşince müşteriye kendiliğinden gider.", hedef: { tur: "tabak" } } : null;
+    return b.seviyeOgretildi ? null : { id: teslim, ikon: "🍽️", baslik: "Sipariş hazır", metin: "Tabak müşteriye gidiyor.", hedef: { tur: "tabak" } };
   }
 
-  const ilkTava = b.tavalar[0];
-  if (gormedi(dok) && (ilkTava === "bos" || dokuyor(ilkTava))) return dokumIpucu(dok, "👆", 0, ilkTava, "Hamuru dök", "Tavaya basılı tut. Ölçü yeşile gelince bırak.");
-  if (gormedi(cevir) && ilkTava === "cevir") {
-    return { id: cevir, ikon: "↑", baslik: "Krebi çevir", metin: "İlk yüz pişti. Tavanın üstünde yukarı kaydır.", hedef: tava(0) };
-  }
-  if (gormedi(tabak) && ilkTava === "tabaga") {
-    return { id: tabak, ikon: "↓", baslik: "Tabağa al", metin: "İki yüz de pişti. Tavanın üstünde aşağı kaydır.", hedef: tava(0) };
+  if (!b.seviyeOgretildi) {
+    const cevrilecek = b.tavalar.indexOf("cevir");
+    if (cevrilecek >= 0) return { id: cevir, ikon: "↑", baslik: "Krep pişti", metin: "Arkasını pişirmek için yukarı kaydır.", hedef: tava(cevrilecek) };
+    const hazir = b.tavalar.indexOf("tabaga");
+    if (hazir >= 0) return { id: tabak, ikon: "↓", baslik: "Tabağa al", metin: "Aşağı kaydır.", hedef: tava(hazir) };
   }
 
-  const acilis = acilislar.find((a) => a.seviye <= b.seviye && gormedi(acilisId(a)));
+  const dokulen = b.tavalar.findIndex(dokuyor);
+  const acilis = dokulen < 0 && acilislar.find((a) => a.seviye <= b.seviye && gormedi(acilisId(a)));
   if (acilis) return tanitim(acilis);
 
   const malzeme = b.siradaki && acilislar.find((a) => a.tur === "malzeme" && a.id === b.siradaki);
-  if (malzeme && gormedi(ogreticiMalzemeId(malzeme.id))) {
-    return { id: ogreticiMalzemeId(malzeme.id), ikon: malzeme.ikon, baslik: `${malzeme.ad} ekle`, metin: "Fişte bu malzemenin sırası geldi. Vurgulanan düğmeye dokun.", hedef: malzemeButonu(malzeme.id) };
+  if (dokulen < 0 && malzeme && gormedi(ogreticiMalzemeId(malzeme.id))) {
+    return { id: ogreticiMalzemeId(malzeme.id), ikon: malzeme.ikon, baslik: `${malzeme.ad} ekle`, metin: "Parlayan düğmeye dokun.", hedef: malzemeButonu(malzeme.id) };
   }
 
+  if (!b.seviyeOgretildi && dokulen >= 0) return dokumIpucu(dok, "👆", dokulen, b.tavalar[dokulen], "Hamuru dök", "Ölçü yeşil olana dek basılı tut.");
+
   const sagTava = b.tavalar[1];
-  if (gormedi(ikinciTava) && dokuyor(sagTava)) return dokumIpucu(ikinciTava, "🥞", 1, sagTava, "İkinci tavayı kullan", "Sağ tavada da ölçü yeşile gelince bırak.");
+  if (gormedi(ikinciTava) && dokuyor(sagTava)) return dokumIpucu(ikinciTava, "🥞", 1, sagTava, "İkinci tava", "Ölçü yeşile gelince bırak.");
 
   const tercih = b.hedef?.tercih;
   if (tercih && tercih !== "normal" && gormedi(kalinlik)) {
@@ -145,7 +146,7 @@ export function ogreticiSec(b: OgreticiBaglam): OgreticiIpucu | null {
     const bos = b.tavalar.indexOf("bos");
     if (sira >= 0 || bos >= 0) {
       const i = sira >= 0 ? sira : bos;
-      return dokumIpucu(kalinlik, "📏", i, b.tavalar[i], `${tercih === "ince" ? "İnce" : "Kalın"} krep hazırla`, "Tavaya basılı tut, fişin istediği ölçü yeşile gelince bırak.");
+      return dokumIpucu(kalinlik, "📏", i, b.tavalar[i], `${tercih === "ince" ? "İnce" : "Kalın"} krep hazırla`, "İşaretli ölçüyü tuttur.");
     }
   }
 
@@ -157,14 +158,16 @@ export function ogreticiSec(b: OgreticiBaglam): OgreticiIpucu | null {
 
   const uzun = b.fisler.find((m) => m.krep > oncekiKrepSiniri || m.parca > oncekiKrepSiniri * 2 - 1);
   if (uzun && b.seviye >= ileriSeviye && gormedi(ileri)) {
-    return { id: ileri, ikon: "📜", baslik: "Uzun tarif", metin: "Fişteki simgeleri soldan sağa takip et. İşaretlenen parçalar tabakta.", hedef: fis(uzun.id), sureli: true };
+    return { id: ileri, ikon: "📜", baslik: "Uzun tarif", metin: "Fişi soldan sağa takip et.", hedef: fis(uzun.id), sureli: true };
   }
 
   const kule = b.fisler.find((m) => m.krep > 1);
-  if (kule && gormedi(katman)) return { id: katman, ikon: "🥞", baslik: "Krepleri üst üste koy", metin: "Fişte birden çok krep var. Sırayı takip ederek aynı tabağa koy.", hedef: fis(kule.id), sureli: true };
+  if (kule && gormedi(katman)) return { id: katman, ikon: "🥞", baslik: "Krepleri üst üste koy", metin: "Fişteki sırayı izle.", hedef: fis(kule.id), sureli: true };
   if (b.fisler.length >= 3 && gormedi(ucFis)) return { id: ucFis, ikon: "👥", baslik: "Üç sipariş bekliyor", metin: "Sabrı en az kalan müşteriye önce servis et.", hedef: fis(), sureli: true };
-  if (b.fisler.length >= 2 && gormedi(ikiFis)) return { id: ikiFis, ikon: "👥", baslik: "İki sipariş bekliyor", metin: "Bir fişi tamamla, sonra diğerine geç. İki tavada aynı anda pişirebilirsin.", hedef: fis(), sureli: true };
-  if (b.seviye >= AYAR.combo.baslangicSeviye && b.seri >= 2 && gormedi(combo)) return { id: combo, ikon: "🔥", baslik: "Serini koru", metin: "Her başarılı teslim serini sürdürür. Müşteri ayrılırsa seri sıfırlanır.", hedef: { tur: "seri" }, sureli: true };
-  if (b.yogunSaat && gormedi(yogun)) return { id: yogun, ikon: "🔥", baslik: "Yoğun saat başladı", metin: "Bekleyenleri iki tavayla yetiştir. Bu sürede siparişler daha çok kazandırır.", hedef: { tur: "yogun" }, sureli: true };
+  if (b.fisler.length >= 2 && gormedi(ikiFis)) return { id: ikiFis, ikon: "👥", baslik: "İki sipariş bekliyor", metin: "Önce bir fişi tamamla.", hedef: fis(), sureli: true };
+  if (b.seviye >= AYAR.combo.baslangicSeviye && b.seri >= 2 && gormedi(combo)) return { id: combo, ikon: "🔥", baslik: "Serini koru", metin: "Müşteri giderse seri sıfırlanır.", hedef: { tur: "seri" }, sureli: true };
+  if (b.yogunSaat && gormedi(yogun)) return { id: yogun, ikon: "🔥", baslik: "Yoğun saat başladı", metin: "Teslimler daha çok kazandırır.", hedef: { tur: "yogun" }, sureli: true };
+  const bos = b.tavalar.indexOf("bos");
+  if (!b.seviyeOgretildi && b.krepBekleniyor && bos >= 0 && !b.tavalar.some((durum) => durum !== "bos")) return dokumIpucu(dok, "👆", bos, "bos", "Hamuru dök", "Tavaya basılı tut.");
   return null;
 }

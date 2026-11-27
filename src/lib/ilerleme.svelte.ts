@@ -36,7 +36,7 @@ class Ilerleme {
   }
 
   /** Oturumun durumunu kayda yazar (normal oyun; test seviyesinde çağrılmaz) */
-  oturumKaydet(o: Oturum) {
+  oturumKaydet(o: Oturum, seviyeOgretildi: boolean) {
     this.veri = {
       surum: 1,
       seviye: o.seviye,
@@ -47,6 +47,7 @@ class Ilerleme {
       enIyiSeri: Math.max(this.veri.enIyiSeri, o.enIyiSeri),
       toplamMukemmel: o.toplamMukemmel,
       ogretici: ogreticiGecmisi(this.veri),
+      seviyeOgretildi,
     };
     this.#yaz();
   }
@@ -59,9 +60,9 @@ class Ilerleme {
   }
 
   /** Geliştirici: test seviyesini gerçek kayda uygular (toplamlar korunur, yalnızca seviye ve ilerleme değişir) */
-  seviyeUygula(seviye: number, ilerleme = 0) {
+  seviyeUygula(seviye: number, ilerleme = 0, seviyeOgretildi = false) {
     const s = seviyeSinirla(seviye);
-    this.veri = { ...this.veri, seviye: s, ilerleme, enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, s), ogretici: ogreticiGecmisi(this.veri) };
+    this.veri = { ...this.veri, seviye: s, ilerleme, enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, s), ogretici: ogreticiGecmisi(this.veri), seviyeOgretildi };
     this.#yaz();
   }
 

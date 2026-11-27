@@ -457,13 +457,13 @@ Kesin rota ağacı Görev 07'de `docs/mimari-agac.md` içine yazılır.
 
 ### 13.3 Öğretici
 
-İlk krepte kısa bir yönerge ve vurgu, oyuncunun kullanacağı kontrolü gösterir. Oyuncu tavaya basılı tutar, hamur hedefe geldiğinde bırakır, ilk yüz piştiğinde yukarı ve ikinci yüz piştiğinde aşağı kaydırır. İlk doğru tabakta öğretici, siparişin kendiliğinden gittiğini gösterir.
+Her seviyenin ilk başarılı siparişine kadar kısa yönergeler kullanılacak kontrolü gösterir. Oyuncu tavaya basılı tutar, hamur hedefe geldiğinde bırakır, ilk yüz piştiğinde yukarı ve ikinci yüz piştiğinde aşağı kaydırır. Krep yanarsa ya da sipariş başarısız olursa tekrar denemede ilgili yönerge ve ağır çekim yeniden görünür. İlk doğru tabakta öğretici otomatik servisi gösterir.
 
 Ağır çekimde oyun %30 hızda ilerler. Bu hız hem tavaya hem müşteri sabrı ve geliş süresine uygulanır. Hamur hedefe normal hızda ulaşır. Ağır çekim, oyuncunun hamuru bırakması gereken anda başlar. Sahne hafifçe yakınlaşır ve oyun sesleri pesleşip uzar. Oyun doğru hareketi kabul ettiğinde adım tamamlanır.
 
 Yeni malzeme, müşteri tipi veya mekanik açıldığında kısa bir tanıtım görünür. Oyuncu, ilk uygun siparişte ya da olayda ilgili kontrolün veya fişin üzerinde yönlendirme görür. Açılış seviyeleri [sonsuz seviye belgesinde](sonsuz-seviye.md#4-açılışlar-milestonelar) tutulur.
 
-Tamamlanan adımlar cihazda saklanır. Eski kayıtta başarılı servis varsa ilk krep adımları tamamlanmış kabul edilir. Geliştirici panelinde test seviyesindeki öğretici ilerlemesi test oturumuna aittir. [Kayıt alanı](veri-modeli.md#seviye-ve-ilerleme-seviyets)
+Görülen açılışlar ve mevcut seviyede başarılı sipariş verilip verilmediği cihazda saklanır. Yeni seviyede temel yönergeler yeniden başlar. Geliştirici panelinde öğretici ilerlemesi test oturumuna aittir. [Kayıt alanı](veri-modeli.md#seviye-ve-ilerleme-seviyets)
 
 ### 13.4 Ses ve geri bildirim
 - Sesler: hamur dökme (cız), çevirme (vınn), tabağa düşme (plop), malzeme (pıt), sos (şıırr), coin (çın), PERFECT (kısa melodi), sinirli müşteri (hıh), kapı (çan).

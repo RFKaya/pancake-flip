@@ -46,6 +46,7 @@ export function ilerlemeCoz(ham: string | null): IlerlemeVerisi {
       enIyiSeri: Math.floor(sayi(v.enIyiSeri, 0)),
       toplamMukemmel: Math.floor(sayi(v.toplamMukemmel, 0)),
       ...(ogretici ? { ogretici } : {}),
+      ...(typeof v.seviyeOgretildi === "boolean" ? { seviyeOgretildi: v.seviyeOgretildi } : {}),
     };
   } catch {
     return bosIlerleme();

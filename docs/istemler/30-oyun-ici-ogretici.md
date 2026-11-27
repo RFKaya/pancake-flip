@@ -51,13 +51,15 @@ Hamur, çevirme ve servis koşullarını mevcut oyun kurallarına bağla. Gerçe
 - İlk teslimin var olan otomatik hareketi yavaşlatıldı ve kartta açıklandı.
 - Fazla hamur döküldüğünde metin tekrar denemeyi anlatır. Pişmenin çiğ evrelerinde oyun normal hıza döner.
 - Bırakma ölçüsüne gelene kadar tava normal hızda çalışır. Ağır çekimde hafif yakınlaşma ve daha pes, uzun oyun sesleri devreye girer.
+- Yakınlaşma %3,5 oldu ve kart metinleri kısaldı. Temel yönergeler her seviyede ilk başarılı siparişe kadar, hatalı denemeler dahil, tekrarlanır.
 - İkinci tava ve seri bonusu aynı seviyede ayrı tanıtılır. Geliştirici seviyesi değiştirilirse bekleyen teslim iptal edilir.
 
 ## Doğrulama
 
 - `bun run build` 58 statik sayfayı başarıyla derledi.
-- `bun test` 137 test geçirdi. Sekiz yeni test öğretici seçimini, açılış sırasını ve kayıt uyumunu kapsar.
+- `bun test` 138 test geçirdi. Dokuz öğretici testi seçimi, tekrarları, açılış sırasını ve kayıt uyumunu kapsar.
 - `bun run svelte-check --tsconfig ./tsconfig.json` 0 hata ve 0 uyarıyla tamamlandı.
 - Chromium'da 390×844 görünümde kısa basma ve hatalı kaydırma, geçerli hamur, çevirme, tabağa alma, otomatik servis ve yenileme denendi.
 - İlk döküm hedefe yaklaşık 0,7 saniyede ulaştı. Bu anda yakınlaşma başladı ve bırakma sesinin Web Audio frekansı düştü. Geçerli bırakıştan sonra ağır çekim sona erdi.
+- Bir krep bilerek yakıldı. Yeni denemede döküm, çevirme ve tabağa alma yönergeleri tekrar çıktı. Başarılı teslimden sonra Seviye 2 öğreticisi başladı ve bu davranış yenilemeden sonra korundu.
 - Seviye 10 testinde çilek sosu ve çocuk müşteri kartları sırayla gösterildi. Geliştirici testi gerçek ilerleme kaydını değiştirmedi.

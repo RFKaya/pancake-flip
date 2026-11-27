@@ -11,7 +11,7 @@
   import { hamurDurumu } from "$lib/oyun/hamur";
   import type { Fx, Kalinlik, PismeDurumu, TabakParcasi, TavaOgreticiDurumu } from "$lib/types";
 
-  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir, zamanHizi = 1, ogreticiVurgusu = false, onOgreticiDurumu, onDokuldu, onCevrildi }: {
+  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir, zamanHizi = 1, ogreticiVurgusu = false, onOgreticiDurumu, onDokuldu }: {
     seviye: number;
     ipucuAcik?: boolean;
     /** Tabağın gittiği siparişin istediği kalınlık: dökme hedef halkası buna göre çizilir */
@@ -29,7 +29,6 @@
     ogreticiVurgusu?: boolean;
     onOgreticiDurumu: (durum: TavaOgreticiDurumu) => void;
     onDokuldu: (kalinlik: Kalinlik) => void;
-    onCevrildi: () => void;
   } = $props();
 
   // Görsel ölçüler (px): krep elipsi ve uçuş yüksekliği
@@ -410,7 +409,6 @@
   function yukari() {
     const k = tavaCevir(t, baglam);
     if (!k) return false;
-    onCevrildi();
     cal("whoosh");
     salla(1.1);
     return true;

@@ -22,6 +22,8 @@ export interface OgreticiIpucu {
 
 export interface OgreticiBaglam {
   seviye: number;
+  seviyeOgretildi: boolean;
+  krepBekleniyor: boolean;
   gorulen: readonly string[];
   tavalar: readonly TavaOgreticiDurumu[];
   siradaki: string | null;

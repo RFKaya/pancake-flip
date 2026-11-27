@@ -7,6 +7,8 @@ function baglam(ayar: Partial<OgreticiBaglam> = {}): OgreticiBaglam {
   return {
     seviye: 1,
     gorulen: [],
+    seviyeOgretildi: false,
+    krepBekleniyor: true,
     tavalar: ["bos"],
     siradaki: null,
     hedef: null,
@@ -19,33 +21,37 @@ function baglam(ayar: Partial<OgreticiBaglam> = {}): OgreticiBaglam {
 }
 
 describe("oyun öğreticisi", () => {
-  test("ilk hamur, çevirme ve tabağa alma yalnızca ilgili tava durumunda görünür", () => {
-    const dokulen = [OGRETICI.dok];
-    const cevrilen = [...dokulen, OGRETICI.cevir];
-
-    expect(ogreticiSec(baglam())).toMatchObject({ id: OGRETICI.dok, hedef: { tur: "tava", sira: 0 }, yavaslat: false });
+  test("hamur, çevirme ve tabağa alma yalnızca ilgili tava durumunda görünür", () => {
+    expect(ogreticiSec(baglam())).toMatchObject({ id: OGRETICI.dok, baslik: "Hamuru dök", hedef: { tur: "tava", sira: 0 }, yavaslat: false });
     expect(ogreticiSec(baglam({ tavalar: ["dokuyor"] }))).toMatchObject({ id: OGRETICI.dok, yavaslat: false });
     const birak = ogreticiSec(baglam({ tavalar: ["birak"] }));
     expect(birak).toMatchObject({ id: OGRETICI.dok, baslik: "Şimdi bırak" });
     expect(birak?.yavaslat).toBeUndefined();
-    expect(ogreticiSec(baglam({ tavalar: ["fazla"] }))).toMatchObject({ id: OGRETICI.dok, baslik: "Hamur fazla oldu", yavaslat: false });
-    expect(ogreticiSec(baglam({ gorulen: dokulen, tavalar: ["mesgul"] }))).toBeNull();
-    const cevir = ogreticiSec(baglam({ gorulen: dokulen, tavalar: ["cevir"] }));
-    expect(cevir?.id).toBe(OGRETICI.cevir);
+    expect(ogreticiSec(baglam({ tavalar: ["fazla"] }))).toMatchObject({ id: OGRETICI.dok, baslik: "Fazla hamur", yavaslat: false });
+    expect(ogreticiSec(baglam({ tavalar: ["mesgul"] }))).toBeNull();
+    const cevir = ogreticiSec(baglam({ tavalar: ["cevir"] }));
+    expect(cevir).toMatchObject({ id: OGRETICI.cevir, baslik: "Krep pişti" });
     expect(cevir?.yavaslat).toBeUndefined();
-    expect(ogreticiSec(baglam({ gorulen: cevrilen, tavalar: ["cevir"] }))).toBeNull();
-    const tabaga = ogreticiSec(baglam({ gorulen: cevrilen, tavalar: ["tabaga"] }));
-    expect(tabaga?.id).toBe(OGRETICI.tabak);
+    const tabaga = ogreticiSec(baglam({ tavalar: ["tabaga"] }));
+    expect(tabaga).toMatchObject({ id: OGRETICI.tabak, baslik: "Tabağa al" });
     expect(tabaga?.yavaslat).toBeUndefined();
-    expect(ogreticiSec(baglam({ gorulen: [...cevrilen, OGRETICI.tabak], tavalar: ["tabaga"] }))).toBeNull();
+    expect(ogreticiSec(baglam({ krepBekleniyor: false }))).toBeNull();
+    expect(ogreticiSec(baglam({ krepBekleniyor: false, tavalar: ["cevir"] }))?.id).toBe(OGRETICI.cevir);
   });
 
-  test("ilk otomatik teslimde tabak vurgulanır ve teslimden sonra ipucu tekrarlanmaz", () => {
-    const gorulen = [OGRETICI.dok, OGRETICI.cevir, OGRETICI.tabak];
+  test("başarısız denemeden sonra öğretici tekrarlanır, ilk teslimden sonra yalnızca o seviyede kapanır", () => {
+    const seviye = 2;
+    const gorulen = [OGRETICI.dok, OGRETICI.cevir, OGRETICI.tabak, OGRETICI.teslim];
+    const deneme = ["bos", "birak", "cevir", "mesgul", "bos", "birak", "cevir", "tabaga"] as const;
+    const ipuclari = deneme.map((durum) => ogreticiSec(baglam({ seviye, gorulen, tavalar: [durum] }))?.id);
 
-    expect(ogreticiSec(baglam({ gorulen }))).toBeNull();
-    expect(ogreticiSec(baglam({ gorulen, teslimde: true }))).toMatchObject({ id: OGRETICI.teslim, hedef: { tur: "tabak" } });
-    expect(ogreticiSec(baglam({ gorulen: [...gorulen, OGRETICI.teslim], teslimde: true }))).toBeNull();
+    expect(ipuclari).toEqual([OGRETICI.dok, OGRETICI.dok, OGRETICI.cevir, undefined, OGRETICI.dok, OGRETICI.dok, OGRETICI.cevir, OGRETICI.tabak]);
+    expect(ogreticiSec(baglam({ seviye, gorulen, teslimde: true }))).toMatchObject({ id: OGRETICI.teslim, baslik: "Sipariş hazır", hedef: { tur: "tabak" } });
+    for (const durum of ["bos", "cevir", "tabaga"] as const) {
+      expect(ogreticiSec(baglam({ seviye, gorulen, seviyeOgretildi: true, tavalar: [durum] }))).toBeNull();
+    }
+    expect(ogreticiSec(baglam({ seviye, gorulen, seviyeOgretildi: true, teslimde: true }))).toBeNull();
+    expect(ogreticiSec(baglam({ seviye: 3, gorulen: [...testOgreticiGecmisi(3), "acilis:mekanik:katmanli-tarif"] }))?.id).toBe(OGRETICI.dok);
   });
 
   test("aynı seviyede sos ve müşteri açılışlarını sırayla tanıtır", () => {
@@ -54,25 +60,26 @@ describe("oyun öğreticisi", () => {
     const sosAcilisi = "acilis:malzeme:cilek-sosu";
     const cocukAcilisi = "acilis:musteri:cocuk";
 
-    expect(ogreticiSec(baglam({ seviye, gorulen }))).toMatchObject({ id: sosAcilisi, sureli: true });
-    expect(ogreticiSec(baglam({ seviye, gorulen: [...gorulen, sosAcilisi] }))).toMatchObject({ id: cocukAcilisi, sureli: true });
-    expect(ogreticiSec(baglam({ seviye, gorulen: [...gorulen, sosAcilisi, cocukAcilisi] }))).toBeNull();
+    expect(ogreticiSec(baglam({ seviye, gorulen, seviyeOgretildi: true }))).toMatchObject({ id: sosAcilisi, sureli: true });
+    expect(ogreticiSec(baglam({ seviye, gorulen: [...gorulen, sosAcilisi], seviyeOgretildi: true }))).toMatchObject({ id: cocukAcilisi, sureli: true });
+    expect(ogreticiSec(baglam({ seviye, gorulen: [...gorulen, sosAcilisi, cocukAcilisi], seviyeOgretildi: true }))).toBeNull();
   });
 
   test("malzeme açıldıktan sonra düğmesini tarifte ilk gerektiğinde vurgular", () => {
     const seviye = 5;
     const gorulen = [...testOgreticiGecmisi(seviye), "acilis:malzeme:cikolata"];
+    const ayar = { seviye, gorulen, krepBekleniyor: false };
     const id = ogreticiMalzemeId("cikolata");
 
-    expect(ogreticiSec(baglam({ seviye, gorulen, siradaki: "krep" }))).toBeNull();
-    expect(ogreticiSec(baglam({ seviye, gorulen, siradaki: "cikolata" }))).toMatchObject({ id, hedef: { tur: "malzeme", id: "cikolata" } });
-    expect(ogreticiSec(baglam({ seviye, gorulen: [...gorulen, id], siradaki: "cikolata" }))).toBeNull();
+    expect(ogreticiSec(baglam({ ...ayar, krepBekleniyor: true, siradaki: "krep" }))?.id).toBe(OGRETICI.dok);
+    expect(ogreticiSec(baglam({ ...ayar, siradaki: "cikolata" }))).toMatchObject({ id, hedef: { tur: "malzeme", id: "cikolata" } });
+    expect(ogreticiSec(baglam({ ...ayar, gorulen: [...gorulen, id], siradaki: "cikolata" }))).toBeNull();
   });
 
   test("kalınlık öğreticisi ilk ince veya kalın siparişte kullanılabilir tavayı seçer", () => {
     const seviye = 20;
     const gorulen = [...testOgreticiGecmisi(seviye), "acilis:mekanik:tercih"];
-    const ayar = { seviye, gorulen };
+    const ayar = { seviye, gorulen, seviyeOgretildi: true };
     const normal = { id: 1, tercih: "normal" } as const;
     const ince = { id: 2, tercih: "ince" } as const;
     const kalin = { id: 3, tercih: "kalin" } as const;
@@ -92,7 +99,7 @@ describe("oyun öğreticisi", () => {
 
   test("ikinci tava ve seri bonusu kendi kullanım anında tekrar gösterilir", () => {
     const seviye = 15;
-    const ayar = { seviye, gorulen: [...testOgreticiGecmisi(seviye), "acilis:mekanik:coklu-musteri", "acilis:mekanik:combo"] };
+    const ayar = { seviye, gorulen: [...testOgreticiGecmisi(seviye), "acilis:mekanik:coklu-musteri", "acilis:mekanik:combo"], seviyeOgretildi: true };
 
     expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "bos"] }))).toBeNull();
     expect(ogreticiSec(baglam({ ...ayar, tavalar: ["bos", "dokuyor"] }))).toMatchObject({
@@ -118,7 +125,7 @@ describe("öğretici kaydı", () => {
     expect(gorulen).toContain(ogreticiMalzemeId("cilek-sosu"));
     expect(gorulen).toContain("musteri:cocuk");
     expect(gorulen).not.toContain(ogreticiMalzemeId("tereyagi"));
-    expect(ogreticiSec(baglam({ seviye: eski.seviye, gorulen }))).toBeNull();
+    expect(ogreticiSec(baglam({ seviye: eski.seviye, gorulen, seviyeOgretildi: true }))).toBeNull();
   });
 
   test("kayıt geçerli benzersiz kimlikleri tutar, bozuk veya eksik alana güvenli varsayılan uygular", () => {
@@ -133,5 +140,18 @@ describe("öğretici kaydı", () => {
     expect(karisik.toplamCoin).toBe(150);
     expect(ogreticiGecmisi(bos)).toEqual([]);
     expect(ogreticiGecmisi(ilerlemeCoz("{"))).toEqual([]);
+  });
+
+  test("oyuncunun güncel seviyede teslim yapıp yapmadığı kayıtta korunur", () => {
+    const temelKayit = { surum: 1, seviye: 10, ilerleme: 1 };
+
+    for (const seviyeOgretildi of [true, false]) {
+      const kayit = ilerlemeCoz(JSON.stringify({ ...temelKayit, seviyeOgretildi }));
+      expect(kayit.seviye).toBe(10);
+      expect(kayit.ilerleme).toBe(1);
+      expect(kayit.seviyeOgretildi).toBe(seviyeOgretildi);
+    }
+    expect(ilerlemeCoz(JSON.stringify(temelKayit)).seviyeOgretildi).toBeUndefined();
+    expect(ilerlemeCoz(JSON.stringify({ ...temelKayit, seviyeOgretildi: "evet" })).seviyeOgretildi).toBeUndefined();
   });
 });

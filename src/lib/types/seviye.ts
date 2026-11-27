@@ -62,4 +62,5 @@ export interface IlerlemeVerisi {
   enIyiSeri: number; // en uzun seri rekoru (eski kayıtlarda yok → 0)
   toplamMukemmel: number; // PERFECT servis sayısı (eski kayıtlarda yok → 0)
   ogretici?: string[]; // tamamlanan öğretici adımları ve görülen açılışlar
+  seviyeOgretildi?: boolean; // kayıt yapılan seviyede başarılı servis yapıldı mı?
 }
