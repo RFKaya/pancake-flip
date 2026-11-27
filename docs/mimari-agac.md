@@ -37,7 +37,11 @@ Pancake Flip!
 │   ├── Malzemeler, Müşteri Tipleri: liste ve arama (her yerde); ekle / düzenle / sil (uygulamada, izne göre)
 │   ├── Seviye Eğrisi, Kilometre Taşları, Simülatör: oyunun kurallarından hesaplanır (her yerde, salt okunur)
 │   ├── Denge Ayarları: ayarların sayı alanları; düzenleme taslak sürüm olarak kaydedilir (uygulamada)
-│   └── Sürümler: taslak yayınlama ve geri alma (yalnız uygulamada; tarayıcıda menüde yok)
+│   ├── Sürümler: taslak yayınlama ve geri alma (yalnız uygulamada; tarayıcıda menüde yok)
+│   ├── Oyuncular: arama, durum süzgeci, sayfalama, detay ve gerekçeli seviye ayarı (uygulamada, izne göre)
+│   ├── Fişler: kod araması, oyuncu/seviye/yıldız süzgeçleri, sayfalama, detay ve kod çözme (uygulamada, izne göre)
+│   ├── Şüpheli Kayıtlar: oyuncu/neden/durum süzgeçleri, kanıt ve inceleme durumu güncelleme (uygulamada, izne göre)
+│   └── Denetim Günlüğü: arama, kaynak/eylem/UTC tarih süzgeçleri, sayfalama ve önce/sonra ayrıntıları (uygulamada, salt okunur)
 │
 ├── /izinler (İzinler; yalnız uygulamada)
 │   ├── İzin listesi ve durumu: bildirim (verildi / reddedildi / henüz sorulmadı)

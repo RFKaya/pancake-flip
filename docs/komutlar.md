@@ -43,14 +43,17 @@ Yerel arka ucun komutları ve tabloları [`backend.md`](backend.md)'dedir. Yöne
 | `yonetimKayit(ad, eposta, parola)` | `auth_register` | `YonetimOturumu` (ilk hesap yönetici olur) |
 | `yonetimCikis()` | `auth_logout` | `null` |
 | `panelOzeti()` | `pancake_dashboard` | `PanelOzeti` (`ViewAny:Player` izni gerekir) |
-| `kayitListesi(kaynak, sorgu?)` | `crud_index` | `Sayfa<…>`; kaynaklar: `Malzeme`, `MusteriTipi`, `GameConfig`, `ContentVersion` |
+| `kayitListesi(kaynak, sorgu?)` | `crud_index` | `Sayfa<…>`; kaynaklar: `Malzeme`, `MusteriTipi`, `GameConfig`, `ContentVersion`, `Player`, `Fis`, `FraudFlag`, `AuditLog` |
 | `kayitEkle(kaynak, veri)` | `crud_store` | eklenen kayıt |
 | `kayitGuncelle(kaynak, id, veri)` | `crud_update` | güncel kayıt (yalnız gönderilen alanlar değişir; `null` isteğe bağlı alanı siler) |
 | `kayitSil(kaynak, id, neden?)` | `crud_destroy` | `null` (neden denetim günlüğüne) |
 | `icerikYayinla(id, not?)` | `content_publish` | yayınlanan `IcerikSurumu` (arka uç içeriği doğrular) |
 | `icerikGeriAl(kapsam, neden)` | `content_rollback` | yayına dönen önceki `IcerikSurumu` |
+| `oyuncuSeviyeAyarla(playerId, seviye, neden)` | `player_set_level` | güncel `OyuncuKaydi`; `SetLevel:Player`, en az 5 karakterlik gerekçe; ilerleme ve denetim kaydı arka uçta güncellenir |
 
-Tarayıcıda hepsi `YalnizUygulamada` döner; tek istisna `kayitListesi`: oyunun JSON verisini salt okunur tek sayfa olarak döndürür (`ContentVersion` için boş liste).
+Tarayıcıda hepsi `YalnizUygulamada` döner; `kayitListesi` yalnız içerik kaynaklarında oyunun JSON verisini salt okunur tek sayfa olarak döndürür (`ContentVersion` için boş liste). `Player`, `Fis`, `FraudFlag`, `AuditLog` tarayıcıda veri döndürmez.
+
+Kayıt ekranları listeleri [`yukleyici.ts`](../src/lib/yukleyici.ts) üzerinden alır. Arama/süzgeç/sayfalama `crud_index` sorgusuna gider. `AuditLog` arka uçta da salt okunurdur. Şüpheli kayıt güncellemesi yalnız `durum` alanını değiştirir; oyuncu hesabını otomatik engellemez. Fiş detayı mevcut `fisCoz` işlevini kullanır; kod çözme kriptografik özgünlük doğrulaması değildir.
 
 ## İzinler
 

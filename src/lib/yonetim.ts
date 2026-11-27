@@ -52,6 +52,35 @@ export function izinVar(oturum: YonetimOturumu | null, izin: string): boolean {
   return oturum !== null && (oturum.superAdmin || oturum.permissions.includes(izin));
 }
 
+/** Boş ve bozuk tarihlerde de ekran açılır. */
+export function tarihYaz(deger: string | null): string {
+  if (!deger) return "—";
+  const tarih = new Date(deger);
+  return Number.isNaN(tarih.getTime()) ? "—" : tarih.toLocaleString("tr-TR");
+}
+
+/** Eksik ilerleme ve nullable sayılar sahte sıfır olarak gösterilmez. */
+export function sayiYaz(deger: number | null | undefined): string {
+  return typeof deger === "number" && Number.isFinite(deger) ? deger.toLocaleString("tr-TR") : "—";
+}
+
+export function seviyeAyariDogrula(seviye: number, neden: string, m: YonetimMetni): string {
+  if (!Number.isInteger(seviye) || seviye < 1 || seviye > SEVIYE.seviyeSiniri) return m.kayitlar.seviyeHatasi;
+  if (neden.trim().length < 5) return m.kayitlar.nedenHatasi;
+  return "";
+}
+
+/** Yalnız dolu süzgeçler gönderilir; sayısal alan 0 olabilir. */
+export function kayitSorgusu(page: number, search: string, filters: Record<string, string | number>): import("./types").ListeSorgusu {
+  return { page, pageSize: 25, search: search.trim(), filters: Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== "")) };
+}
+
+/** Gün sonu dahil tarih aralığı, arka uç ISO UTC metinleriyle karşılaştırılır. */
+export function gunAraligi(baslangic: string, bitis: string): Record<string, string> {
+  // Arka uç NOW_SQL saniye hassasiyetinde metin üretir; aynı biçimde karşılaştırılmalı.
+  return { atMin: baslangic ? `${baslangic}T00:00:00Z` : "", atMax: bitis ? `${bitis}T23:59:59Z` : "" };
+}
+
 /** Malzeme kategorileri (types/malzeme.ts → Kategori), listede ve formda bu sırayla */
 export const KATEGORILER: Kategori[] = ["krep", "dolgu", "sos", "topping"];
 

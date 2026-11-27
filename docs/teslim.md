@@ -1,4 +1,52 @@
-# Teslim — Batch 01 (Hafta 3)
+# Teslim
+
+## Vize teslimi
+
+12.11.2026 tarihinde öğrencinin aktardığı güncel Blackboard yönergesi bu bölümde geçerlidir. Aşağıdaki Batch 01 bölümü eski haftalık teslim kaydıdır.
+
+### Otomatik görüntüler
+
+Repo kökünde Bun ve kurulu Chrome/Chromium ile:
+
+```powershell
+bun run screenshots
+```
+
+Komut önce güncel kaynakları derler, `dist` içindeki tüm HTML rotalarını keşfeder ve her birini telefon **390×844**, tablet **820×1180**, masaüstü **1440×900** viewport ile PNG olarak yakalar. Uzun sayfalarda tam sayfa görüntüsü alındığı için PNG yüksekliği viewport yüksekliğinden büyük olabilir. Dosya adları `home-phone.png`, `ar-rehber-krep-tablet.png` biçimindedir.
+
+Uzun tam sayfa çekimlerinde sabit alt menü metni örtmesin diye yalnız çekim belgesinde sayfanın en altına yerleştirilir (`footerMoved` rapor alanı). Ürün kodu ve sayfa akışı değiştirilmez. Yönetim sekmeleri seçilirken yatay menü de seçili sekmeye kaydırılır. Uygulamanın tasarlanmış yatay kaydırmalı tabloları ilk sütunlarında yakalanır; diğer sütunlara arayüzde yatay kaydırılarak erişilir.
+
+Otomasyon ayrıca lobiyle aynı rotadaki oyun durumunu, web yönetim panelinin altı ek sekmesini, Fişlerim'in örnek/hata/yükleniyor ve dört dilde rehberin boş/hata/yükleniyor durumlarını kaydeder. Normal Fişlerim görüntüsü yeni profilin boş durumudur. `fislerim-ornek-*` görüntüleri uygulamanın mevcut `?durum=ornek` örnek verisidir.
+
+Chrome standart konumda yoksa `CHROME_PATH` ortam değişkenine tarayıcı yürütülebilir dosyasını yazın. Betik kendi geçici profilini ve yerel sunucusunu açar; kişisel tarayıcı profiline veya kayıtlara erişmez. İş bitince kendi işlemlerini kapatır ve geçici profili siler. Yeni npm bağımlılığı gerekmez.
+
+`screenshots/rapor.json`, rota, viewport, gerçek PNG boyutu, taşma, kesilen metin ve sayfa/kaynak hatalarını listeler. Rota yüklenmezse, sayfa boşsa veya yatay taşarsa komut hata verir. `complete: true` ve beklenen PNG sayısı kontrol edilmeli; metin kesilmesi uyarıları ve görüntüler ayrıca görsel olarak incelenmelidir. Önceki otomasyon PNG'leri her çalışmada yenilenir.
+
+**Platform sınırı:** Tauri yerel arka ucuna bağlı giriş, Sürümler, Oyuncular, Fişler, Şüpheli Kayıtlar ve Denetim Günlüğü tarayıcıda tasarım gereği görünmez ([platform tablosu](platform-destegi.md)). Bu web otomasyonu bunların gerçek Tauri ekranlarını yakalamaz ve sahte arka uçla göstermeye çalışmaz. Yerel platform kanıtı istenirse ayrıca uygulama üzerinden alınmalıdır.
+
+### ZIP ve Blackboard
+
+Kaynakların son hâli commit edildikten sonra repo kökünde:
+
+```powershell
+Compress-Archive -Path screenshots -DestinationPath screenshots.zip
+git archive --format=zip -o proje.zip HEAD
+```
+
+`proje.zip` yalnız seçili commit'in takip edilen kaynaklarını içerir; `node_modules`, `target`, `dist` ve diğer yerel build çıktıları eklenmez. Yeni script'in ZIP'e girmesi için önce commit edilmiş olması gerekir. Paketleri yenilerken mevcut ZIP'leri yanlışlıkla ezmeyin. Teslimin hangi dal/commit'ten hazırlandığını kaydedin; açık PR içeren bir teslim dalı `master` ile aynı değildir.
+
+Blackboard → **Vize ve Final Projeleri → Vize Projesi (%40)**:
+
+1. Metin kutusuna repo bağlantısı ve açılan PR bağlantılarını yazın.
+2. `screenshots.zip` ve `proje.zip` dosyalarını ekleyin.
+3. İsteğe bağlı sunum videosu için YouTube liste dışı veya bağlantıyla erişilebilir Drive bağlantısı yazın; video dosyasını Blackboard'a yüklemeyin.
+4. Üç deneme hakkı vardır; son gönderim geçerlidir. Yüklemeyi öğrenci yapar.
+
+Görev kaydı ve doğrulama: [28 — ekran görüntüsü ve teslim](istemler/28-ekran-goruntusu-teslim.md).
+
+---
+
+## Batch 01 (Hafta 3) — geçmiş teslim kaydı
 
 Görev tanımı: [`tasks/week-3/09-progress-batch-01.task.md`](tasks/week-3/09-progress-batch-01.task.md) (hocanındır; bu belge onun depo tarafındaki kaydıdır). Eğitmenin ön değerlendirmesi: [`k1/01.review.md`](k1/01.review.md).
 

@@ -8,7 +8,11 @@
   import { destekleniyorMu, yonetimCikis, yonetimOturumu } from "$lib/native";
   import { tema } from "$lib/tema.svelte";
   import type { YonetimMenuOgesi, YonetimOturumu, YonetimSekmesi } from "$lib/types";
-  import { hataMetni } from "$lib/yonetim";
+  import { hataMetni, izinVar } from "$lib/yonetim";
+  import Oyuncular from "./Oyuncular.svelte";
+  import Fisler from "./Fisler.svelte";
+  import SupheliKayitlar from "./SupheliKayitlar.svelte";
+  import DenetimGunlugu from "./DenetimGunlugu.svelte";
   import DengeAyarlari from "./DengeAyarlari.svelte";
   import Giris from "./Giris.svelte";
   import KilometreTaslari from "./KilometreTaslari.svelte";
@@ -21,9 +25,10 @@
 
   const m = yonetimSozlugu();
   const arkaUcVar = destekleniyorMu("yonetim");
+  let oturum = $state<YonetimOturumu | null>(null);
 
   // Sürümler yalnız yerel veritabanında vardır: tarayıcıda menüde hiç görünmez
-  const sekmeler: YonetimMenuOgesi[] = [
+  const sekmeler = $derived<YonetimMenuOgesi[]>([
     { id: "ozet", ikon: "📊" },
     { id: "malzemeler", ikon: "🥞" },
     { id: "musteriler", ikon: "🧑" },
@@ -32,10 +37,13 @@
     { id: "simulator", ikon: "🎲" },
     { id: "denge", ikon: "⚖️" },
     ...(arkaUcVar ? [{ id: "surumler" as const, ikon: "🗂️" }] : []),
-  ];
+    ...(arkaUcVar && izinVar(oturum, "ViewAny:Player") ? [{ id: "oyuncular" as const, ikon: "👤" }] : []),
+    ...(arkaUcVar && izinVar(oturum, "ViewAny:Fis") ? [{ id: "fisler" as const, ikon: "🧾" }] : []),
+    ...(arkaUcVar && izinVar(oturum, "ViewAny:FraudFlag") ? [{ id: "supheli" as const, ikon: "🔎" }] : []),
+    ...(arkaUcVar && izinVar(oturum, "ViewAny:AuditLog") ? [{ id: "denetim" as const, ikon: "📋" }] : []),
+  ]);
   let aktif = $state<YonetimSekmesi>("ozet");
 
-  let oturum = $state<YonetimOturumu | null>(null);
   let durum = $state<"yukleniyor" | "giris" | "hazir" | "hata">(arkaUcVar ? "yukleniyor" : "hazir");
   let hata = $state("");
 
@@ -54,6 +62,7 @@
   async function cikisYap() {
     await yonetimCikis();
     oturum = null;
+    aktif = "ozet";
     durum = "giris";
   }
 
@@ -114,6 +123,14 @@
           <DengeAyarlari {oturum} />
         {:else if aktif === "surumler"}
           <Surumler {oturum} />
+        {:else if aktif === "oyuncular" && arkaUcVar && izinVar(oturum, "ViewAny:Player")}
+          <Oyuncular {oturum} />
+        {:else if aktif === "fisler" && arkaUcVar && izinVar(oturum, "ViewAny:Fis")}
+          <Fisler {oturum} />
+        {:else if aktif === "supheli" && arkaUcVar && izinVar(oturum, "ViewAny:FraudFlag")}
+          <SupheliKayitlar {oturum} />
+        {:else if aktif === "denetim" && arkaUcVar && izinVar(oturum, "ViewAny:AuditLog")}
+          <DenetimGunlugu {oturum} />
         {/if}
       </main>
     </div>
