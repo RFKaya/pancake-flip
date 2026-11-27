@@ -17,7 +17,7 @@ Oyuncu küçük bir krep dükkânında tek başına çalışır. Müşteriler ge
 Hedeflenen his:
 > "Müşteri bekliyor, krep pişiyor, öbürünün sosunu da koymam lazım. Önce hangisini yetiştireyim? Tam zamanında yetiştirdim. **PERFECT!**"
 
-- **30 saniyede öğrenilir:** Dokun (hamur dök), yukarı kaydır (çevir), dokun (malzeme koy), dokun (müşteriye ver). Hepsi bu.
+- **30 saniyede öğrenilir:** Hamur için tavaya basılı tut, krebi çevirmek için yukarı ve tabağa almak için aşağı kaydır. İstenen malzemelere dokun. Hazır sipariş kendiliğinden müşteriye gider.
 - **Zor ustalaşılır:** Ustalık; aynı anda birden fazla tavayı, tabağı ve müşteriyi idare etmekten, doğru öncelikleri seçmekten gelir.
 - Görsel dil: sevimli, renkli, hafif abartılı, 2D/"2.5D" cartoon. Krepler kalın ve oyuncak gibi. Sos akışı, çevirme zıplaması ve müşteri yüz ifadeleri animasyonlu.
 - Ekran: **9:16 dikey**, tek elle oynanır.
@@ -86,7 +86,7 @@ Basit örnek: `Krep · Krep · Çikolata · Krep · Çilek sosu`
 **Tabak kuralları**
 - Tabakta en fazla 12 parça olur.
 - **Geri alma yok.** Hatalı tabak için **çöp kutusu** var: üzerine 0,5 sn basılı tutunca tabak boşalır, kullanılan malzemelerin maliyeti kaybedilir (Bölüm 1–5'te çöp ücretsizdir).
-- Tabağı vermek için tabak doluyken müşteriye dokunulur. Kartın altında "Ver ▶" parlar; yanlışlıkla dokunmaya karşı tek bir dokunuş yeterli ama hedef büyük.
+- Tabak siparişle birebir eşleştiğinde kendiliğinden müşteriye gider. [Siparişin geçerlilik kuralları](sonsuz-seviye.md#11-temel-kurallar-siparişin-geçerliliği)
 
 ---
 
@@ -204,7 +204,7 @@ hız(b)     = max(0,65 ; 1 − 0,007 × (b − 1))
 | %0 | Gider (Bölüm 10'dan itibaren) | — |
 
 - **Bölüm 1–9:** Sabır %1'in altına inmez, müşteri asla gitmez (sadece bahşiş azalır).
-- **Bölüm 1–3:** Öğretici sırasında sabır, ilk tabak verilene kadar donar.
+- **Sonsuz seviye:** Öğretici gösterilirken müşteri sabrı da oyun hızıyla birlikte yavaşlar. [Öğretici](#133-öğretici)
 - Giden müşteri: o siparişin geliri yok, combo sıfırlanır, tabaktaki malzeme ziyan olur. **Oyun bitmez.**
 
 ### 7.2 Müşteri tipleri
@@ -455,18 +455,15 @@ Kısaltmalar: **Eşz.** = aynı anda en fazla müşteri, **T/T** = tava/tabak sa
 
 Kesin rota ağacı Görev 07'de `docs/mimari-agac.md` içine yazılır.
 
-### 13.3 Öğretici (metinsiz, yaptırarak)
-| Bölüm | Gösterilen | Kelime |
-|---|---|---|
-| 1 | El ikonu tavaya dokunur → yukarı kaydırır → müşteriye dokunur | "Dokun", "Kaydır", "Ver" |
-| 3 | El, rafta çikolataya dokunur | — |
-| 5 | Sos şişesi parlar, döküm animasyonu | — |
-| 7 | Topping, kulenin tepesine iner | — |
-| 8 | Tava halkasında 3 renkli bölge yanar, karttaki nokta titreşir | "A · O · İ" |
-| 12 | İki tava aynı anda parlar | — |
-| 22 | İki tabak; dokununca seçim çerçevesi | — |
+### 13.3 Öğretici
 
-Her öğretici adımı, oyuncu doğru hareketi yapana kadar bekler. Okumak gerekmez.
+İlk krepte kısa bir yönerge ve vurgu, oyuncunun kullanacağı kontrolü gösterir. Oyuncu tavaya basılı tutar, hamur hedefe geldiğinde bırakır, ilk yüz piştiğinde yukarı ve ikinci yüz piştiğinde aşağı kaydırır. İlk doğru tabakta öğretici, siparişin kendiliğinden gittiğini gösterir.
+
+Eylem yapılabilir olduğunda oyun %30 hızda ilerler. Bu hız hem tavaya hem müşteri sabrı ve geliş süresine uygulanır. Adım, oyun hareketi kabul ettiğinde tamamlanır. Hatalı bir denemeden sonra oyuncu aynı adımı tekrar görebilir.
+
+Yeni malzeme, müşteri tipi veya mekanik açıldığında kısa bir tanıtım görünür. Oyuncu, ilk uygun siparişte ya da olayda ilgili kontrolün veya fişin üzerinde yönlendirme görür. Açılış seviyeleri [sonsuz seviye belgesinde](sonsuz-seviye.md#4-açılışlar-milestonelar) tutulur.
+
+Tamamlanan adımlar cihazda saklanır. Eski kayıtta başarılı servis varsa ilk krep adımları tamamlanmış kabul edilir. Geliştirici panelinde test seviyesindeki öğretici ilerlemesi test oturumuna aittir. [Kayıt alanı](veri-modeli.md#seviye-ve-ilerleme-seviyets)
 
 ### 13.4 Ses ve geri bildirim
 - Sesler: hamur dökme (cız), çevirme (vınn), tabağa düşme (plop), malzeme (pıt), sos (şıırr), coin (çın), PERFECT (kısa melodi), sinirli müşteri (hıh), kapı (çan).
@@ -493,7 +490,7 @@ Yalnızca cihazda, `localStorage`'da tek bir sürümlü JSON tutulur:
 }
 ```
 - Sürüm alanı ileride kayıt formatı değişirse dönüştürme yapmak içindir.
-- **Güncel durum (sonsuz seviye):** bölüm modeli kaldırıldığı için kayıt iki anahtardır. `pancakeflip-ilerleme` → `{ surum, seviye, ilerleme, toplamMusteri, toplamCoin, enYuksekSeviye, enIyiSeri, toplamMukemmel }` (çözüm: `oyun/ilerlemeKaydi.ts`); `pancakeflip-kayit` → `{ surum, fisler }` (çözüm: `oyun/fis.ts` → `fislerCoz`). Her fiş `kasa` alanını da taşır; `net` bir önceki fişten bu yana kazanılandır. Eski kayıtlardaki `coin` / `bolumler` okunmaz.
+- **Güncel durum (sonsuz seviye):** `pancakeflip-ilerleme` oyuncunun ilerlemesini, `pancakeflip-kayit` adisyonları saklar. Kayıt alanları [veri modelinde](veri-modeli.md#tipler) tanımlanır.
 - Gizlilik sayfası (Görev 06) bu verinin yalnızca cihazda tutulduğunu ve KVKK kapsamında kişisel veri toplanmadığını söyler.
 
 ---
@@ -509,7 +506,7 @@ Yalnızca cihazda, `localStorage`'da tek bir sürümlü JSON tutulur:
 - Sonuç ekranı + **Rust adisyon kodu** + Fişlerim
 - Mutfak: Tava ve Sos şişesi yükseltmeleri
 - Kayıt (localStorage), Bölümler listesi, Bölüm detayı
-- Bölüm 1, 3, 5, 8, 12 öğreticileri
+- İlk krep ve seviye açılışları için [öğretici](#133-öğretici)
 - Placeholder sesler, temel animasyonlar
 
 ### 15.2 Tam sürüm (final hedefi), önem sırasıyla

@@ -108,6 +108,7 @@ IlerlemeVerisi                       (oyuncunun seviyesi, ilerlemesi ve sayaçla
 - `SeviyeYapilandirmasi`: `seviye.json` dosyasının yapısı.
 - `Acilis`: bir seviyede açılan yenilik (`tur`: `malzeme` / `musteri` / `mekanik`, `id`, `ad`, `ikon`, `seviye`).
 - `IlerlemeVerisi`: cihazdaki kayıt (`surum: 1`, `seviye`, `ilerleme`, `toplamMusteri`, `toplamCoin`, `enYuksekSeviye`, `enIyiSeri`, `toplamMukemmel`).
+- `IlerlemeVerisi.ogretici`: tamamlanmış öğretici adımlarının kimlikleri. Alan isteğe bağlıdır ve sürüm 1 kayıtları bu alan olmadan da açılır. [Öğreticinin kayıt davranışı](oyun-tasarimi.md#133-öğretici)
 
 ### Ayarlar (`ayarlar.ts`)
 

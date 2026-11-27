@@ -12,6 +12,7 @@
   import { fisKaydet } from "$lib/fisler.svelte";
   import { gelistiriciModuAcik, ilerleme } from "$lib/ilerleme.svelte";
   import { ruhHali } from "$lib/oyun/musteri";
+  import { OGRETICI, ogreticiGecmisi, ogreticiMalzemeId, ogreticiSec, testOgreticiGecmisi } from "$lib/oyun/ogretici";
   import { musteriyeVer, oturumIlerlet, oturumSeviyeAyarla, sabirOrani, tabakDurumu, yeniOturum, type OturumOlayi, type SeviyeAtlama } from "$lib/oyun/oturum";
   import type { Hata } from "$lib/oyun/degerlendirme";
   import { rngOlustur } from "$lib/oyun/rng";
@@ -21,8 +22,9 @@
   import sahneAyar from "$lib/veri/sahne.json";
   import GelistiriciPaneli from "./GelistiriciPaneli.svelte";
   import Karakter from "./Karakter.svelte";
+  import Ogretici from "./Ogretici.svelte";
   import Tava from "./Tava.svelte";
-  import type { Ayrilan, DusenParca, KazancEtiketi, Musteri, SeviyeBildirimi, Sonuc, SonucMesaji, TabakParcasi, UcanPara } from "$lib/types";
+  import type { Ayrilan, DusenParca, Kalinlik, KazancEtiketi, Musteri, SeviyeBildirimi, Sonuc, SonucMesaji, TabakParcasi, TavaOgreticiDurumu, UcanPara } from "$lib/types";
 
   let { baslangic = "lobi" }: { baslangic?: "lobi" | "oyun" } = $props();
 
@@ -39,6 +41,10 @@
   let testModu = $state(false);
   let paneAcik = $state(false);
   let tekrar = $state(0);
+  let tavaOgretici = $state<TavaOgreticiDurumu[]>(["bos", "bos"]);
+  let testOgretici = $state<string[]>([]);
+  let bilgiId: string | null = null;
+  let bilgiKalan = 0;
   let barDolu = $state(false);
   let bildirim = $state<SeviyeBildirimi | null>(null);
   let gittiNo = $state(0);
@@ -56,6 +62,8 @@
   /** Tabak müşteriye giderken true: oyun zamanı durur, tabağa dokunulamaz */
   let teslimde = $state(false);
   const bekleyenParcalar: TabakParcasi[] = [];
+  let teslimZamanlayici: ReturnType<typeof setTimeout> | undefined;
+  let teslimAnimasyonu: Animation | null = null;
   let sonucNo = 0;
   let bildirimNo = 0;
 
@@ -131,12 +139,42 @@
   const tabakYanlis = $derived(tabakDurumu(oturum, tabak).durum === "yanlis");
   /** Tavadaki dökme hedefi: tabağın gittiği siparişin istediği kalınlık */
   const hedefKalinlik = $derived(hedef?.siparis.tercih ?? "normal");
+  const ogreticiGorulen = $derived(testModu ? testOgretici : ogreticiGecmisi(ilerleme.veri));
+  const ogretici = $derived(oyunda && !paneAcik ? ogreticiSec({
+    seviye: oturum.seviye,
+    gorulen: ogreticiGorulen,
+    tavalar: tavaOgretici.slice(0, tavaSayisi),
+    siradaki: tabakYanlis ? null : siradaki,
+    hedef: hedef && !tabakYanlis && siradaki === "krep" ? { tercih: hedef.siparis.tercih } : null,
+    fisler: oturum.musteriler.map((m) => ({ id: m.id, tip: m.tip, krep: krepSayisi(m), parca: m.siparis.parcalar.length })),
+    teslimde,
+    yogunSaat: oturum.yogunKalan > 0,
+    seri: oturum.seri,
+  }) : null);
+  const oyunHizi = $derived(ogretici ? sahneAyar.ogretici.hiz : 1);
+
+  function ogreticiTamamla(id: string) {
+    if (ogreticiGorulen.includes(id)) return;
+    if (testModu) testOgretici = [...testOgretici, id];
+    else ilerleme.ogreticiTamamla(id);
+  }
+
+  function dokumTamam(sira: number, kalinlik: Kalinlik) {
+    ogreticiTamamla(OGRETICI.dok);
+    if (sira === 1) ogreticiTamamla(OGRETICI.ikinciTava);
+    if (siradaki === "krep" && !tabakYanlis && hedefKalinlik !== "normal" && kalinlik === hedefKalinlik) ogreticiTamamla(OGRETICI.kalinlik);
+  }
+
+  const fisVurgusu = (id: number) => ogretici?.hedef.tur === "fis" && (ogretici.hedef.musteri === undefined || ogretici.hedef.musteri === id);
 
   // Alt menü lobide sahnenin altında durur, oyun başlayınca aynı yerdeki malzeme çubuğuna yer açar (AppNav.svelte kaydırır)
   $effect(() => {
     document.body.toggleAttribute("data-oyunda", oyunda);
   });
-  onDestroy(() => document.body?.removeAttribute("data-oyunda"));
+  onDestroy(() => {
+    document.body?.removeAttribute("data-oyunda");
+    teslimIptal();
+  });
 
   function oyna() {
     oyunda = true;
@@ -152,7 +190,16 @@
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
       if (!paneAcik && oyunda && !teslimde) {
-        olaylar(oturumIlerlet(oturum, dt, rng));
+        const bilgi = ogretici?.sureli ? ogretici.id : null;
+        if (bilgi !== bilgiId) {
+          bilgiId = bilgi;
+          bilgiKalan = sahneAyar.ogretici.bilgiSn;
+        }
+        olaylar(oturumIlerlet(oturum, dt * oyunHizi, rng));
+        if (bilgi) {
+          bilgiKalan -= dt;
+          if (bilgiKalan <= 0) ogreticiTamamla(bilgi);
+        }
         ruhSesleri();
       }
       id = requestAnimationFrame(kare);
@@ -218,6 +265,7 @@
     }
     if (tabak.length >= AYAR.tabakMax) return;
     tabak.push(p);
+    if (p.pisme === "iyi" && tabakDurumu(oturum, tabak).durum !== "yanlis") ogreticiTamamla(OGRETICI.tabak);
     tabakZipla(1.2);
     salla(0.5);
     cal("plop"); // krep tabağa temas etti
@@ -255,12 +303,14 @@
   function koy(id: string) {
     if (teslimde) return;
     if (tabak.length >= AYAR.tabakMax) return;
+    const beklenen = siradaki === id;
     tabak.push({ malzeme: id });
     dusenler.push({ id: ++sayac, ikon: malzeme(id).ikon });
     if (dusenler.length > 4) dusenler.shift();
     tabakZipla(0.8);
     // Malzeme sesi türüne göre; yanlış tabakta bunun yerine kontrolEt "boop" çalar (iki ses üst üste binmesin)
     if (tabakDurumu(oturum, tabak).durum !== "yanlis") {
+      if (beklenen) ogreticiTamamla(ogreticiMalzemeId(id));
       const m = malzeme(id);
       cal(id.includes("krema") ? "krema" : m.kategori === "sos" ? "squish" : m.kategori === "dolgu" ? "meyve" : "serpme");
       cal("tik");
@@ -326,11 +376,12 @@
     const d = tabakDurumu(oturum, tabak);
     if (d.durum !== "dogru") return;
     const hedefId = d.musteri.id;
+    const hiz = ogreticiGorulen.includes(OGRETICI.teslim) ? 1 : sahneAyar.ogretici.hiz;
     teslimde = true;
-    setTimeout(() => ucur(hedefId), sahneAyar.teslimBeklemeMs);
+    teslimZamanlayici = setTimeout(() => ucur(hedefId, hiz), sahneAyar.teslimBeklemeMs / hiz);
   }
 
-  function ucur(musteriId: number) {
+  function ucur(musteriId: number, hiz: number) {
     const kisi = sahneEl?.querySelector(`[data-m="${musteriId}"]`);
     if (!kisi || !tabakEl) return teslimBitir(null);
     const a = tabakEl.getBoundingClientRect();
@@ -338,13 +389,13 @@
     const dx = b.left + b.width / 2 - (a.left + a.width / 2);
     const dy = b.top + b.height * 0.7 - (a.top + a.height * 0.55);
     cal("whoosh");
-    const an = tabakEl.animate(
+    const an = teslimAnimasyonu = tabakEl.animate(
       [
         { transform: "none", offset: 0 },
         { transform: "translateY(-12px) scale(1.05)", offset: 0.2, easing: "ease-in-out" },
         { transform: `translate(${dx}px, ${dy}px) scale(0.42)`, offset: 1 },
       ],
-      { duration: sahneAyar.teslimUcusMs, easing: "ease-in", fill: "forwards" },
+      { duration: sahneAyar.teslimUcusMs / hiz, easing: "ease-in", fill: "forwards" },
     );
     an.onfinish = () => teslimBitir(an);
   }
@@ -353,9 +404,18 @@
   function teslimBitir(an: Animation | null) {
     teslim();
     an?.cancel();
+    teslimAnimasyonu = null;
     teslimde = false;
     anim(tabakEl, [{ transform: "translateY(26px) scale(0.85)", opacity: 0 }, { transform: "none", opacity: 1 }], 260);
     for (const p of bekleyenParcalar.splice(0)) tabagaGeldi(p);
+  }
+
+  function teslimIptal() {
+    clearTimeout(teslimZamanlayici);
+    teslimAnimasyonu?.cancel();
+    teslimAnimasyonu = null;
+    teslimde = false;
+    bekleyenParcalar.length = 0;
   }
 
   function teslim() {
@@ -363,6 +423,7 @@
     const servis = d.durum === "dogru" ? d.musteri : null;
     const r = musteriyeVer(oturum, tabak);
     if (!r) return;
+    ogreticiTamamla(OGRETICI.teslim);
     if (servis) ayrilanEkle(servis, "mutlu", r.sonuc);
     sonucGoster(r.sonuc, "", r.kazanc);
 
@@ -427,8 +488,12 @@
 
   // ---- Geliştirici modu (yalnızca test amaçlı; docs/sonsuz-seviye.md §Geliştirici modu) ----
   function testSeviyesi(seviye: number) {
+    teslimIptal();
     testModu = true;
     oturumSeviyeAyarla(oturum, seviye);
+    testOgretici = testOgreticiGecmisi(oturum.seviye);
+    tavaOgretici = ["bos", "bos"];
+    bilgiId = null;
     ayrilanlar = [];
     tabak = [];
     sonuc = null;
@@ -448,9 +513,12 @@
   }
 
   function testtenCik() {
+    teslimIptal();
     ilerleme.yukle();
     oturum = yeniOturum({ ...ilerleme.veri });
     testModu = false;
+    tavaOgretici = ["bos", "bos"];
+    bilgiId = null;
     ayrilanlar = [];
     tabak = [];
     tekrar++;
@@ -473,7 +541,7 @@
     <button class="geri" class:gizli={!oyunda} onclick={() => { oyunda = false; cal("tikla"); }} aria-label="Lobiye dön" tabindex={oyunda ? 0 : -1}>←</button>
     <span class="seviye" bind:this={seviyeEl} title={`Seviye ${oturum.seviye}`}>LEVEL {sayiKisalt(oturum.seviye)}</span>
     {#if testModu}<span class="test-rozet">TEST</span>{/if}
-    {#if oturum.seri >= 2}<span class="seri" title="Üst üste başarılı müşteri">🔥 {oturum.seri}</span>{/if}
+    {#if oturum.seri >= 2}<span class="seri" class:ogretici-vurgusu={ogretici?.hedef.tur === "seri"} title="Üst üste başarılı müşteri">🔥 {oturum.seri}</span>{/if}
     <span class="bosluk"></span>
     <span class="para-kap">
       <span class="para" bind:this={coinEl}>🪙 {sayiKisalt(oturum.toplamCoin)}</span>
@@ -538,6 +606,7 @@
               class="fis {ruh(m)}"
               class:hedef={i_hedef(m) && oturum.musteriler.length > 1}
               class:ozel={m.tip !== "normal"}
+              class:ogretici-vurgusu={fisVurgusu(m.id)}
               aria-label="Sipariş"
               out:fade={{ duration: 120 }}
             >
@@ -584,12 +653,17 @@
 
     <div class="tezgah-kenar" aria-hidden="true"></div>
     {#if oturum.yogunKalan > 0}
-      <div class="yogun">🔥 YOĞUN SAAT {Math.ceil(oturum.yogunKalan)}</div>
+      <div class="yogun" class:ogretici-vurgusu={ogretici?.hedef.tur === "yogun"}>🔥 YOĞUN SAAT {Math.ceil(oturum.yogunKalan)}</div>
     {/if}
   </div>
 
   <!-- Tezgâh: tava(lar) + tabak -->
   <main class="tezgah" class:cift-sira={menu.length > 4}>
+    {#if ogretici}
+      <div class="ogretici-konum">
+        <Ogretici ikon={ogretici.ikon} baslik={ogretici.baslik} metin={ogretici.metin} />
+      </div>
+    {/if}
     <!-- Tezgâhın arka sırası: kaşıklık, açılan malzemelerin kapları, peçete kutusu -->
     <!-- Seviye şeridi: başarı damgasından sonra, tezgâhın üst kenarında; müşteri / sipariş fişlerini örtmez -->
     {#if bildirim}
@@ -619,12 +693,29 @@
     {#key tekrar}
       <div class="tavalar" class:cift={tavaSayisi > 1}>
         {#each Array(tavaSayisi) as _, i (i)}
-          <Tava kilit={!oyunda} onHazir={(h) => (hazirTava += h ? 1 : -1)} seviye={oturum.seviye} ipucuAcik={sv.ipucu && oyunda} {hedefKalinlik} {olcek} duraklat={paneAcik || !oyunda} sag={tavaSayisi > 1 && i === 1} {tabakHedef} onTabaga={tabagaGeldi} onSalla={salla} />
+          <Tava
+            kilit={!oyunda}
+            onHazir={(h) => (hazirTava += h ? 1 : -1)}
+            seviye={oturum.seviye}
+            ipucuAcik={sv.ipucu && oyunda && !ogretici}
+            {hedefKalinlik}
+            {olcek}
+            duraklat={paneAcik || !oyunda}
+            sag={tavaSayisi > 1 && i === 1}
+            {tabakHedef}
+            onTabaga={tabagaGeldi}
+            onSalla={salla}
+            zamanHizi={oyunHizi}
+            ogreticiVurgusu={ogretici?.hedef.tur === "tava" && ogretici.hedef.sira === i}
+            onOgreticiDurumu={(durum) => (tavaOgretici[i] = durum)}
+            onDokuldu={(kalinlik) => dokumTamam(i, kalinlik)}
+            onCevrildi={() => ogreticiTamamla(OGRETICI.cevir)}
+          />
         {/each}
       </div>
     {/key}
 
-    <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} class:ucuyor={teslimde} bind:this={tabakEl}>
+    <div class="tabak" class:yanlis={tabakYanlis} class:hazir={hazirTava > 0} class:ucuyor={teslimde} class:ogretici-vurgusu={ogretici?.hedef.tur === "tabak"} bind:this={tabakEl}>
       <!-- Katman sırası: tabak (zemin) → krepler / toppingler (üstte, yüzeyleri açık) -->
       <i class="plaka-golge" aria-hidden="true"></i>
       <div class="plaka"></div>
@@ -685,7 +776,7 @@
   <footer class="alt-bar" class:cift-sira={menu.length > 4} class:tepsi={menu.length > 0} class:gizli={!oyunda} inert={!oyunda}>
     <div class="malzemeler">
       {#each menu as m (m.id)}
-        <button class="dugme" class:parlak={siradaki === m.id} onpointerdown={() => koy(m.id)}>
+        <button class="dugme" class:parlak={siradaki === m.id} class:ogretici-vurgusu={ogretici?.hedef.tur === "malzeme" && ogretici.hedef.id === m.id} onpointerdown={() => koy(m.id)}>
           <span>{m.ikon}</span><small>{m.ad}</small>
         </button>
       {/each}
@@ -893,6 +984,10 @@
   /* Tezgâhın ön yüzü: malzeme çubuğu / OYNA bunun önünde durur; üstte ışık alan dudak, panel derzleri */
   .tezgah::before { content: ""; position: absolute; left: 0; right: 0; bottom: calc(-8px - env(safe-area-inset-bottom)); z-index: 0; height: calc(80px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, color-mix(in srgb, var(--ust-yazi) 50%, var(--sahne-tezgah)) 0 3px, var(--sahne-tezgah-koyu) 3px 6px, transparent 6px), repeating-linear-gradient(90deg, transparent 0 64px, color-mix(in srgb, var(--renk-koyu) 10%, transparent) 64px 66px), linear-gradient(180deg, color-mix(in srgb, var(--sahne-tezgah-koyu) 88%, var(--renk-koyu)), color-mix(in srgb, var(--sahne-tezgah-koyu) 72%, var(--renk-koyu))); box-shadow: 0 -5px 10px -6px color-mix(in srgb, var(--renk-koyu) 30%, transparent); pointer-events: none; }
   .tavalar { position: relative; z-index: 6; display: flex; justify-content: center; gap: 6px; margin-top: 40px; }
+  .ogretici-konum { position: absolute; inset-inline: 12px; top: 68px; z-index: 13; display: grid; justify-items: center; pointer-events: none; }
+  .ogretici-vurgusu, .tabak.ogretici-vurgusu .plaka { outline: 3px solid var(--renk-logo); outline-offset: 3px; }
+  .tabak.ogretici-vurgusu { outline: none; }
+  .fis.ogretici-vurgusu { outline-offset: -1px; }
   /* Ocak: tavaların arkasında sıcak ışık (oyunda biraz güçlenir, yavaşça nefes alır) ve tezgâha düşen yumuşak gölge */
   .tavalar::before { content: ""; position: absolute; inset: 0 -12px; z-index: -1; background: radial-gradient(ellipse 50% 40% at 50% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent); opacity: 0.5; transition: opacity 0.4s; pointer-events: none; }
   .tavalar.cift::before { background: radial-gradient(ellipse 27% 42% at 25% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent), radial-gradient(ellipse 27% 42% at 75% 62%, color-mix(in srgb, var(--renk-logo) 42%, transparent), transparent); }

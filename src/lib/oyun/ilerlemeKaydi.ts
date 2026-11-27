@@ -1,6 +1,7 @@
 // Sonsuz seviye kaydının çözümü (saf mantık; localStorage okuma / yazma ilerleme.svelte.ts'te). Bozuk ya da eski kayıtla çökmez.
 import { gerekenMusteri, seviyeSinirla } from "./seviye";
 import { SEVIYE } from "./veri";
+import { ogreticiKaydiCoz } from "./ogretici";
 import type { IlerlemeVerisi } from "../types";
 
 export type { IlerlemeVerisi };
@@ -34,6 +35,7 @@ export function ilerlemeCoz(ham: string | null): IlerlemeVerisi {
     const v = JSON.parse(ham);
     if (v?.surum !== 1) return bosIlerleme();
     const seviye = seviyeSinirla(sayi(v.seviye, 1));
+    const ogretici = ogreticiKaydiCoz(v.ogretici);
     return {
       surum: 1,
       seviye,
@@ -43,6 +45,7 @@ export function ilerlemeCoz(ham: string | null): IlerlemeVerisi {
       enYuksekSeviye: Math.max(seviye, seviyeSinirla(sayi(v.enYuksekSeviye, 1))),
       enIyiSeri: Math.floor(sayi(v.enIyiSeri, 0)),
       toplamMukemmel: Math.floor(sayi(v.toplamMukemmel, 0)),
+      ...(ogretici ? { ogretici } : {}),
     };
   } catch {
     return bosIlerleme();

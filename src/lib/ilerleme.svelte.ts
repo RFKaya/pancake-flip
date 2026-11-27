@@ -4,6 +4,7 @@ import type { Oturum } from "./oyun/oturum";
 import { bosIlerleme as bos, ilerlemeCoz } from "./oyun/ilerlemeKaydi";
 import type { IlerlemeVerisi } from "./types";
 import { seviyeSinirla } from "./oyun/seviye";
+import { ogreticiGecmisi } from "./oyun/ogretici";
 
 export type { IlerlemeVerisi };
 
@@ -45,14 +46,22 @@ class Ilerleme {
       enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, o.seviye),
       enIyiSeri: Math.max(this.veri.enIyiSeri, o.enIyiSeri),
       toplamMukemmel: o.toplamMukemmel,
+      ogretici: ogreticiGecmisi(this.veri),
     };
+    this.#yaz();
+  }
+
+  ogreticiTamamla(id: string) {
+    const gorulen = ogreticiGecmisi(this.veri);
+    if (gorulen.includes(id)) return;
+    this.veri = { ...this.veri, ogretici: [...gorulen, id] };
     this.#yaz();
   }
 
   /** Geliştirici: test seviyesini gerçek kayda uygular (toplamlar korunur, yalnızca seviye ve ilerleme değişir) */
   seviyeUygula(seviye: number, ilerleme = 0) {
     const s = seviyeSinirla(seviye);
-    this.veri = { ...this.veri, seviye: s, ilerleme, enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, s) };
+    this.veri = { ...this.veri, seviye: s, ilerleme, enYuksekSeviye: Math.max(this.veri.enYuksekSeviye, s), ogretici: ogreticiGecmisi(this.veri) };
     this.#yaz();
   }
 

@@ -5,6 +5,7 @@ export type * from "./musteri";
 export type * from "./tabak";
 export type * from "./fis";
 export type * from "./seviye";
+export type * from "./ogretici";
 export type * from "./ayarlar";
 export type * from "./arayuz";
 export type * from "./ui";

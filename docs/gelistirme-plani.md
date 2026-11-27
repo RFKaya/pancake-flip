@@ -169,9 +169,9 @@ Her görevin sonunda oyun **çalışır durumda** olmalı. Bir görev bitmeden s
 
 ### G7 · Öğretici ve his — `feature/ogretici-geribildirim`
 - **Amaç:** "30 saniyede öğren" ve PERFECT tatmini.
-- **Yapılacaklar:** Bölüm 1, 3, 5, 8, 12 öğreticileri (el ikonu, kelimesiz); PERFECT animasyonu, konfeti, uçan coin; Web Audio sesleri; titreşim; otomatik duraklatma; duraklatma menüsü (devam / yeniden / çık).
-- **Bitti sayılır:** Oyunu hiç görmemiş biri Bölüm 1'i metin okumadan bitirebiliyor (öğrenci bir arkadaşıyla dener).
-- **Test:** Arka plana alınca duruyor; sessiz ayarında ses yok.
+- [x] **Öğretici** [İlk krep ve açılış yönergeleri](oyun-tasarimi.md#133-öğretici). Oyuncu yönergeleri izleyerek ilk siparişini tamamlayabilir. Yanlış hareket, aynı seviyede birden fazla açılış ve kayıt sonrası tekrar açılış doğrulandı.
+- **His ve duraklatma:** PERFECT animasyonu, konfeti, uçan coin, Web Audio sesleri, titreşim, otomatik duraklatma ve devam / yeniden dene / çık menüsü.
+- **Test:** Uygulama arka plana alınınca oyun durur. Sessiz ayarında ses gelmez.
 
 ### G8 · MVP dengesi — `feature/mvp-denge`
 - **Amaç:** 1–20 eğlenceli ve adil.
