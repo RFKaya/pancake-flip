@@ -58,6 +58,7 @@ Malzeme ve müşteri açılışları ilgili JSON'daki `acilis` (seviye) alanınd
 | Seviye | Yenilik |
 |---|---|
 | 1 | Sade krep, tek müşteri. Çevirme baştan zorunludur: her krebin iki yüzü de pişmeden tabağa alınamaz |
+| 3 | Birden fazla krep isteyen siparişler |
 | 5 | 🍫 Çikolata |
 | 8 | 🍒 Çilek dilimi |
 | 10 | 🍓 Çilek sosu, 🧒 Çocuk müşteri |
@@ -73,6 +74,8 @@ Malzeme ve müşteri açılışları ilgili JSON'daki `acilis` (seviye) alanınd
 | 150 | 🔥 Yoğun saat: her 20 müşteride 20 sn boyunca müşteriler 2× sık gelir, kazanç ×1,5 |
 
 Toplam malzeme sayısı sabittir (7 + krep); sonsuz malzeme açılmaz.
+
+Açılış ve ilk kullanım yönergeleri [öğretici](oyun-tasarimi.md#133-öğretici) bölümünde açıklanır.
 
 > Not: ilk tasarım notunda VIP hem 50. hem 75. seviyede geçiyordu; kilometre taşı metni (50) esas alındı, 75'te 3. müşteri slotu açılır.
 

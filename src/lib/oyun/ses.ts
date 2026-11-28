@@ -51,6 +51,21 @@ export function sesKaydet() {
 let ctx: AudioContext | null = null;
 let ana: GainNode;
 const yollar = {} as Record<Yol, GainNode>;
+let oyunSesHizi = 1;
+
+/** Oyun zamanına uyan sesler pesleşir ve uzar. Karekök, ağır çekimde kısa efektleri duyulur tutar. */
+export function sesHiziAyarla(hiz: number) {
+  const yeniHiz = Number.isFinite(hiz) && hiz > 0 ? Math.sqrt(hiz) : 1;
+  if (yeniHiz === oyunSesHizi) return;
+  oyunSesHizi = yeniHiz;
+  if (!ctx) return;
+  const simdi = ctx.currentTime;
+  for (const dongu of donguler.values()) {
+    for (const { parametre, normal } of dongu.zamanParametreleri) {
+      parametre.setTargetAtTime(normal * oyunSesHizi, simdi, 0.06);
+    }
+  }
+}
 
 function yollariGuncelle() {
   if (!ctx) return;
@@ -87,6 +102,7 @@ function ctxHazirla(): AudioContext | null {
 let hedefYol: GainNode;
 let perde = 1;
 let guc = 1;
+let efektHizi = 1;
 
 function not(frekans: number, baslangic: number, sure: number, tur: OscillatorType = "sine", ses = 0.12) {
   kayanNot(frekans, frekans, baslangic, sure, tur, ses);
@@ -95,18 +111,19 @@ function not(frekans: number, baslangic: number, sure: number, tur: OscillatorTy
 /** Frekansı kayan nota (plop, boop, pop için) */
 function kayanNot(f1: number, f2: number, baslangic: number, sure: number, tur: OscillatorType = "sine", ses = 0.14) {
   if (!ctx) return;
-  const t0 = ctx.currentTime + baslangic;
+  const t0 = ctx.currentTime + baslangic / efektHizi;
+  const bitis = t0 + sure / efektHizi;
   const osc = ctx.createOscillator();
   const kazanc = ctx.createGain();
   osc.type = tur;
   osc.frequency.setValueAtTime(f1 * perde, t0);
-  if (f1 !== f2) osc.frequency.exponentialRampToValueAtTime(f2 * perde, t0 + sure);
+  if (f1 !== f2) osc.frequency.exponentialRampToValueAtTime(f2 * perde, bitis);
   kazanc.gain.setValueAtTime(0.0001, t0);
-  kazanc.gain.linearRampToValueAtTime(ses * guc, t0 + 0.004); // tık sesi olmasın
-  kazanc.gain.exponentialRampToValueAtTime(0.0001, t0 + sure);
+  kazanc.gain.linearRampToValueAtTime(ses * guc, t0 + 0.004 / efektHizi); // tık sesi olmasın
+  kazanc.gain.exponentialRampToValueAtTime(0.0001, bitis);
   osc.connect(kazanc).connect(hedefYol);
   osc.start(t0);
-  osc.stop(t0 + sure + 0.02);
+  osc.stop(bitis + 0.02);
 }
 
 let gurultu: AudioBuffer | null = null;
@@ -126,19 +143,21 @@ function gurultuPatla(f1: number, f2: number, baslangic: number, sure: number, s
   const kaynak = ctx.createBufferSource();
   kaynak.buffer = gurultuTamponu();
   kaynak.loop = true;
+  kaynak.playbackRate.value = efektHizi;
   const suzgec = ctx.createBiquadFilter();
   suzgec.type = tur;
   suzgec.Q.value = q;
-  const t0 = ctx.currentTime + baslangic;
+  const t0 = ctx.currentTime + baslangic / efektHizi;
+  const bitis = t0 + sure / efektHizi;
   suzgec.frequency.setValueAtTime(f1 * perde, t0);
-  suzgec.frequency.exponentialRampToValueAtTime(f2 * perde, t0 + sure);
+  suzgec.frequency.exponentialRampToValueAtTime(f2 * perde, bitis);
   const kazanc = ctx.createGain();
   kazanc.gain.setValueAtTime(0.0001, t0);
-  kazanc.gain.exponentialRampToValueAtTime(ses * guc, t0 + sure * 0.25);
-  kazanc.gain.exponentialRampToValueAtTime(0.0001, t0 + sure);
+  kazanc.gain.exponentialRampToValueAtTime(ses * guc, t0 + (bitis - t0) * 0.25);
+  kazanc.gain.exponentialRampToValueAtTime(0.0001, bitis);
   kaynak.connect(suzgec).connect(kazanc).connect(hedefYol);
   kaynak.start(t0);
-  kaynak.stop(t0 + sure + 0.02);
+  kaynak.stop(bitis + 0.02);
 }
 
 // ---- Sesler ----
@@ -216,11 +235,13 @@ export function cal(tur: SesTuru) {
   try {
     if (!ctxHazirla()) return;
     const tarif = T[tur];
+    const hiz = tarif.yol === "arayuz" ? 1 : oyunSesHizi;
     const simdi = performance.now();
-    if (simdi - (sonCalinma.get(tur) ?? -1e9) < tarif.bekle) return;
+    if (simdi - (sonCalinma.get(tur) ?? -1e9) < tarif.bekle / hiz) return;
     sonCalinma.set(tur, simdi);
     hedefYol = yollar[tarif.yol];
-    perde = 1 + (Math.random() - 0.5) * 0.06; // ±%3: çizgi film gibi değil, yalnızca canlı
+    efektHizi = hiz;
+    perde = hiz * (1 + (Math.random() - 0.5) * 0.06); // ±%3: çizgi film gibi değil, yalnızca canlı
     guc = tarif.guc * (1 + (Math.random() - 0.5) * 0.14);
     tarif.oynat();
   } catch (e) {
@@ -231,11 +252,16 @@ export function cal(tur: SesTuru) {
 
 /** Coin yağmuru: miktar kadar kısa tıngırtı (uzun jingle yok) */
 export function coinYagmuru(n: number) {
-  for (let i = 0; i < Math.min(8, n); i++) setTimeout(() => cal("coin"), i * 65);
+  const aralik = 65 / oyunSesHizi;
+  for (let i = 0; i < Math.min(8, n); i++) setTimeout(() => cal("coin"), i * aralik);
 }
 
 // ---- Sürekli sesler (hamur dökme, cızırtı): her tava kendi seviyesini bildirir, ses en yükseğe uyar ----
-type Dongu = { gain: GainNode; seviyeler: Map<number, number> };
+type Dongu = {
+  gain: GainNode;
+  seviyeler: Map<number, number>;
+  zamanParametreleri: { parametre: AudioParam; normal: number }[];
+};
 const donguler = new Map<DonguAdi, Dongu>();
 
 function donguKur(ad: DonguAdi): Dongu | null {
@@ -247,35 +273,36 @@ function donguKur(ad: DonguAdi): Dongu | null {
   kaynak.loop = true;
   const gain = ctx.createGain();
   gain.gain.value = 0;
+  const suzgec = ctx.createBiquadFilter();
   const lfo = ctx.createOscillator();
   const lfoGuc = ctx.createGain();
+  const zamanParametreleri = [
+    { parametre: kaynak.playbackRate, normal: 1 },
+    { parametre: suzgec.frequency, normal: ad === "dok" ? 1500 : 4800 },
+    { parametre: lfo.frequency, normal: ad === "dok" ? 6 : 17 },
+  ];
+  for (const { parametre, normal } of zamanParametreleri) parametre.value = normal * oyunSesHizi;
   if (ad === "dok") {
     // yumuşak "şhhh": orta frekanslı süzülmüş gürültü, yavaş dalgalanma (akışkan)
-    const bant = ctx.createBiquadFilter();
-    bant.type = "bandpass";
-    bant.frequency.value = 1500;
-    bant.Q.value = 0.7;
-    lfo.frequency.value = 6;
+    suzgec.type = "bandpass";
+    suzgec.Q.value = 0.7;
     lfoGuc.gain.value = 260;
-    lfo.connect(lfoGuc).connect(bant.frequency);
-    kaynak.connect(bant).connect(gain);
+    lfo.connect(lfoGuc).connect(suzgec.frequency);
+    kaynak.connect(suzgec).connect(gain);
   } else {
     // hafif cızırtı: yüksek frekans, titreşen genlik
-    const yuksek = ctx.createBiquadFilter();
-    yuksek.type = "highpass";
-    yuksek.frequency.value = 4800;
+    suzgec.type = "highpass";
     const mod = ctx.createGain();
     mod.gain.value = 0.6;
     lfo.type = "square";
-    lfo.frequency.value = 17;
     lfoGuc.gain.value = 0.4;
     lfo.connect(lfoGuc).connect(mod.gain);
-    kaynak.connect(yuksek).connect(mod).connect(gain);
+    kaynak.connect(suzgec).connect(mod).connect(gain);
   }
   gain.connect(yollar[ad === "dok" ? "sfx" : "ortam"]);
   kaynak.start();
   lfo.start();
-  d = { gain, seviyeler: new Map() };
+  d = { gain, seviyeler: new Map(), zamanParametreleri };
   donguler.set(ad, d);
   return d;
 }

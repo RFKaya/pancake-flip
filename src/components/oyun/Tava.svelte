@@ -1,7 +1,7 @@
 <script lang="ts">
   // Tek tava: basılı tut = hamur dök, yukarı swipe = çevir, aşağı swipe = tabağa kaydır.
   // Kurallar saf mantıktan gelir (pisirme.ts, hamur.ts); burası yalnızca gösterir, jestleri iletir ve "juice" ekler.
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import { AYAR } from "$lib/oyun/veri";
   import { cal, donguAyarla } from "$lib/oyun/ses";
   import {
@@ -9,9 +9,9 @@
     type Tava,
   } from "$lib/oyun/pisirme";
   import { hamurDurumu } from "$lib/oyun/hamur";
-  import type { Fx, Kalinlik, PismeDurumu, TabakParcasi } from "$lib/types";
+  import type { Fx, Kalinlik, PismeDurumu, TabakParcasi, TavaOgreticiDurumu } from "$lib/types";
 
-  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir }: {
+  let { seviye, ipucuAcik = false, hedefKalinlik = "normal", olcek = 1, kilit = false, duraklat = false, sag = false, tabakHedef, onTabaga, onSalla, onHazir, zamanHizi = 1, ogreticiVurgusu = false, onOgreticiDurumu, onDokuldu }: {
     seviye: number;
     ipucuAcik?: boolean;
     /** Tabağın gittiği siparişin istediği kalınlık: dökme hedef halkası buna göre çizilir */
@@ -25,6 +25,10 @@
     onSalla: (siddet: number) => void;
     /** Tavadaki krep tabağa alınabilir hale gelince / bırakılınca (tabak parlar) */
     onHazir?: (hazir: boolean) => void;
+    zamanHizi?: number;
+    ogreticiVurgusu?: boolean;
+    onOgreticiDurumu: (durum: TavaOgreticiDurumu) => void;
+    onDokuldu: (kalinlik: Kalinlik) => void;
   } = $props();
 
   // Görsel ölçüler (px): krep elipsi ve uçuş yüksekliği
@@ -171,6 +175,19 @@
   const kabarcik = $derived(t.faz === "pisir" ? aktifP : 0);
   const kalkik = $derived(mukemmel);
   const servisHazir = $derived(servisEdilebilir(t, baglam));
+  const ogreticiDurumu = $derived.by((): TavaOgreticiDurumu => {
+    if (t.faz === "bos") return "bos";
+    if (t.faz === "doku") {
+      if (dokDurum === "fazla") return "fazla";
+      return hedefte || dokDurum === "biraz-fazla" ? "birak" : "dokuyor";
+    }
+    if (hazir && t.yuz === 0) return "cevir";
+    return servisHazir ? "tabaga" : "mesgul";
+  });
+  $effect(() => {
+    const durum = ogreticiDurumu;
+    untrack(() => onOgreticiDurumu(durum));
+  });
   // Yalnızca görünüm: yüz PİŞMİŞ olduğu anda, az önce çiğken kaydırmadan kalan "HENÜZ PİŞMEDİ!" yazısı silinir (çelişmesin)
   $effect(() => {
     if (hazir && fx.some((f) => f.txt === "HENÜZ PİŞMEDİ!")) fx = fx.filter((f) => f.txt !== "HENÜZ PİŞMEDİ!");
@@ -317,7 +334,7 @@
       }
       const anahtar = `${t.yuz}${hazir}`;
       if (hazir && dingAnahtar !== anahtar) {
-        cal("ding");
+        void tick().then(() => cal("ding"));
         zipla(0.8);
       }
       dingAnahtar = anahtar;
@@ -325,7 +342,7 @@
     if (t.faz === "doku" && hedefte && !hedefTutturuldu) {
       hedefTutturuldu = true;
       ekle({ tur: "yildiz", x: 125 + hedefW / 2 - 6, y: 92, dx: 10, dy: -16, txt: "✓" });
-      cal("tik"); // doğru miktara ulaşıldı
+      void tick().then(() => cal("tik")); // hedefe ulaşınca öğreticinin ses hızını bekle
     }
 
     // Havadaki sesler fiziksel anlara bağlı: kalkış (anticipation bitince) ve havada dönerken
@@ -356,7 +373,7 @@
     const kare = (n: number) => {
       const dt = Math.min(0.1, (n - son) / 1000);
       son = n;
-      if (!duraklat) adim(dt);
+      if (!duraklat) adim(dt * zamanHizi);
       else {
         donguAyarla("dok", kimlik, 0);
         donguAyarla("cizirti", kimlik, 0);
@@ -370,10 +387,12 @@
   // ---- Jestler ----
   let bas: { x: number; y: number } | null = null;
   let son: { x: number; y: number } | null = null;
+  let etkinParmak: number | null = null;
   let tuketildi = false;
 
   function asagi(e: PointerEvent) {
-    if (kilit) return;
+    if (kilit || duraklat || etkinParmak !== null || e.button !== 0) return;
+    etkinParmak = e.pointerId;
     bas = son = { x: e.clientX, y: e.clientY };
     tuketildi = false;
     try {
@@ -409,7 +428,11 @@
   }
 
   function hareket(e: PointerEvent) {
-    if (!bas || !son) return;
+    if (e.pointerId !== etkinParmak || !bas || !son) return;
+    if (e.pointerType === "mouse" && (e.buttons & 1) === 0) {
+      jestiBitir();
+      return;
+    }
     const dx = e.clientX - son.x;
     const dy = e.clientY - son.y;
     son = { x: e.clientX, y: e.clientY };
@@ -434,11 +457,17 @@
     }
   }
 
-  function birak() {
-    if (!bas) return;
+  function birak(e: PointerEvent) {
+    if (etkinParmak === e.pointerId) jestiBitir();
+  }
+
+  function jestiBitir() {
+    if (etkinParmak === null) return;
+    etkinParmak = null;
     bas = son = null;
     const miktar = t.hamur.miktar;
     const s = tavaBirak(t, baglam);
+    onOgreticiDurumu(ogreticiDurumu);
     if (!s) return;
     if (!s.kalinlik) {
       // Hedefin toleransı dışında: krep olmaz, tava boşalır, hemen yeniden dökülebilir
@@ -447,6 +476,7 @@
       cal("boop");
       return;
     }
+    onDokuldu(s.kalinlik);
     zipla(1.2);
     if (baglam.tercihAcik && s.kalinlik !== hedefKalinlik) {
       yazi(s.kalinlik === "ince" ? "İNCE" : s.kalinlik === "kalin" ? "KALIN" : "NORMAL", "kotu");
@@ -458,16 +488,18 @@
   }
 </script>
 
+<svelte:window onpointerup={birak} onpointercancel={birak} onblur={jestiBitir} />
+
 <div class="slot" style:width={`${250 * olcek}px`} style:height={`${200 * olcek}px`}>
   <div
     class="alan"
+    class:ogretici-vurgusu={ogreticiVurgusu}
     style:transform={`scale(${olcek})`}
     data-faz={t.faz}
     bind:this={alanEl}
     onpointerdown={asagi}
     onpointermove={hareket}
-    onpointerup={birak}
-    onpointercancel={birak}
+    onlostpointercapture={birak}
     role="button"
     tabindex="0"
     aria-label="Tava: basılı tut hamur dök, yukarı kaydır çevir, aşağı kaydır tabağa al"
@@ -568,6 +600,7 @@
   .halka.muk { opacity: 0.95; border-width: 6px; animation: nabiz 0.5s ease-in-out infinite; }
 
   .tava { position: absolute; left: 10px; top: 70px; width: 230px; height: 110px; transition: transform 0.08s; }
+  .alan.ogretici-vurgusu::after { content: ""; position: absolute; inset: 61px 2px 11px; z-index: 5; border: 3px solid var(--renk-logo); border-radius: 50%; box-shadow: 0 0 0 4px color-mix(in srgb, var(--renk-logo) 36%, transparent); pointer-events: none; }
   .govde { position: absolute; inset: 0; }
   /* Boştayken tava hafifçe nefes alır, kenarında ışık gezer, altı ılık parlar (CSS translate: dokunma sıçramalarıyla çakışmaz) */
   .alan[data-faz="bos"] .govde { animation: tava-bos 3.4s ease-in-out infinite; }
